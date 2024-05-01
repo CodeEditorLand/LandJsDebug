@@ -1,11 +1,41 @@
 {
-	"author": {
-		"email": "Land@PlayForm.Cloud",
-		"name": "🌆 — Land —",
-		"url": "HTTPS://Land.PlayForm.Cloud"
-	},
+	"name": "js-debug",
+	"displayName": "JavaScript Debugger",
+	"version": "0.0.1",
+	"private": false,
+	"description": "An extension for debugging Node.js programs and Chrome.",
+	"keywords": [
+		"land"
+	],
+	"homepage": "HTTPS://GitHub.Com/CodeEditorLand/LandJSDebug#readme",
 	"bugs": {
 		"url": "HTTPS://GitHub.Com/CodeEditorLand/LandJSDebug/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+HTTPS://github.com/CodeEditorLand/LandJSDebug.git"
+	},
+	"license": "SEE LICENSE IN LICENSE",
+	"author": {
+		"name": "🌆 — Land —",
+		"email": "Land@PlayForm.Cloud",
+		"url": "HTTPS://Land.PlayForm.Cloud"
+	},
+	"type": "module",
+	"main": "./src/extension.js",
+	"scripts": {
+		"Document": "Document 'Source/**/*.ts'",
+		"compile": "gulp",
+		"generateapis": "tsx src/build/generateDap.ts && tsx src/build/generateCdp.ts",
+		"precommit": "npm-run-all --parallel test:lint test:types",
+		"prepare": "husky install",
+		"prepublishOnly": "Build 'Source/**/*.ts'",
+		"publish": "gulp publish",
+		"test:golden": "node ./src/test/runTest.js",
+		"test:types": "tsc --noEmit",
+		"test:unit": "tsx node_modules/mocha/bin/mocha.js --config .mocharc.unit.js",
+		"updatenodeapi": "python src/build/getNodePdl.py && prettier --write src/build/nodeCustom.ts",
+		"updatetypes": "cd src/typings && npx -y @vscode/dts dev && npx -y @vscode/dts master"
 	},
 	"dependencies": {
 		"@jridgewell/gen-mapping": "0.3.5",
@@ -33,7 +63,6 @@
 		"to-absolute-glob": "3.0.0",
 		"ws": "8.17.0"
 	},
-	"description": "An extension for debugging Node.js programs and Chrome.",
 	"devDependencies": {
 		"@c4312/matcha": "1.3.1",
 		"@playform/build": "0.0.7",
@@ -80,7 +109,10 @@
 		"stream-buffers": "3.0.2",
 		"tsx": "4.8.2"
 	},
-	"displayName": "JavaScript Debugger",
+	"publishConfig": {
+		"access": "public"
+	},
+	"icon": "resources/logo.png",
 	"enabledApiProposals": [
 		"portsAttributes",
 		"workspaceTrust",
@@ -88,37 +120,5 @@
 	],
 	"extensionKind": [
 		"workspace"
-	],
-	"homepage": "HTTPS://GitHub.Com/CodeEditorLand/LandJSDebug#readme",
-	"icon": "resources/logo.png",
-	"keywords": [
-		"land"
-	],
-	"license": "SEE LICENSE IN LICENSE",
-	"main": "./src/extension.js",
-	"name": "js-debug",
-	"private": false,
-	"publishConfig": {
-		"access": "public"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git+HTTPS://github.com/CodeEditorLand/LandJSDebug.git"
-	},
-	"scripts": {
-		"Document": "Document 'Source/**/*.ts'",
-		"compile": "gulp",
-		"generateapis": "tsx src/build/generateDap.ts && tsx src/build/generateCdp.ts",
-		"precommit": "npm-run-all --parallel test:lint test:types",
-		"prepare": "husky install",
-		"prepublishOnly": "Build 'Source/**/*.ts'",
-		"publish": "gulp publish",
-		"test:golden": "node ./src/test/runTest.js",
-		"test:types": "tsc --noEmit",
-		"test:unit": "tsx node_modules/mocha/bin/mocha.js --config .mocharc.unit.js",
-		"updatenodeapi": "python src/build/getNodePdl.py && prettier --write src/build/nodeCustom.ts",
-		"updatetypes": "cd src/typings && npx -y @vscode/dts dev && npx -y @vscode/dts master"
-	},
-	"type": "module",
-	"version": "0.0.1"
+	]
 }
