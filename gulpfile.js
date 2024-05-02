@@ -110,7 +110,7 @@ const getVersionNumber = () => {
 };
 
 const cachedBuilds = new Map();
-const incrementalEsbuild = async (/** @type {esbuild.BuildOptions} */ options) => {
+const incrementalEsbuild = async (options) => {
   const key = JSON.stringify(options);
   if (cachedBuilds.has(key)) {
     return cachedBuilds.get(key).rebuild();
