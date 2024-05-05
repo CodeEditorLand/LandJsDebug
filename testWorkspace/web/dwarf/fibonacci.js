@@ -202,8 +202,8 @@ if (ENVIRONMENT_IS_SHELL) {
   if (typeof print != 'undefined') {
     // Prefer to use print/printErr where they exist, as they usually work better.
     if (typeof console == 'undefined') console = /** @type{!Console} */({});
-    console.log = (print);
-    console.warn = console.error = (typeof printErr != 'undefined' ? printErr : print);
+    console.log = /** @type{!function(this:Console, ...*): undefined} */ (print);
+    console.warn = console.error = /** @type{!function(this:Console, ...*): undefined} */ (typeof printErr != 'undefined' ? printErr : print);
   }
 
 } else

@@ -4,6 +4,18 @@ This changelog records changes to stable releases since 1.50.2. "TBA" changes he
 
 ## Nightly (only)
 
+- fix: improve main-thread performance of source map rename ([vscode#210518](https://github.com/microsoft/vscode/issues/210518))
+- fix: improve protocol handling performance in all cases ([#2001](https://github.com/microsoft/vscode-js-debug/issues/2001))
+- fix: debugging hanging if there's a localhost firewall ([#2004](https://github.com/microsoft/vscode-js-debug/issues/2004))
+
+## v1.89 (April 2024)
+
+- feat: resolve executables from `node_modules/.bin` automatically ([#1984](https://github.com/microsoft/vscode-js-debug/issues/1984))
+- fix: add new source map path patterns for turbopack ([#1996](https://github.com/microsoft/vscode-js-debug/issues/1996))
+- fix: avoid forcing attach PID into debug mode with default args ([vscode#206683](https://github.com/microsoft/vscode/issues/206683))
+
+## v1.88 (March 2024)
+
 - fix: stacktraces during process shutdown not being sourcemapped ([vscode#178814](https://github.com/microsoft/vscode/issues/178814))
 - fix: inconsistent display of strings with quotes ([vscode#182835](https://github.com/microsoft/vscode/issues/182835))
 - fix: 'start without debugging' not working ([vscode#206524](https://github.com/microsoft/vscode/issues/206524))
