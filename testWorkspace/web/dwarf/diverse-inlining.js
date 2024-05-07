@@ -201,9 +201,9 @@ if (ENVIRONMENT_IS_SHELL) {
 
   if (typeof print != 'undefined') {
     // Prefer to use print/printErr where they exist, as they usually work better.
-    if (typeof console == 'undefined') console = /** @type{!Console} */({});
-    console.log = /** @type{!function(this:Console, ...*): undefined} */ (print);
-    console.warn = console.error = /** @type{!function(this:Console, ...*): undefined} */ (typeof printErr != 'undefined' ? printErr : print);
+    if (typeof console == 'undefined') console = ({});
+    console.log =  (print);
+    console.warn = console.error =  (typeof printErr != 'undefined' ? printErr : print);
   }
 
 } else
@@ -248,7 +248,7 @@ read_ = (url) => {
       xhr.open('GET', url, false);
       xhr.responseType = 'arraybuffer';
       xhr.send(null);
-      return new Uint8Array(/** @type{!ArrayBuffer} */(xhr.response));
+      return new Uint8Array((xhr.response));
     };
   }
 
@@ -363,7 +363,7 @@ var ABORT = false;
 // but only when noExitRuntime is false.
 var EXITSTATUS;
 
-/** @type {function(*, string=)} */
+
 function assert(condition, text) {
   if (!condition) {
     abort('Assertion failed' + (text ? ': ' + text : ''));
@@ -383,21 +383,21 @@ function _free() {
 // Memory management
 
 var HEAP,
-/** @type {!Int8Array} */
+
   HEAP8,
-/** @type {!Uint8Array} */
+
   HEAPU8,
-/** @type {!Int16Array} */
+
   HEAP16,
-/** @type {!Uint16Array} */
+
   HEAPU16,
-/** @type {!Int32Array} */
+
   HEAP32,
-/** @type {!Uint32Array} */
+
   HEAPU32,
-/** @type {!Float32Array} */
+
   HEAPF32,
-/** @type {!Float64Array} */
+
   HEAPF64;
 
 function updateMemoryViews() {
@@ -643,7 +643,7 @@ function removeRunDependency(id) {
   }
 }
 
-/** @param {string|number=} what */
+
 function abort(what) {
   if (Module['onAbort']) {
     Module['onAbort'](what);
@@ -670,7 +670,7 @@ function abort(what) {
   // defintion for WebAssembly.RuntimeError claims it takes no arguments even
   // though it can.
   // TODO(https://github.com/google/closure-compiler/pull/3913): Remove if/when upstream closure gets fixed.
-  /** @suppress {checkTypes} */
+  
   var e = new WebAssembly.RuntimeError(what);
 
   // Throw the error whether or not MODULARIZE is set because abort is used
@@ -763,7 +763,7 @@ function getBinaryPromise(binaryFile) {
     else if (readAsync) {
       // fetch is not available or url is file => try XHR (readAsync uses XHR internally)
       return new Promise((resolve, reject) => {
-        readAsync(binaryFile, (response) => resolve(new Uint8Array(/** @type{!ArrayBuffer} */(response))), reject)
+        readAsync(binaryFile, (response) => resolve(new Uint8Array((response))), reject)
       });
     }
   }
@@ -807,7 +807,7 @@ function instantiateAsync(binary, binaryFile, imports, callback) {
       // instantiateStreaming only allows Promise<Repsponse> rather than
       // an actual Response.
       // TODO(https://github.com/google/closure-compiler/pull/3913): Remove if/when upstream closure is fixed.
-      /** @suppress {checkTypes} */
+      
       var result = WebAssembly.instantiateStreaming(response, imports);
 
       return result.then(
@@ -835,7 +835,7 @@ function createWasm() {
   // Load the wasm module and create an instance of using native support in the JS engine.
   // handle a generated wasm instance, receiving its exports and
   // performing other necessary setup
-  /** @param {WebAssembly.Module=} module*/
+  
   function receiveInstance(instance, module) {
     var exports = instance.exports;
 
@@ -1005,7 +1005,7 @@ function dbg(text) {
 
 // end include: preamble.js
 
-  /** @constructor */
+  
   function ExitStatus(status) {
       this.name = 'ExitStatus';
       this.message = `Program terminated with exit(${status})`;
@@ -1172,7 +1172,7 @@ function dbg(text) {
       }
       quit_(code, new ExitStatus(code));
     };
-  /** @param {boolean|number=} implicit */
+  
   var exitJS = (status, implicit) => {
       EXITSTATUS = status;
   
