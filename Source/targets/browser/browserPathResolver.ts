@@ -51,7 +51,7 @@ export class BrowserSourcePathResolver extends SourcePathResolverBase<IOptions> 
     super(options, logger);
   }
 
-  /** @override */
+  
   private absolutePathToUrlPath(absolutePath: string): { url: string; needsWildcard: boolean } {
     absolutePath = path.normalize(absolutePath);
     const { baseUrl, pathMapping } = this.options;

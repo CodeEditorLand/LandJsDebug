@@ -54,12 +54,12 @@ export class SourceMapFactory implements ISourceMapFactory {
     @inject(IResourceProvider) private readonly resourceProvider: IResourceProvider,
   ) {}
 
-  /** @inheritdoc */
+  
   load(metadata: ISourceMapMetadata): Promise<SourceMap> {
     return this.root.load(this.resourceProvider, metadata);
   }
 
-  /** @inheritdoc */
+  
   guardSourceMapFn<T>(sourceMap: SourceMap, fn: () => T, defaultValue: () => T): T {
     return this.root.guardSourceMapFn(sourceMap, fn, defaultValue);
   }

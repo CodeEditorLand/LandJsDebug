@@ -17,7 +17,7 @@ export class PrettyPrintUI implements IExtensionContribution {
 
   constructor(@inject(DebugSessionTracker) private readonly tracker: DebugSessionTracker) {}
 
-  /** @inheritdoc */
+  
   public register(context: vscode.ExtensionContext): void {
     context.subscriptions.push(
       registerCommand(vscode.commands, Commands.PrettyPrint, () => this.prettifyActive()),

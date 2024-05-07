@@ -138,7 +138,7 @@ class DapSessionManager implements IBinderDelegate {
 
   constructor(private readonly dapRoot: Dap.Api, public readonly services: Container) {}
 
-  /** @inheritdoc */
+  
   public async acquireDap(target: ITarget): Promise<DapConnection> {
     const existing = this.sessions.get(target.id());
     if (existing) {
@@ -177,7 +177,7 @@ class DapSessionManager implements IBinderDelegate {
     return deferred.promise.then(d => d.connection);
   }
 
-  /** @inheritdoc */
+  
   public async initAdapter(adapter: DebugAdapter, target: ITarget): Promise<boolean> {
     const init = this.sessions.get(target.id())?.settledValue;
     if (!init) {
@@ -201,7 +201,7 @@ class DapSessionManager implements IBinderDelegate {
     return true;
   }
 
-  /** @inheritdoc */
+  
   public releaseDap(target: ITarget): void {
     this.sessions.delete(target.id());
   }

@@ -18,7 +18,7 @@ export class DwarfModuleProvider implements IDwarfModuleProvider {
 
   constructor(@inject(ExtensionContext) private readonly context: vscode.ExtensionContext) {}
 
-  /** @inheritdoc */
+  
   public async load(): Promise<typeof dwf | undefined> {
     try {
       // for development, use the module to avoid having to install the extension
@@ -38,7 +38,7 @@ export class DwarfModuleProvider implements IDwarfModuleProvider {
     return ext.exports;
   }
 
-  /** @inheritdoc */
+  
   public async prompt() {
     if (this.didPromptForSession) {
       return;

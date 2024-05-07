@@ -316,7 +316,7 @@ export function fileUrlToNetworkPath(urlOrPath: string): string {
 }
 
 // TODO: this does not escape/unescape special characters
-/** @deprecated consider absolutePathToFileUrlWithDetection instead */
+
 export function absolutePathToFileUrl(absolutePath: string): string {
   if (platform === 'win32') {
     return 'file:///' + platformPathToUrlPath(absolutePath);

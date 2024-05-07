@@ -124,12 +124,12 @@ class BreakpointsDataProvider implements vscode.TreeDataProvider<TreeItem> {
     });
   }
 
-  /** @inheritdoc */
+  
   getTreeItem(item: TreeItem): vscode.TreeItem {
     return item;
   }
 
-  /** @inheritdoc */
+  
   getChildren(item?: TreeItem): vscode.ProviderResult<TreeItem[]> {
     if (!item) {
       return [...this.categories.values()].sort((a, b) => a.label.localeCompare(b.label));
@@ -148,7 +148,7 @@ class BreakpointsDataProvider implements vscode.TreeDataProvider<TreeItem> {
     return [];
   }
 
-  /** @inheritdoc */
+  
   getParent(item: TreeItem): vscode.ProviderResult<TreeItem> {
     if (item instanceof Breakpoint) {
       return this.categories.get(item.group);

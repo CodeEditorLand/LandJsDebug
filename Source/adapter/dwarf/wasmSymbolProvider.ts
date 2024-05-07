@@ -58,10 +58,10 @@ export class WasmWorkerFactory implements IWasmWorkerFactory {
     @inject(AnyLaunchConfiguration) private readonly launchConfig: AnyLaunchConfiguration,
   ) {}
 
-  /** @inheritdoc */
+  
   public readonly prompt = once(() => this.dwarf.prompt());
 
-  /** @inheritdoc */
+  
   public async spawn(cdp: Cdp.Api): Promise<IWasmWorkerExt | null> {
     if (!this.launchConfig.enableDWARF) {
       return null;
@@ -106,7 +106,7 @@ export class WasmWorkerFactory implements IWasmWorkerFactory {
     };
   }
 
-  /** @inheritdoc */
+  
   public async dispose() {
     await this.worker?.then(w => w?.dispose());
     this.worker = Promise.resolve(null);
@@ -221,7 +221,7 @@ export class WasmSymbolProvider implements IWasmSymbolProvider, IDisposable {
     return new WasmSymbols(script, this.cdp, moduleId, worker, result);
   }
 
-  /** @inheritdoc */
+  
   public async dispose() {
     await this.worker.value?.then(w => w?.dispose());
   }
@@ -350,10 +350,10 @@ export interface IWasmSymbols extends IDisposable {
 }
 
 class DecompiledWasmSymbols implements IWasmSymbols {
-  /** @inheritdoc */
+  
   public readonly decompiledUrl: string;
 
-  /** @inheritdoc */
+  
   public readonly files: readonly string[];
 
   /** Called whenever disassembly is requested for a source/ */
@@ -368,21 +368,21 @@ class DecompiledWasmSymbols implements IWasmSymbols {
     this.files = files;
   }
 
-  /** @inheritdoc */
+  
   public async getDisassembly(): Promise<string> {
     const { lines } = await this.doDisassemble();
     this.onDidDisassemble?.();
     return lines.join('\n');
   }
 
-  /** @inheritdoc */
+  
   public originalPositionFor(
     compiledPosition: IPosition,
   ): Promise<{ url: string; position: IPosition } | undefined> {
     return this.disassembledPositionFor(compiledPosition);
   }
 
-  /** @inheritdoc */
+  
   public async disassembledPositionFor(
     compiledPosition: IPosition,
   ): Promise<{ url: string; position: IPosition } | undefined> {
@@ -403,7 +403,7 @@ class DecompiledWasmSymbols implements IWasmSymbols {
     };
   }
 
-  /** @inheritdoc */
+  
   public async compiledPositionFor(
     sourceUrl: string,
     sourcePosition: IPosition,
@@ -496,7 +496,7 @@ class WasmSymbols extends DecompiledWasmSymbols {
     super(event, cdp, files);
   }
 
-  /** @inheritdoc */
+  
   public override async originalPositionFor(
     compiledPosition: IPosition,
   ): Promise<{ url: string; position: IPosition } | undefined> {
@@ -516,7 +516,7 @@ class WasmSymbols extends DecompiledWasmSymbols {
     };
   }
 
-  /** @inheritdoc */
+  
   public override async compiledPositionFor(
     sourceUrl: string,
     sourcePosition: IPosition,
@@ -551,12 +551,12 @@ class WasmSymbols extends DecompiledWasmSymbols {
       .map(l => new Base0Position(0, this.codeOffset + l.startOffset));
   }
 
-  /** @inheritdoc */
+  
   public override dispose() {
     return this.worker.rpc.sendMessage('removeRawModule', this.moduleId);
   }
 
-  /** @inheritdoc */
+  
   public async getVariablesInScope(
     callFrameId: string,
     position: IPosition,
@@ -587,7 +587,7 @@ class WasmSymbols extends DecompiledWasmSymbols {
     );
   }
 
-  /** @inheritdoc */
+  
   public async getFunctionStack(position: IPosition): Promise<{ name: string }[]> {
     const info = await this.worker.rpc.sendMessage('getFunctionInfo', {
       codeOffset: position.base0.columnNumber - this.codeOffset,
@@ -598,7 +598,7 @@ class WasmSymbols extends DecompiledWasmSymbols {
     return 'frames' in info ? info.frames : [];
   }
 
-  /** @inheritdoc */
+  
   public async getStepSkipList(
     direction: StepDirection,
     position: IPosition,
@@ -663,7 +663,7 @@ class WasmSymbols extends DecompiledWasmSymbols {
     );
   }
 
-  /** @inheritdoc */
+  
   public async evaluate(
     callFrameId: string,
     position: IPosition,
