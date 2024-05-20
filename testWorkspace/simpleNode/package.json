@@ -1,11 +1,6 @@
 {
-	"scripts": {
-		"Document": "Document 'Source/**/*.ts'",
-		"prepublishOnly": "Build 'Source/**/*.ts'",
-		"startWithBrk": "node --inspect-brk=29204 logNodeOptions.js",
-		"startWithoutBrk": "node logNodeOptions.js"
-	},
-	"devDependencies": {
-		"@playform/build": "0.0.7"
-	}
+  "scripts": {
+    "startWithBrk": "node --inspect-brk=29204 logNodeOptions.js",
+    "startWithoutBrk": "node logNodeOptions.js"
+  }
 }
