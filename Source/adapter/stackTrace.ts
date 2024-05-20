@@ -358,12 +358,12 @@ export class StackFrame implements IStackFrameElement {
   public readonly frameId = frameIdCounter();
   /** Override for the `name` in the DAP representation. */
   public overrideName?: string;
-  
+  /** @inheritdoc */
   public readonly root = this;
 
   private _rawLocation: RawLocation;
 
-  
+  /** @inheritdoc */
   public readonly uiLocation: () =>
     | Promise<IPreferredUiLocation | undefined>
     | IPreferredUiLocation
@@ -452,7 +452,7 @@ export class StackFrame implements IStackFrameElement {
     return this._scope ? this._scope.callFrameId : undefined;
   }
 
-  
+  /** @inheritdoc */
   async scopes(): Promise<Dap.ScopesResult> {
     const currentScope = this._scope;
     if (!currentScope) {
@@ -538,7 +538,7 @@ export class StackFrame implements IStackFrameElement {
     return { scopes: scopes.filter(truthy) };
   }
 
-  
+  /** @inheritdoc */
   public getStepSkipList(_direction: StepDirection): Promise<Range[] | undefined> {
     // Normal JS never has any skip lists -- only web assembly does
     return Promise.resolve(undefined);
@@ -562,7 +562,7 @@ export class StackFrame implements IStackFrameElement {
     return { isSmartStepped, name, uiLocation: await uiLocation };
   });
 
-  
+  /** @inheritdoc */
   async toDap(format?: Dap.StackFrameFormat): Promise<Dap.StackFrame> {
     const { isSmartStepped, name, uiLocation } = await this.getLocationInfo();
     const source = uiLocation ? await uiLocation.source.toDap() : undefined;
@@ -602,7 +602,7 @@ export class StackFrame implements IStackFrameElement {
     } as Dap.StackFrame;
   }
 
-  
+  /** @inheritdoc */
   async formatAsNative(): Promise<string> {
     const { name, uiLocation } = await this.getLocationInfo();
     const url =
@@ -613,7 +613,7 @@ export class StackFrame implements IStackFrameElement {
     return `    at ${name} (${url}:${lineNumber}:${columnNumber})`;
   }
 
-  
+  /** @inheritdoc */
   async format(): Promise<string> {
     const { name, uiLocation } = await this.getLocationInfo();
     const prettyName = (await uiLocation?.source.prettyName()) || '<unknown>';
@@ -685,13 +685,13 @@ export class StackFrame implements IStackFrameElement {
 const EMPTY_SCOPES: Dap.ScopesResult = { scopes: [] };
 
 export class InlinedFrame implements IStackFrameElement {
-  
+  /** @inheritdoc */
   public readonly root: StackFrame;
 
-  
+  /** @inheritdoc */
   public readonly frameId = frameIdCounter();
 
-  
+  /** @inheritdoc */
   public readonly uiLocation: () => Promise<IPreferredUiLocation>;
 
   public readonly inlineFrameIndex: number;
@@ -730,20 +730,20 @@ export class InlinedFrame implements IStackFrameElement {
     );
   }
 
-  
+  /** @inheritdoc */
   public async formatAsNative(): Promise<string> {
     const { columnNumber, lineNumber, source } = await this.uiLocation();
     return `    at ${this.name} (${source.url}:${lineNumber}:${columnNumber})`;
   }
 
-  
+  /** @inheritdoc */
   public async format(): Promise<string> {
     const { columnNumber, lineNumber, source } = await this.uiLocation();
     const prettyName = (await source.prettyName()) || '<unknown>';
     return `${this.name} @ ${prettyName}:${lineNumber}:${columnNumber}`;
   }
 
-  
+  /** @inheritdoc */
   public async toDap(): Promise<Dap.StackFrame> {
     const { columnNumber, lineNumber, source } = await this.uiLocation();
     return Promise.resolve({
@@ -755,7 +755,7 @@ export class InlinedFrame implements IStackFrameElement {
     });
   }
 
-  
+  /** @inheritdoc */
   public async getStepSkipList(direction: StepDirection): Promise<Range[] | undefined> {
     const sm = this.source.sourceMap.value.settledValue;
     if (!sm?.getStepSkipList) {
@@ -775,7 +775,7 @@ export class InlinedFrame implements IStackFrameElement {
     }
   }
 
-  
+  /** @inheritdoc */
   public async scopes(): Promise<Dap.ScopesResult> {
     const v = this.source.sourceMap.value.settledValue;
     const callFrameId = this.root.callFrameId();

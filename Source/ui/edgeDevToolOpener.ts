@@ -34,7 +34,7 @@ function findRootSession(session: vscode.DebugSession): vscode.DebugSession {
 export class EdgeDevToolOpener implements IExtensionContribution {
   constructor(@inject(DebugSessionTracker) private readonly tracker: DebugSessionTracker) {}
 
-  
+  /** @inheritdoc */
   public register(context: vscode.ExtensionContext) {
     context.subscriptions.push(
       registerCommand(vscode.commands, Commands.OpenEdgeDevTools, async () => {

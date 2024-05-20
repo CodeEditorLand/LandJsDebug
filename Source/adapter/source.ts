@@ -69,7 +69,7 @@ export class Source {
     return !this.url;
   }
 
-  
+  /** @internal */
   public hasBeenAnnounced = false;
 
   /**
@@ -564,7 +564,7 @@ export const base1To0 = (lc: LineColumn) => ({
   columnNumber: lc.columnNumber - 1,
 }); // This is a ui location which corresponds to a position in the document user can see (Source, Dap.Source).
 
-
+/** @todo make this use IPosition's instead */
 export interface IUiLocation {
   lineNumber: number; // 1-based
   columnNumber: number; // 1-based

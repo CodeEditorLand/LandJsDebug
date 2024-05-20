@@ -77,7 +77,7 @@ export class ExcludedCallersUI
 
   constructor(@inject(DebugSessionTracker) private readonly sessionTracker: DebugSessionTracker) {}
 
-  
+  /** @inheritdoc */
   register(context: vscode.ExtensionContext): void {
     context.subscriptions.push(
       vscode.window.createTreeView(CustomViews.ExcludedCallers, {
@@ -133,15 +133,15 @@ export class ExcludedCallersUI
     );
   }
 
-  
+  /** @inheritdoc */
   public readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
-  
+  /** @inheritdoc */
   getTreeItem(element: ExcludedCaller): vscode.TreeItem {
     return element.treeItem;
   }
 
-  
+  /** @inheritdoc */
   getChildren(element?: ExcludedCaller): ExcludedCaller[] {
     return element ? [] : [...this.allCallers.values()];
   }

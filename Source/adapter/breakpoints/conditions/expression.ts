@@ -33,7 +33,7 @@ export class ExpressionCondition implements IBreakpointCondition {
 
   private readonly invoke?: PreparedCallFrameExpr;
 
-  
+  /** @inheritdoc */
   public readonly breakCondition: string | undefined;
 
   constructor(breakCondition: string | PreparedCallFrameExpr) {
@@ -44,7 +44,7 @@ export class ExpressionCondition implements IBreakpointCondition {
     }
   }
 
-  
+  /** @inheritdoc */
   public async shouldStayPaused(details: Cdp.Debugger.PausedEvent) {
     if (!this.invoke) {
       return Promise.resolve(true);

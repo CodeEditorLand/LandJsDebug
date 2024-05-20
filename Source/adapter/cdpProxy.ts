@@ -167,7 +167,7 @@ export class CdpProxyProvider implements ICdpProxyProvider {
   private readonly replay = new DomainReplays();
 
   private jsDebugApi: IJsDebugDomain = {
-    
+    /** @inheritdoc */
     subscribe: (handle, { events }) => {
       for (const event of events) {
         if (event.endsWith(eventWildcard)) {

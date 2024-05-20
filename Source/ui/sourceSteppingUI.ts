@@ -19,7 +19,7 @@ export class SourceSteppingUI implements IExtensionContribution {
     @inject(DebugSessionTracker) private readonly tracker: DebugSessionTracker,
   ) {}
 
-  
+  /** @inheritdoc */
   public register(context: vscode.ExtensionContext) {
     const isDisabled = new ManagedContextKey(ContextKey.IsMapSteppingDisabled);
 

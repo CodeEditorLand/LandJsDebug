@@ -185,7 +185,7 @@ class ProfileTerminalLauncher extends TerminalNodeLauncher {
   private optionsReadyEmitter = new EventEmitter<vscode.TerminalOptions>();
   public readonly onOptionsReady = this.optionsReadyEmitter.event;
 
-  
+  /** @override */
   protected createTerminal(options: vscode.TerminalOptions) {
     this.optionsReadyEmitter.fire(options);
     return new Promise<vscode.Terminal>(resolve => {

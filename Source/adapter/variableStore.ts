@@ -590,7 +590,7 @@ class Variable implements IVariable {
     return `${parent.accessor}[${JSON.stringify(name)}]`;
   }
 
-  
+  /** @inheritdoc */
   public async toDap(
     previewContext: PreviewContextType,
     valueFormat?: Dap.ValueFormat,
@@ -816,7 +816,7 @@ class ObjectVariable extends Variable implements IMemoryReadable {
     );
   }
 
-  
+  /** @inheritdoc */
   public async readMemory(offset: number, count: number): Promise<Buffer | undefined> {
     const result = await readMemory({
       cdp: this.context.cdp,
@@ -828,7 +828,7 @@ class ObjectVariable extends Variable implements IMemoryReadable {
     return Buffer.from(result.value, 'hex');
   }
 
-  
+  /** @inheritdoc */
   public async writeMemory(offset: number, memory: Buffer): Promise<number> {
     const result = await writeMemory({
       cdp: this.context.cdp,
@@ -1035,10 +1035,10 @@ class WasmVariable implements IVariable, IMemoryReadable {
     attributes: ['readOnly'],
   };
 
-  
+  /** @inheritdoc */
   public readonly id = getVariableId();
 
-  
+  /** @inheritdoc */
   public readonly sortOrder = 0;
 
   constructor(
@@ -1069,7 +1069,7 @@ class WasmVariable implements IVariable, IMemoryReadable {
     );
   }
 
-  
+  /** @inheritdoc */
   public async readMemory(offset: number, count: number): Promise<Buffer | undefined> {
     const addr = this.variable.linearMemoryAddress;
     if (addr === undefined) {
@@ -1096,7 +1096,7 @@ class WasmVariable implements IVariable, IMemoryReadable {
     return Buffer.from(result.result.value, 'hex');
   }
 
-  
+  /** @inheritdoc */
   public async writeMemory(offset: number, memory: Buffer): Promise<number> {
     const addr = this.variable.linearMemoryAddress;
     if (addr === undefined) {
@@ -1116,10 +1116,10 @@ class WasmVariable implements IVariable, IMemoryReadable {
 }
 
 class WasmScopeVariable implements IVariable {
-  
+  /** @inheritdoc */
   public readonly id = getVariableId();
 
-  
+  /** @inheritdoc */
   public readonly sortOrder = wasmScopeNames[this.kind]?.sortOrder || 0;
 
   constructor(
@@ -1156,7 +1156,7 @@ class WasmScopeVariable implements IVariable {
 }
 
 class Scope implements IVariableContainer {
-  
+  /** @inheritdoc */
   public readonly id = getVariableId();
 
   constructor(
