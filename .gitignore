@@ -3,7 +3,6 @@
 .cdp-profile/
 .headless-profile/
 .vscode-test/
-.DS_Store
 out/
 dist
 /coverage
