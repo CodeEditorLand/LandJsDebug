@@ -1,23 +1,23 @@
 {
-  "compilerOptions": {
-    "module": "commonjs",
-    "target": "ES2018",
-    "lib": ["ES2018"],
-    "moduleResolution": "node",
-    "noImplicitAny": true,
-    "noImplicitThis": true,
-    "sourceMap": true,
-    "noEmit": true,
-    "strict": true,
-    "useUnknownInCatchVariables": false,
-    "noUnusedLocals": true,
-    "experimentalDecorators": true,
-    "alwaysStrict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "jsx": "react",
-    "jsxFactory": "h",
-    "types": ["node", "chai-subset", "chai-as-promised", "mocha"]
-  },
-  "include": ["src"]
+	"compilerOptions": {
+		"module": "commonjs",
+		"target": "ES2018",
+		"lib": ["ES2018"],
+		"moduleResolution": "node",
+		"noImplicitAny": true,
+		"noImplicitThis": true,
+		"sourceMap": true,
+		"noEmit": true,
+		"strict": true,
+		"useUnknownInCatchVariables": false,
+		"noUnusedLocals": true,
+		"experimentalDecorators": true,
+		"alwaysStrict": true,
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"jsx": "react",
+		"jsxFactory": "h",
+		"types": ["node", "chai-subset", "chai-as-promised", "mocha"]
+	},
+	"include": ["src"]
 }
