@@ -1,12 +1,12 @@
 path_classifiers:
-    test:
-        - "**/*.test.ts"
-        - "src/test/**/*.ts"
-        - .vscode-test
+  test:
+    - "**/*.test.ts"
+    - "src/test/**/*.ts"
+    - .vscode-test
 
-    generated:
-        - testWorkspace
-        - dist
+  generated:
+    - testWorkspace
+    - dist
 
-    library:
-        - "**/node_modules/**"
+  library:
+    - "**/node_modules/**"
