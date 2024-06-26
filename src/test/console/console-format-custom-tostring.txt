@@ -1,3 +1,0 @@
-> result: hello a
-    > prop: hello b
-    > [[Prototype]]: Object
