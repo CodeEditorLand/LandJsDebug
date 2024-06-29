@@ -4,6 +4,11 @@ This changelog records changes to stable releases since 1.50.2. "TBA" changes he
 
 ## Nightly (only)
 
+- fix: breakpoints at unmapped locations setting in wrong locations ([vscode#219031](https://github.com/microsoft/vscode/issues/219031))
+
+## v1.91 (June 2024)
+
+- feat: show correct values of shadowed variables in hovers ([#2022](https://github.com/microsoft/vscode-js-debug/issues/2022))
 - fix: hanging on certain Linux environments ([vscode#214872](https://github.com/microsoft/vscode/issues/214872))
 
 ## v1.90 (May 2024)
