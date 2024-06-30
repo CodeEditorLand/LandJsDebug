@@ -1,5 +1,0 @@
-> result: {getter: <accessor>, accessor: <accessor>}
-    > accessor: (...)
-    > getter: (...)
-    > setter: write-only
-    > [[Prototype]]: Object
