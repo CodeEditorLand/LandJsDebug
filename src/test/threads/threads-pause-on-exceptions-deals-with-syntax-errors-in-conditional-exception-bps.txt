@@ -1,1 +1,0 @@
-stderr> Syntax error setting breakpoint with condition "!!(error.message.includes(\"bye)" on line 0: Invalid or unexpected token
