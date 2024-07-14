@@ -1,3 +1,0 @@
-Custom.method2 @ <eval>/VM<xx>:4:13
-Foo.method1 @ <eval>/VM<xx>:14:30
-<anonymous> @ <eval>/VM<xx>:18:19
