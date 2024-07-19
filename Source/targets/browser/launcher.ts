@@ -11,7 +11,6 @@ import { IDisposable } from '../../common/disposable';
 import { EnvironmentVars } from '../../common/environmentVars';
 import { canAccess } from '../../common/fsUtils';
 import { ILogger, LogTag } from '../../common/logging';
-import { formatSubprocessArguments } from '../../common/processUtils';
 import { delay } from '../../common/promiseUtil';
 import Dap from '../../dap/api';
 import { browserProcessExitedBeforePort } from '../../dap/errors';
@@ -111,17 +110,10 @@ export async function launch(
   } else {
     logger.info(LogTag.RuntimeLaunch, `Launching Chrome from ${executablePath}`);
 
-    const formatted = formatSubprocessArguments(
-      executablePath,
-      browserArguments.toArray(),
-      (await canAccess(fsPromises, cwd)) ? cwd : process.cwd(),
-    );
-
-    const cp = childProcess.spawn(formatted.executable, formatted.args, {
+    const cp = childProcess.spawn(executablePath, browserArguments.toArray(), {
       detached: true,
       env: env.defined(),
-      shell: formatted.shell,
-      cwd: formatted.cwd,
+      cwd: (await canAccess(fsPromises, cwd)) ? cwd : process.cwd(),
       stdio,
     }) as childProcess.ChildProcessWithoutNullStreams;
 
