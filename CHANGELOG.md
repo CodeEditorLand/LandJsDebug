@@ -9,8 +9,8 @@ not meaningful.
 
 ## Nightly (only)
 
--   fix: hover evaluation incorrectly showing undefined
-    ([vscode#221503](https://github.com/microsoft/vscode/issues/221503))
+- feat: support "debug url" in terminals created through the `node-terminal` launch type ([#2049](https://github.com/microsoft/vscode-js-debug/issues/2049))
+- fix: hover evaluation incorrectly showing undefined ([vscode#221503](https://github.com/microsoft/vscode/issues/221503))
 
 ## v1.92 (July 2024)
 
