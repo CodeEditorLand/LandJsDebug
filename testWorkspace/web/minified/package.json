@@ -1,6 +1,6 @@
 {
 	"dependencies": {
-		"terser": "5.31.3"
+		"terser": "5.31.4"
 	},
 	"scripts": {
 		"minify": "terser index.js -m -o index.min.js --source-map \"url=index.min.js.map\""
