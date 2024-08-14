@@ -11,6 +11,7 @@ not meaningful.
 
 - feat: add basic network view, support experimental networking for node ([#2051](https://github.com/microsoft/vscode-js-debug/issues/2051))
 - feat: support "debug url" in terminals created through the `node-terminal` launch type ([#2049](https://github.com/microsoft/vscode-js-debug/issues/2049))
+- feat: adopt location references to link function locations
 - fix: hover evaluation incorrectly showing undefined ([vscode#221503](https://github.com/microsoft/vscode/issues/221503))
 
 ## v1.92 (July 2024)
