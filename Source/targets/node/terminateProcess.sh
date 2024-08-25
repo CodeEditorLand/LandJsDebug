@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 ROOT_PID=$1
 SIGNAL=$2
