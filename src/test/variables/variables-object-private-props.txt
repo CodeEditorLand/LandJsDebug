@@ -1,3 +1,0 @@
-> result: A {#foo: 'bar'}
-    #foo: 'bar'
-    > [[Prototype]]: Object
