@@ -1,0 +1,33 @@
+// Place your settings in this file to overwrite default and user settings.
+{
+  "javascript.validate.enable": false,
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "files.trimTrailingWhitespace": true,
+  "editor.insertSpaces": true,
+  "editor.tabSize": 2,
+  "editor.detectIndentation": false,
+  "eslint.validate": ["javascript", "javascriptreact", "typescript"],
+  "search.exclude": {
+    "**/testdata": true,
+    "**/.dynamic-testWorkspace/defaultSearchExcluded": true
+  },
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    "**/obj": true,
+    "**/.dynamic-testWorkspace": true,
+    "**/.vscode-test": true,
+    "**/demos": true
+  },
+  "editor.defaultFormatter": "dprint.dprint",
+  "dprint.verbose": true,
+  "editor.formatOnSave": true,
+  "typescript.tsserver.experimental.enableProjectDiagnostics": true,
+  "[typescript]": {
+    "editor.defaultFormatter": "dprint.dprint"
+  }
+}
