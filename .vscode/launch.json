@@ -1,0 +1,189 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Generate CDP API",
+      "program": "${workspaceFolder}/dist/src/build/generateCdp.js"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Generate DAP API",
+      "program": "${workspaceFolder}/dist/src/build/generateDap.js"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Server",
+      "program": "${workspaceFolder}/dist/src/debugServerMain.js",
+      "args": [
+        "4711"
+      ]
+      // "preLaunchTask": "npm: watch"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Server (Flat Session)",
+      "trace": true,
+      "program": "${workspaceFolder}/dist/src/flatSessionLauncher.js",
+      "args": [
+        "4712"
+      ],
+      "skipFiles": [
+        "<node_internals>/**/*.js"
+      ]
+      // "preLaunchTask": "npm: watch"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Server (VS Server)",
+      "trace": true,
+      "program": "${workspaceFolder}/dist/src/vsDebugServer.js",
+      "args": [
+        "4712"
+      ],
+      "skipFiles": [
+        "<node_internals>/**/*.js"
+      ]
+      // "preLaunchTask": "npm: watch"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Server (DAP)",
+      "trace": true,
+      "program": "${workspaceFolder}/dist/src/dapDebugServer.js",
+      "skipFiles": [
+        "<node_internals>/**/*.js"
+      ]
+      // "preLaunchTask": "npm: watch"
+    },
+    {
+      "name": "Extension",
+      "type": "extensionHost",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "args": [
+        "--enable-proposed-api=ms-vscode.js-debug",
+        "--extensionDevelopmentPath=${workspaceFolder}/dist"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/dist/**/*.js"
+      ]
+      // "preLaunchTask": "npm: watch"
+    },
+    {
+      "name": "Extension With Local DAP",
+      "type": "extensionHost",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "args": [
+        "--enable-proposed-api=ms-vscode.js-debug",
+        "--extensionDevelopmentPath=${workspaceFolder}/dist"
+      ],
+      "env": {
+        "JS_DEBUG_USE_LOCAL_DAP_PORT": "8123"
+      },
+      "outFiles": [
+        "${workspaceFolder}/dist/**/*.js"
+      ]
+      // "preLaunchTask": "npm: watch"
+    },
+    {
+      "name": "Extension and Auto Launch",
+      "type": "pwa-extensionHost",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "args": [
+        "--enable-proposed-api=ms-vscode.js-debug",
+        "--extensionDevelopmentPath=${workspaceFolder}/../vscode/extensions/debug-auto-launch",
+        "--extensionDevelopmentPath=${workspaceFolder}/dist"
+      ],
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/**",
+        "${workspaceFolder}/../vscode/extensions/debug-auto-launch/out/**",
+        "!**/node_modules/**"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/dist/**/*.js",
+        "${workspaceFolder}/../vscode-js-debug-companion/out/**/*.js"
+      ]
+    },
+    {
+      "name": "Extension and Companion",
+      "type": "extensionHost",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "args": [
+        "--enable-proposed-api=ms-vscode.js-debug",
+        "--extensionDevelopmentPath=${workspaceFolder}/../vscode-js-debug-companion",
+        "--extensionDevelopmentPath=${workspaceFolder}/dist"
+      ],
+      "env": {
+        "JS_DEBUG_USE_COMPANION": "1"
+      },
+      "trace": true,
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/**",
+        "${workspaceFolder}/../vscode-js-debug-companion/**",
+        "!**/node_modules/**"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/dist/**/*.js",
+        "${workspaceFolder}/../vscode-js-debug-companion/out/**/*.js"
+      ]
+    },
+    {
+      "name": "Run Golden Tests",
+      "type": "pwa-extensionHost",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}/dist",
+        "--extensionTestsPath=${workspaceFolder}/dist/src/testRunner"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/dist/**/*.js"
+      ]
+    },
+    {
+      "name": "Run Unit Tests",
+      "type": "pwa-node",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/mocha",
+      "runtimeArgs": [
+        "--config",
+        ".mocharc.unit.js"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/dist/**/*.js"
+      ]
+    },
+    {
+      "name": "Debug Gulp",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/gulp/bin/gulp.js",
+      "args": [
+        "move-bundle-files"
+      ]
+    }
+  ]
+}
