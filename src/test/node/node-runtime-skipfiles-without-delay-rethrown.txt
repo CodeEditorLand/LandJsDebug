@@ -1,2 +1,0 @@
-exports.rethrown @ ${workspaceFolder}/simpleNode/skippedScript.js:17:5 <hidden: Skipped by skipFiles>
-<anonymous> @ ${workspaceFolder}/simpleNode/skipFiles.js:15:23
