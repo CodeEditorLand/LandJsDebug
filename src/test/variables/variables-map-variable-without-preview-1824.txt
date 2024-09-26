@@ -1,3 +1,0 @@
-> result: A {#bar: Map(1)}
-    > #bar: Map(1)
-    > [[Prototype]]: Object
