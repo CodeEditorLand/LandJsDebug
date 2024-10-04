@@ -10,6 +10,6 @@ export const logOmittedCalls = new WeakSet<object>();
  * log output and getting into an feedback loop with the ConsoleLogSink.
  */
 export const omitLoggingFor = <T extends object>(obj: T): T => {
-  logOmittedCalls.add(obj);
-  return obj;
+	logOmittedCalls.add(obj);
+	return obj;
 };

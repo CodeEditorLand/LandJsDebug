@@ -2,7 +2,7 @@
  * Copyright (C) Microsoft Corporation. All rights reserved.
  *--------------------------------------------------------*/
 
-import { getSourceSuffix } from '../../adapter/templates';
+import { getSourceSuffix } from "../../adapter/templates";
 
 /**
  * Expression to be evaluated to set that the debugger is successfully attached
@@ -10,4 +10,5 @@ import { getSourceSuffix } from '../../adapter/templates';
  *
  * See microsoft/vscode#106698.
  */
-export const signalReadyExpr = () => `globalThis.__jsDebugIsReady = true; ` + getSourceSuffix();
+export const signalReadyExpr = () =>
+	`globalThis.__jsDebugIsReady = true; ` + getSourceSuffix();

@@ -2,8 +2,9 @@
  * Copyright (C) Microsoft Corporation. All rights reserved.
  *--------------------------------------------------------*/
 
-import { URL } from 'url';
-import { memoize } from '../../common/objUtils';
+import { URL } from "url";
+
+import { memoize } from "../../common/objUtils";
 
 /**
  * Returns WebSocket (`ws(s)://`) address of the inspector to use. This function interpolates the inspect uri from the browser inspect uri and other values. Available keys are:
@@ -15,31 +16,33 @@ import { memoize } from '../../common/objUtils';
  *  - `wsProtocol` is the hinted websocket protocol. This is set to `wss` if the original URL is `https`, or `ws` otherwise.
  */
 export function constructInspectorWSUri(
-  inspectUriFormat: string,
-  urlText: string | null | undefined,
-  browserInspectUri: string,
+	inspectUriFormat: string,
+	urlText: string | null | undefined,
+	browserInspectUri: string,
 ): string {
-  const getUrl = memoize((maybeText: string | null | undefined) => {
-    if (maybeText) {
-      return new URL(maybeText);
-    } else {
-      throw new Error(`A valid url wasn't supplied: <${maybeText}>`);
-    }
-  });
+	const getUrl = memoize((maybeText: string | null | undefined) => {
+		if (maybeText) {
+			return new URL(maybeText);
+		} else {
+			throw new Error(`A valid url wasn't supplied: <${maybeText}>`);
+		}
+	});
 
-  // We map keys to functions, so we won't fail with a missing url unless the inspector uri format is actually referencing the url
-  const replacements: { [key: string]: () => string } = {
-    'url.hostname': () => getUrl(urlText).hostname,
-    'url.port': () => getUrl(urlText).port,
-    browserInspectUri: () => encodeURIComponent(browserInspectUri),
-    browserInspectUriPath: () => new URL(browserInspectUri).pathname,
-    wsProtocol: () => (getUrl(urlText).protocol === 'https:' ? 'wss' : 'ws'), // the protocol includes the : at the end
-  };
+	// We map keys to functions, so we won't fail with a missing url unless the inspector uri format is actually referencing the url
+	const replacements: { [key: string]: () => string } = {
+		"url.hostname": () => getUrl(urlText).hostname,
+		"url.port": () => getUrl(urlText).port,
+		browserInspectUri: () => encodeURIComponent(browserInspectUri),
+		browserInspectUriPath: () => new URL(browserInspectUri).pathname,
+		wsProtocol: () =>
+			getUrl(urlText).protocol === "https:" ? "wss" : "ws", // the protocol includes the : at the end
+	};
 
-  const inspectUri = inspectUriFormat.replace(
-    /{([^\}]+)}/g,
-    (match, key: string) => replacements.hasOwnProperty(key) ? replacements[key]() : match,
-  );
+	const inspectUri = inspectUriFormat.replace(
+		/{([^\}]+)}/g,
+		(match, key: string) =>
+			replacements.hasOwnProperty(key) ? replacements[key]() : match,
+	);
 
-  return inspectUri;
+	return inspectUri;
 }
