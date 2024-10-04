@@ -1,1 +1,1 @@
-window.w = new Worker('worker.js');
+window.w = new Worker("worker.js");
