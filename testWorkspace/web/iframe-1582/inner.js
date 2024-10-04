@@ -1,4 +1,4 @@
 let i = 0;
 setInterval(() => {
-  i++;
+	i++;
 }, 50);

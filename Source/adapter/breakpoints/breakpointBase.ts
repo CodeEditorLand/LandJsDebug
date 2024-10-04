@@ -758,11 +758,9 @@ export abstract class Breakpoint {
 			}
 
 			if (state.deadletter) {
-				await thread
-					.cdp()
-					.Debugger.removeBreakpoint({
-						breakpointId: result.breakpointId,
-					});
+				await thread.cdp().Debugger.removeBreakpoint({
+					breakpointId: result.breakpointId,
+				});
 				return;
 			}
 
