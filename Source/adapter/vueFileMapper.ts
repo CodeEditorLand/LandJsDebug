@@ -2,12 +2,11 @@
  * Copyright (C) Microsoft Corporation. All rights reserved.
  *--------------------------------------------------------*/
 
-import { basename } from "path";
-import { inject, injectable } from "inversify";
-
-import { FileGlobList, VueComponentPaths } from "../common/fileGlobList";
-import { once } from "../common/objUtils";
-import { ISearchStrategy } from "../common/sourceMaps/sourceMapRepository";
+import { inject, injectable } from 'inversify';
+import { basename } from 'path';
+import { FileGlobList, VueComponentPaths } from '../common/fileGlobList';
+import { once } from '../common/objUtils';
+import { ISearchStrategy } from '../common/sourceMaps/sourceMapRepository';
 
 /**
  * Regex for Vue sources. The input is something like `webpack:///foo.vue?asdf.
@@ -25,38 +24,38 @@ const vueSourceUrlRe = /^webpack:\/{3}([^/]+?\.vue)(\?[0-9a-z]*)?$/i;
  */
 const vueGeneratedRe = /^webpack:\/{3}\.\/.+\.vue\?[0-9a-z]+$/i;
 
-export const IVueFileMapper = Symbol("IVueFileMapper");
+export const IVueFileMapper = Symbol('IVueFileMapper');
 
 /**
  * @see IVueFileMapper#getVueHandling
  */
 export const enum VueHandling {
-	/**
-	 * Not a Vue path, probably
-	 */
-	Unhandled,
+  /**
+   * Not a Vue path, probably
+   */
+  Unhandled,
 
-	/**
-	 * Lookup the base name on disk.
-	 */
-	Lookup,
+  /**
+   * Lookup the base name on disk.
+   */
+  Lookup,
 
-	/**
-	 * Omit it from disk mapping -- it's an unrelated generated file.
-	 */
-	Omit,
+  /**
+   * Omit it from disk mapping -- it's an unrelated generated file.
+   */
+  Omit,
 }
 
 export interface IVueFileMapper {
-	/**
-	 * Attempts to look up the absolute path for a Vue file with the given basename.
-	 */
-	lookup(sourceUrl: string): Promise<string | undefined>;
+  /**
+   * Attempts to look up the absolute path for a Vue file with the given basename.
+   */
+  lookup(sourceUrl: string): Promise<string | undefined>;
 
-	/**
-	 * Gets how we should handle the given source URL.
-	 */
-	getVueHandling(sourceUrl: string): VueHandling;
+  /**
+   * Gets how we should handle the given source URL.
+   */
+  getVueHandling(sourceUrl: string): VueHandling;
 }
 
 /**
@@ -71,45 +70,46 @@ export interface IVueFileMapper {
  */
 @injectable()
 export class VueFileMapper implements IVueFileMapper {
-	constructor(
-		@inject(VueComponentPaths) private readonly files: FileGlobList,
-		@inject(ISearchStrategy) private readonly search: ISearchStrategy,
-	) {}
+  constructor(
+    @inject(VueComponentPaths) private readonly files: FileGlobList,
+    @inject(ISearchStrategy) private readonly search: ISearchStrategy,
+  ) {}
 
-	private readonly getMapping = once(async () => {
-		const basenameToPath = new Map<string, string>();
-		await this.search.streamAllChildren(this.files, (file) =>
-			basenameToPath.set(basename(file), file),
-		);
+  private readonly getMapping = once(async () => {
+    const basenameToPath = new Map<string, string>();
+    await this.search.streamAllChildren(
+      this.files,
+      file => basenameToPath.set(basename(file), file),
+    );
 
-		return basenameToPath;
-	});
+    return basenameToPath;
+  });
 
-	/**
-	 * @inheritdoc
-	 */
-	public async lookup(sourceUrl: string) {
-		const match = vueSourceUrlRe.exec(sourceUrl);
-		if (!match) {
-			return undefined;
-		}
+  /**
+   * @inheritdoc
+   */
+  public async lookup(sourceUrl: string) {
+    const match = vueSourceUrlRe.exec(sourceUrl);
+    if (!match) {
+      return undefined;
+    }
 
-		const basenameToPath = await this.getMapping();
-		return basenameToPath.get(match[1]);
-	}
+    const basenameToPath = await this.getMapping();
+    return basenameToPath.get(match[1]);
+  }
 
-	/**
-	 * @inheritdoc
-	 */
-	public getVueHandling(sourceUrl: string) {
-		if (this.files.empty) {
-			return VueHandling.Unhandled;
-		}
+  /**
+   * @inheritdoc
+   */
+  public getVueHandling(sourceUrl: string) {
+    if (this.files.empty) {
+      return VueHandling.Unhandled;
+    }
 
-		return vueSourceUrlRe.test(sourceUrl)
-			? VueHandling.Lookup
-			: vueGeneratedRe.test(sourceUrl)
-				? VueHandling.Omit
-				: VueHandling.Unhandled;
-	}
+    return vueSourceUrlRe.test(sourceUrl)
+      ? VueHandling.Lookup
+      : vueGeneratedRe.test(sourceUrl)
+      ? VueHandling.Omit
+      : VueHandling.Unhandled;
+  }
 }

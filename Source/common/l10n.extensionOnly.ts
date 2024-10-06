@@ -2,7 +2,7 @@
  * Copyright (C) Microsoft Corporation. All rights reserved.
  *--------------------------------------------------------*/
 
-import * as vscode from "vscode";
+import * as vscode from 'vscode';
 
 /**
  * This file is only included in the extension build, to pull localization from
