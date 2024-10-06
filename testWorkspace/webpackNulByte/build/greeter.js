@@ -1,11 +1,10 @@
-/******/ (() => {
-	// webpackBootstrap
-	var __webpack_exports__ = {};
-	/*!******************************!*\
+/******/ (() => { // webpackBootstrap
+var __webpack_exports__ = {};
+/*!******************************!*\
   !*** ./src/#hello/world.ts ***!
   \******************************/
-	console.log("hello world");
+console.log('hello world');
 
-	/******/
-})();
+/******/ })()
+;
 //# sourceMappingURL=greeter.js.map

@@ -757,4 +757,4 @@ Powerلُلُصّبُلُلصّبُررً ॣ ॣh ॣ ॣ冗
 #
 # This is a four characters string which includes Persian special characters (گچپژ)
 
-گچپژ`;
+گچپژ`

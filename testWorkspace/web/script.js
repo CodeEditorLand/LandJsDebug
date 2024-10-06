@@ -1,9 +1,9 @@
 function foo() {
-	bar();
+  bar();
 }
 
 function bar() {
-	console.log("here");
+  console.log('here');
 }
 
 foo(3);

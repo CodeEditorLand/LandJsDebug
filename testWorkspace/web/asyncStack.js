@@ -1,7 +1,7 @@
 setTimeout(() => {
-	debugger;
+  debugger;
 
-	setTimeout(() => {
-		debugger;
-	}, 100);
+  setTimeout(() => {
+    debugger;
+  }, 100);
 }, 100);
