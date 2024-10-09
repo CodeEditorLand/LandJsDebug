@@ -1,19 +1,19 @@
 exports.uncaught = () => {
-  throw 'uncaught';
-}
+	throw "uncaught";
+};
 
 exports.caught = () => {
-  try {
-    throw 'caught';
-  } catch (e) {
-    // ignored
-  }
-}
+	try {
+		throw "caught";
+	} catch (e) {
+		// ignored
+	}
+};
 
 exports.rethrown = () => {
-  try {
-    throw 'rethrown';
-  } catch (e) {
-    throw e;
-  }
-}
+	try {
+		throw "rethrown";
+	} catch (e) {
+		throw e;
+	}
+};

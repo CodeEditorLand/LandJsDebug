@@ -1,5 +1,5 @@
 function foo() {
-  void(0); // break here
+	void 0; // break here
 }
 
 foo();

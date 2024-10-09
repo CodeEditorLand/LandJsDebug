@@ -7,7 +7,7 @@
  * without an obvious preservation flag.
  */
 export interface ILinkedBreakpointLocation {
-  warn(): void;
+	warn(): void;
 }
 
-export const ILinkedBreakpointLocation = Symbol('ILinkedBreakpointLocation');
+export const ILinkedBreakpointLocation = Symbol("ILinkedBreakpointLocation");
