@@ -145,9 +145,10 @@ class StateQueue {
 
   public async enqueue<T>(operation: string, fn: () => Promise<T>) {
     // If we would no-op the task because it's already ongoing, make sure we flush
-    // microtasks first to avoid a race https://github.com/microsoft/vscode/issues/204581
+    // tasks first to avoid a race https://github.com/microsoft/vscode/issues/204581
+    // This initially flushed microtasks, but that wasn't always sufficient.
     if (this.queue?.operation === operation) {
-      await new Promise<void>(r => queueMicrotask(r));
+      await new Promise<void>(r => setTimeout(r));
     }
 
     if (!this.queue || this.queue.operation !== operation) {
@@ -1983,27 +1984,31 @@ export class Thread implements IVariableStoreLocationProvider {
     handler?: ScriptWithSourceMapHandler,
   ): Promise<boolean> {
     this._scriptWithSourceMapHandler = handler;
-
     const needsPause = pause && this._sourceContainer.sourceMapTimeouts().sourceMapMinPause
       && handler;
     if (needsPause && !this._pauseOnSourceMapBreakpointIds?.length) {
       // setting the URL breakpoint for wasm fails if debugger isn't fully initialized
       await this.debuggerReady.promise;
 
-      const wasmHandlers = Promise.all([...this._executionContexts.keys()]
-        .map(id => this._installWasmPauseHandler(id)));
       const result = await Promise.all([
         this._cdp.Debugger.setInstrumentationBreakpoint({
           instrumentation: 'beforeScriptWithSourceMapExecution',
         }),
       ]);
       this._pauseOnSourceMapBreakpointIds = result.map(r => r?.breakpointId).filter(truthy);
-      await wasmHandlers;
     } else if (!needsPause && this._pauseOnSourceMapBreakpointIds?.length) {
       const breakpointIds = this._pauseOnSourceMapBreakpointIds;
       this._pauseOnSourceMapBreakpointIds = undefined;
       await Promise.all(
         breakpointIds.map(breakpointId => this._cdp.Debugger.removeBreakpoint({ breakpointId })),
+      );
+    }
+
+    // WASM pauses should be unconditionally installed because DWARF parsing
+    // always happens at runtime, not in the brekapoint predictor (currently)
+    if (handler) {
+      await Promise.all(
+        [...this._executionContexts.keys()].map(id => this._installWasmPauseHandler(id)),
       );
     }
 
