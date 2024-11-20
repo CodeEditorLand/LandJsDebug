@@ -1,19 +1,4 @@
 {
-	"name": "js-debug",
-	"displayName": "JavaScript Debugger",
-	"description": "An extension for debugging Node.js programs and Chrome.",
-	"main": "./src/extension.js",
-	"scripts": {
-		"compile": "gulp",
-		"generateapis": "tsx src/build/generateDap.ts && tsx src/build/generateCdp.ts && dprint fmt",
-		"prepare": "husky install",
-		"publish": "gulp publish",
-		"test:golden": "node ./src/test/runTest.js",
-		"test:types": "tsc --noEmit",
-		"test:unit": "tsx node_modules/mocha/bin/mocha.js --config .mocharc.unit.js",
-		"updatenodeapi": "python src/build/getNodePdl.py && dprint fmt",
-		"updatetypes": "cd src/typings && npx -y @vscode/dts dev && npx -y @vscode/dts master"
-	},
 	"dependencies": {
 		"@jridgewell/gen-mapping": "0.3.5",
 		"@jridgewell/trace-mapping": "0.3.25",
@@ -41,6 +26,7 @@
 		"to-absolute-glob": "3.0.0",
 		"ws": "8.18.0"
 	},
+	"description": "An extension for debugging Node.js programs and Chrome.",
 	"devDependencies": {
 		"@c4312/matcha": "1.3.1",
 		"@types/chai": "5.0.1",
@@ -85,7 +71,7 @@
 		"stream-buffers": "3.0.3",
 		"tsx": "4.19.2"
 	},
-	"icon": "resources/logo.png",
+	"displayName": "JavaScript Debugger",
 	"enabledApiProposals": [
 		"portsAttributes",
 		"workspaceTrust",
@@ -93,5 +79,19 @@
 	],
 	"extensionKind": [
 		"workspace"
-	]
+	],
+	"icon": "resources/logo.png",
+	"main": "./src/extension.js",
+	"name": "js-debug",
+	"scripts": {
+		"compile": "gulp",
+		"generateapis": "tsx src/build/generateDap.ts && tsx src/build/generateCdp.ts && dprint fmt",
+		"prepare": "husky install",
+		"publish": "gulp publish",
+		"test:golden": "node ./src/test/runTest.js",
+		"test:types": "tsc --noEmit",
+		"test:unit": "tsx node_modules/mocha/bin/mocha.js --config .mocharc.unit.js",
+		"updatenodeapi": "python src/build/getNodePdl.py && dprint fmt",
+		"updatetypes": "cd src/typings && npx -y @vscode/dts dev && npx -y @vscode/dts master"
+	}
 }
