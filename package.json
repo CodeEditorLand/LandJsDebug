@@ -63,7 +63,7 @@
 		"glob": "11.0.0",
 		"https-proxy-agent": "7.0.5",
 		"jszip": "3.10.1",
-		"marked": "15.0.1",
+		"marked": "15.0.2",
 		"merge2": "1.4.1",
 		"minimist": "1.2.8",
 		"nyc": "17.1.0",
