@@ -4,6 +4,7 @@
 
 declare module "astring" {
 	import { Node } from "estree";
+
 	import { Writable } from "stream";
 
 	/**

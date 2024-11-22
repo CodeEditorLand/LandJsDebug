@@ -25,6 +25,7 @@ export async function checkContentHash(
 
 	if (!contentHash) {
 		const exists = await new LocalFsUtils(fsPromises).exists(absolutePath);
+
 		return exists ? absolutePath : undefined;
 	}
 

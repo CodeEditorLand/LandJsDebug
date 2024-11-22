@@ -200,7 +200,9 @@ function waitForWSEndpoint(
 	return new Promise((resolve, reject) => {
 		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 		const rl = readline.createInterface({ input: browserProcess.stderr! });
+
 		let stderr = "";
+
 		const onClose = () => onDone();
 
 		rl.on("line", onLine);
@@ -238,7 +240,9 @@ function waitForWSEndpoint(
 
 		function onLine(line: string) {
 			stderr += line + "\n";
+
 			const match = line.match(/^DevTools listening on (ws:\/\/.*)$/);
+
 			if (!match) return;
 			cleanup();
 			resolve(match[1]);

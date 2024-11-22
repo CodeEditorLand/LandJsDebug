@@ -10,6 +10,7 @@ import { ExtensionContext, VSCodeApi } from "../ioc-extras";
 import { ILinkedBreakpointLocation } from "./linkedBreakpointLocation";
 
 const ignoreStorageKey = "linkBpWarnIgnored";
+
 const docLink =
 	"https://code.visualstudio.com/docs/nodejs/nodejs-debugging#_can-i-debug-if-im-using-symlinks";
 
@@ -29,7 +30,9 @@ export class LinkedBreakpointLocationUI implements ILinkedBreakpointLocation {
 		}
 
 		this.didWarn = true;
+
 		const readMore = l10n.t("Read More");
+
 		const ignore = l10n.t("Ignore");
 
 		const r = await this.vscode.window.showWarningMessage(

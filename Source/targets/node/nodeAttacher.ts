@@ -109,12 +109,14 @@ export class NodeAttacher extends NodeAttacherBase<INodeAttachConfiguration> {
 
       if (result.killed) {
         this.onProgramTerminated(result);
+
         return;
       }
 
       const nextRestart = restartPolicy.next();
       if (!nextRestart) {
         this.onProgramTerminated(result);
+
         return;
       }
 
@@ -161,6 +163,7 @@ export class NodeAttacher extends NodeAttacherBase<INodeAttachConfiguration> {
     }
 
     let leaseFile: Promise<LeaseFile>;
+
     return {
       initialized: async () => {
         leaseFile = this.onFirstInitialize(cdp, run, target);
@@ -190,6 +193,7 @@ export class NodeAttacher extends NodeAttacherBase<INodeAttachConfiguration> {
     await leaseFile.startTouchLoop();
 
     let binary = new NodeBinary('node', undefined);
+
     try {
       binary = await this.resolveNodePath(run.params);
     } catch {
@@ -240,6 +244,7 @@ export class NodeAttacher extends NodeAttacherBase<INodeAttachConfiguration> {
       requireLease: leasePath,
       openerId,
     });
+
     return this.appendEnvironmentVariables(cdp, vars);
   }
 }

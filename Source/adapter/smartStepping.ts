@@ -27,6 +27,7 @@ export async function shouldStepOverStackFrame(
 	stackFrame: StackFrame,
 ): Promise<StackFrameStepOverReason> {
 	const uiLocation = await stackFrame.uiLocation();
+
 	if (!uiLocation) {
 		return StackFrameStepOverReason.NotStepped;
 	}
@@ -100,9 +101,12 @@ export class SmartStepper {
 		const frame = (await pausedDetails.stackTrace.loadFrames(1)).find(
 			isInstanceOf(StackFrame),
 		);
+
 		const should = frame && (await shouldStepOverStackFrame(frame));
+
 		if (should === StackFrameStepOverReason.NotStepped) {
 			this.resetSmartStepCount();
+
 			return;
 		}
 

@@ -23,6 +23,7 @@ export class ExpressionCondition implements IBreakpointCondition {
 		breakCondition = wrapBreakCondition(breakCondition, breakOnError);
 
 		const err = breakCondition && getSyntaxErrorIn(breakCondition);
+
 		if (err) {
 			throw new ProtocolError(
 				invalidBreakPointCondition(params, err.message),
@@ -31,6 +32,7 @@ export class ExpressionCondition implements IBreakpointCondition {
 
 		const { canEvaluateDirectly, invoke } =
 			evaluator.prepare(breakCondition);
+
 		return new ExpressionCondition(
 			canEvaluateDirectly ? breakCondition : invoke,
 		);

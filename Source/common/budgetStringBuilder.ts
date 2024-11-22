@@ -15,6 +15,7 @@ export class BudgetStringBuilder {
 	append(text: string) {
 		if (text.length > this.budget()) {
 			this.appendEllipsis();
+
 			return;
 		}
 		this._append(text);
@@ -32,6 +33,7 @@ export class BudgetStringBuilder {
 
 	checkBudget(): boolean {
 		if (this._budget <= 0) this.appendEllipsis();
+
 		return this._budget > 0;
 	}
 

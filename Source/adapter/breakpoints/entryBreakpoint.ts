@@ -41,6 +41,7 @@ export class EntryBreakpoint extends Breakpoint {
 			this.mode,
 			this.source.path,
 		);
+
 		return this.mode === EntryBreakpointMode.Greedy
 			? super._setByUrlRegexp(
 					thread,

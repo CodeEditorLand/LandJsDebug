@@ -72,6 +72,7 @@ export function activate(context: vscode.ExtensionContext) {
 	const debugResolvers = services.getAll<IDebugConfigurationResolver>(
 		IDebugConfigurationResolver,
 	);
+
 	for (const resolver of debugResolvers) {
 		const cast = resolver as vscode.DebugConfigurationProvider;
 		context.subscriptions.push(
@@ -82,6 +83,7 @@ export function activate(context: vscode.ExtensionContext) {
 		);
 
 		const preferred = preferredDebugTypes.get(resolver.type as DebugType);
+
 		if (preferred) {
 			context.subscriptions.push(
 				vscode.debug.registerDebugConfigurationProvider(
@@ -95,6 +97,7 @@ export function activate(context: vscode.ExtensionContext) {
 	const debugProviders = services.getAll<IDebugConfigurationProvider>(
 		IDebugConfigurationProvider,
 	);
+
 	for (const provider of debugProviders) {
 		vscode.debug.registerDebugConfigurationProvider(
 			provider.type,

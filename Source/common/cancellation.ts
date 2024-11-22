@@ -44,6 +44,7 @@ export function timeoutPromise<T>(
 	}
 
 	const didTimeout = getDeferred<void>();
+
 	const disposable = cancellation.onCancellationRequested(didTimeout.resolve);
 
 	return Promise.race([
@@ -53,10 +54,12 @@ export function timeoutPromise<T>(
 		promise
 			.then((r) => {
 				disposable.dispose();
+
 				return r;
 			})
 			.catch((err) => {
 				disposable.dispose();
+
 				throw err;
 			}),
 	]);
@@ -84,6 +87,7 @@ export function cancellableRace<T>(
 
 const shortcutEvent = Object.freeze(function (callback, context?): IDisposable {
 	const handle = setTimeout(callback.bind(context), 0);
+
 	return {
 		dispose() {
 			clearTimeout(handle);
@@ -120,6 +124,7 @@ export class CancellationTokenSource {
 	 */
 	public static withTimeout(timeout: number, parent?: CancellationToken) {
 		const cts = new CancellationTokenSource(parent);
+
 		const token = (cts._token = new MutableToken());
 
 		const timer = setTimeout(() => token.cancel(), timeout);
@@ -173,6 +178,7 @@ class MutableToken implements CancellationToken {
 	public cancel() {
 		if (!this._isCancelled) {
 			this._isCancelled = true;
+
 			if (this._emitter) {
 				this._emitter.fire(undefined);
 				this.dispose();

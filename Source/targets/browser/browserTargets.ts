@@ -86,6 +86,7 @@ export class BrowserTarget implements ITarget {
 	 */
 	public get supplementalConfig() {
 		const type = this.type();
+
 		return {
 			__browserTargetType: type,
 			__usePerformanceFromParent: type !== BrowserTargetType.Page,
@@ -142,6 +143,7 @@ export class BrowserTarget implements ITarget {
 
 	afterBind() {
 		this._cdp.resume();
+
 		return Promise.resolve();
 	}
 
@@ -165,8 +167,10 @@ export class BrowserTarget implements ITarget {
 
 	children(): ITarget[] {
 		const result: ITarget[] = [];
+
 		for (const target of this._children.values()) {
 			if (jsTypes.has(target.type())) result.push(target);
+
 			else result.push(...target.children());
 		}
 		return result;
@@ -184,6 +188,7 @@ export class BrowserTarget implements ITarget {
 		if (this.type() === BrowserTargetType.ServiceWorker) {
 			// Stop both dedicated and parent service worker scopes for present and future browsers.
 			this._manager.serviceWorkerModel.stopWorker(this.id());
+
 			if (!this.parentTarget) return;
 			this._manager.serviceWorkerModel.stopWorker(this.parentTarget.id());
 		} else {
@@ -212,6 +217,7 @@ export class BrowserTarget implements ITarget {
 	async attach(): Promise<Cdp.Api> {
 		this._waitingForDebugger = false;
 		this._attached = true;
+
 		return Promise.resolve(this._cdp);
 	}
 
@@ -228,15 +234,23 @@ export class BrowserTarget implements ITarget {
 		description: Cdp.Runtime.ExecutionContextDescription,
 	): string {
 		const auxData = description.auxData;
+
 		const contextName = description.name;
+
 		if (!auxData) return contextName;
+
 		const frameId = auxData["frameId"];
+
 		const frame = frameId
 			? this._manager.frameModel.frameForId(frameId)
 			: undefined;
+
 		if (frame && auxData["isDefault"] && !frame.parentFrame()) return "top";
+
 		if (frame && auxData["isDefault"]) return frame.displayName();
+
 		if (frame) return `${contextName}`;
+
 		return contextName;
 	}
 
@@ -273,15 +287,18 @@ export class BrowserTarget implements ITarget {
 
 	_computeName(): string {
 		const custom = this._customNameComputeFn?.(this);
+
 		if (custom) {
 			return custom;
 		}
 		if (this.type() === BrowserTargetType.ServiceWorker) {
 			const version = this._manager.serviceWorkerModel.version(this.id());
+
 			if (version) return version.label() + " [Service Worker]";
 		}
 
 		let threadName = this._targetInfo.title;
+
 		const isAmbiguous =
 			threadName &&
 			this._manager
@@ -299,6 +316,7 @@ export class BrowserTarget implements ITarget {
 
 		try {
 			const parsedURL = new URL(this._targetInfo.url);
+
 			if (parsedURL.protocol === "data:") {
 				threadName = " <data>";
 			} else if (parsedURL) {

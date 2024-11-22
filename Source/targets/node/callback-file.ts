@@ -39,6 +39,7 @@ export class CallbackFile<T> implements IDisposable {
 				if (this.disposed) {
 					clearInterval(interval);
 					resolve(undefined);
+
 					return;
 				}
 
@@ -70,6 +71,7 @@ export class CallbackFile<T> implements IDisposable {
 		}
 
 		this.disposed = true;
+
 		try {
 			unlinkSync(this.path);
 		} catch {

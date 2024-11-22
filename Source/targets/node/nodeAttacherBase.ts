@@ -34,6 +34,7 @@ export abstract class NodeAttacherBase<
 			Object.entries(vars.defined())
 				.map(([key, value]) => {
 					const k = JSON.stringify(key);
+
 					return appendVars.includes(key)
 						? `process.env[${k}]=(process.env[${k}]||'')+${JSON.stringify(value)}`
 						: `process.env[${k}]=${JSON.stringify(value)}`;
@@ -54,6 +55,7 @@ export abstract class NodeAttacherBase<
 					LogTag.RuntimeTarget,
 					"Undefined result setting child environment vars",
 				);
+
 				return;
 			}
 

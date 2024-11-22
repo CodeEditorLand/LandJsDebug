@@ -51,6 +51,7 @@ export async function prettyPrintAsSourceMap(
 		locations: true,
 		ecmaVersion: "latest",
 	});
+
 	const sourceMap = new genMap.GenMapping({ file: fileName });
 
 	// provide a fake SourceMapGenerator since we want to actually add the
@@ -85,6 +86,7 @@ export async function prettyPrintAsSourceMap(
 
 export function rewriteTopLevelAwait(code: string): string | undefined {
 	let program: Program;
+
 	try {
 		// todo: strict needed due to https://github.com/acornjs/acorn/issues/988
 		program = parseProgram(code);
@@ -106,6 +108,7 @@ export function rewriteTopLevelAwait(code: string): string | undefined {
 	});
 
 	let containsAwait = false;
+
 	let containsReturn = false;
 
 	const replaced = replace(program, {
@@ -121,6 +124,7 @@ export function rewriteTopLevelAwait(code: string): string | undefined {
 							},
 						),
 					};
+
 				case "FunctionDeclaration":
 					return {
 						replace: makeAssignment(
@@ -131,21 +135,28 @@ export function rewriteTopLevelAwait(code: string): string | undefined {
 							},
 						),
 					};
+
 				case "FunctionExpression":
 				case "ArrowFunctionExpression":
 				case "MethodDefinition":
 					return VisitorOption.Skip;
+
 				case "AwaitExpression":
 					containsAwait = true;
+
 					return;
+
 				case "ForOfStatement":
 					if (node.await) {
 						containsAwait = true;
 					}
 					return;
+
 				case "ReturnStatement":
 					containsReturn = true;
+
 					return;
+
 				case "VariableDeclaration":
 					if (
 						!parent ||
@@ -156,6 +167,7 @@ export function rewriteTopLevelAwait(code: string): string | undefined {
 					}
 
 					const stmts = parent.body as Statement[];
+
 					const spliced = node.declarations.map(
 						(decl): ExpressionStatement => ({
 							type: "ExpressionStatement",
@@ -189,6 +201,7 @@ export function rewriteTopLevelAwait(code: string): string | undefined {
 	// If we expect the value (last statement is an expression),
 	// return it from the inner function.
 	const last = program.body[program.body.length - 1];
+
 	if (last.type === "ExpressionStatement") {
 		program.body[program.body.length - 1] = {
 			type: "ReturnStatement",
@@ -227,11 +240,13 @@ export function rewriteTopLevelAwait(code: string): string | undefined {
 export function wrapObjectLiteral(code: string): string {
 	try {
 		const expr = parseExpressionAt(code, 0, acornOptions);
+
 		if (expr.end < code.length) {
 			return code;
 		}
 
 		const cast = expr as Expression;
+
 		if (cast.type !== "ObjectExpression") {
 			return code;
 		}
@@ -244,30 +259,45 @@ export function wrapObjectLiteral(code: string): string {
 
 export function parseSourceMappingUrl(content: string): string | undefined {
 	if (!content) return;
+
 	const name = "sourceMappingURL";
+
 	const length = content.length;
+
 	const nameLength = name.length;
 
 	let pos = length;
+
 	let equalSignPos = 0;
+
 	while (true) {
 		pos = content.lastIndexOf(name, pos);
+
 		if (pos === -1) return;
 		// Check for a /\/[\/*][@#][ \t]/ regexp (length of 4) before found name.
 		if (pos < 4) return;
 		pos -= 4;
+
 		if (content[pos] !== "/") continue;
+
 		if (content[pos + 1] !== "/") continue;
+
 		if (content[pos + 2] !== "#" && content[pos + 2] !== "@") continue;
+
 		if (content[pos + 3] !== " " && content[pos + 3] !== "\t") continue;
 		equalSignPos = pos + 4 + nameLength;
+
 		if (equalSignPos < length && content[equalSignPos] !== "=") continue;
+
 		break;
 	}
 
 	let sourceMapUrl = content.substring(equalSignPos + 1);
+
 	const newLine = sourceMapUrl.indexOf("\n");
+
 	if (newLine !== -1) sourceMapUrl = sourceMapUrl.substring(0, newLine);
+
 	return sourceMapUrl.trim();
 }
 
@@ -301,6 +331,7 @@ export function getOptimalCompiledPosition(
 		}
 
 		const original = map.originalPositionFor(position);
+
 		return original.line !== null
 			? Math.abs(uiLocation.lineNumber - original.line)
 			: 10e10;
@@ -376,11 +407,14 @@ export function getSyntaxErrorIn(code: string): Error | void {
 
 export function getBestSteppableExpressionAt(src: string, offset: number) {
 	const ast = parseProgram(src);
+
 	let other: Node | undefined;
+
 	let steppable: Node | undefined;
 	traverse(ast, {
 		enter: (node) => {
 			const asAcorn = node as AcornNode;
+
 			if (offset >= asAcorn.start && offset < asAcorn.end) {
 				if (
 					node.type === "CallExpression" ||
@@ -406,8 +440,10 @@ export function getStepTargetInfo(line: string, offset: number) {
 	// try being smart by extracting the callable expression
 	try {
 		const node = getBestSteppableExpressionAt(line, offset);
+
 		if (node && "callee" in node) {
 			const c = node.callee as AcornNode;
+
 			return {
 				text: `${line.slice(c.start, c.end)}(...)`,
 				start: c.start,
@@ -415,6 +451,7 @@ export function getStepTargetInfo(line: string, offset: number) {
 			};
 		} else {
 			const c = node as AcornNode;
+
 			return {
 				text: line.slice(c.start, c.end),
 				start: c.start,
@@ -426,7 +463,9 @@ export function getStepTargetInfo(line: string, offset: number) {
 	}
 
 	notParensRe.lastIndex = offset - 1;
+
 	const match = notParensRe.exec(line);
+
 	if (match) {
 		return { text: match[0], start: offset, end: offset + match[0].length };
 	}

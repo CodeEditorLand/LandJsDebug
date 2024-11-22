@@ -11,10 +11,15 @@ import * as ObjectPreview from "./betterTypes";
 import { getContextForType, IPreviewContext } from "./contexts";
 
 const maxArrowFunctionCharacterLength = 30;
+
 const maxPropertyPreviewLength = 100;
+
 const maxEntryPreviewLength = 20;
+
 const maxExceptionTitleLength = 10000;
+
 const minTableCellWidth = 3;
+
 const maxTableWidth = 120;
 
 /**
@@ -67,6 +72,7 @@ export function previewRemoteObject(
 	valueFormat?: Dap.ValueFormat,
 ): string {
 	const context = getContextForType(contextType);
+
 	const result = previewRemoteObjectInternal(
 		object as ObjectPreview.AnyObject,
 		context,
@@ -105,7 +111,9 @@ export function propertyWeight(
 		| Cdp.Runtime.PrivatePropertyDescriptor,
 ): number {
 	if (prop.name === "__proto__") return 0;
+
 	if (prop.name.startsWith("__")) return 1;
+
 	return 100;
 }
 
@@ -155,23 +163,32 @@ function renderArrayPreview(
 	characterBudget: number,
 ): string {
 	const builder = new BudgetStringBuilder(characterBudget);
+
 	let description = preview.description;
+
 	const match = description.match(/[^(]*\(([\d]+)\)/);
+
 	if (!match) return description;
+
 	const arrayLength = parseInt(match[1], 10);
 
 	if (description.startsWith("Array("))
 		description = description.substring("Array".length);
 	builder.append(stringUtils.trimEnd(description, builder.budget()));
 	builder.append(" ");
+
 	const propsBuilder = new BudgetStringBuilder(builder.budget() - 2, ", "); // for []
 
 	// Indexed
 	let lastIndex = -1;
+
 	for (const prop of preview.properties) {
 		if (!propsBuilder.checkBudget()) break;
+
 		if (isNaN(prop.name as unknown as number)) continue;
+
 		const index = parseInt(prop.name, 10);
+
 		if (index > lastIndex + 1) propsBuilder.appendEllipsis();
 		lastIndex = index;
 		propsBuilder.append(renderPropertyPreview(prop, propsBuilder.budget()));
@@ -181,6 +198,7 @@ function renderArrayPreview(
 	// Named
 	for (const prop of preview.properties) {
 		if (!propsBuilder.checkBudget()) break;
+
 		if (!isNaN(prop.name as unknown as number)) continue;
 		propsBuilder.append(
 			renderPropertyPreview(prop, propsBuilder.budget(), prop.name),
@@ -188,6 +206,7 @@ function renderArrayPreview(
 	}
 	if (preview.overflow) propsBuilder.appendEllipsis();
 	builder.append("[" + propsBuilder.build() + "]");
+
 	return builder.build();
 }
 
@@ -197,6 +216,7 @@ function renderObjectPreview(
 	format: Dap.ValueFormat | undefined,
 ): string {
 	const builder = new BudgetStringBuilder(characterBudget, " ");
+
 	if (preview.description !== "Object") {
 		builder.append(
 			stringUtils.trimEnd(preview.description, builder.budget()),
@@ -204,26 +224,33 @@ function renderObjectPreview(
 	}
 
 	const map = new Map<string, ObjectPreview.PropertyPreview>();
+
 	const properties = preview.properties || [];
+
 	for (const prop of properties) {
 		map.set(prop.name, prop);
 	}
 
 	// Handle boxed values such as Number, String.
 	const primitiveValue = map.get("[[PrimitiveValue]]");
+
 	if (primitiveValue) {
 		builder.append(
 			`(${renderPropertyPreview(primitiveValue, builder.budget() - 2)})`,
 		);
+
 		return builder.build();
 	}
 
 	// Promise handling.
 	const promiseStatus = map.get("[[PromiseStatus]]");
+
 	const promiseValue = map.get("[[PromiseValue]]");
+
 	if (promiseStatus && promiseValue) {
 		if (promiseStatus.value === "pending")
 			builder.append(`{<${promiseStatus.value}>}`);
+
 		else {
 			builder.append(
 				`{${renderPropertyPreview(
@@ -238,8 +265,10 @@ function renderObjectPreview(
 
 	// Generator handling.
 	const generatorStatus = map.get("[[GeneratorStatus]]");
+
 	if (generatorStatus) {
 		builder.append(`{<${generatorStatus.value}>}`);
+
 		return builder.build();
 	}
 
@@ -262,6 +291,7 @@ function renderObjectPreview(
 				Math.min(maxEntryPreviewLength, propsBuilder.budget()),
 				format,
 			);
+
 			const value = renderPreview(
 				entry.value,
 				Math.min(
@@ -289,6 +319,7 @@ function renderObjectPreview(
 	}
 
 	const text = propsBuilder.build();
+
 	if (text) {
 		builder.append("{" + text + "}");
 	} else if (builder.isEmpty()) {
@@ -326,6 +357,7 @@ function renderPrimitivePreview(
 
 	if (preview.type === "string") {
 		let str = preview.description ?? preview.value;
+
 		if (valueFormat?.hex) {
 			str = Buffer.from(str, "utf8").toString("hex");
 		}
@@ -347,6 +379,7 @@ function appendKeyValue(
 ) {
 	if (key === undefined)
 		return stringUtils.trimMiddle(value, characterBudget);
+
 	if (key.length + separator.length > characterBudget) {
 		return stringUtils.trimEnd(key, characterBudget);
 	}
@@ -364,6 +397,7 @@ function renderPropertyPreview(
 	name?: string,
 ): string {
 	characterBudget = Math.min(characterBudget, maxPropertyPreviewLength);
+
 	if (prop.type === "function")
 		return appendKeyValue(name, ": ", "ƒ", characterBudget); // Functions don't carry preview.
 	if (prop.type === "object" && prop.value === "Object") {
@@ -398,6 +432,7 @@ function quoteStringValue(value: string) {
 		: "'";
 
 	const replacer = new RegExp(`[${quoteStyle}\\\\]`, "g");
+
 	return `${quoteStyle}${value.replace(replacer, "\\$&")}${quoteStyle}`;
 }
 
@@ -409,6 +444,7 @@ function renderValue(
 	if (object.type === "string") {
 		let stringValue =
 			object.value || (object.description ? object.description : "");
+
 		if (format?.hex) {
 			stringValue = Buffer.from(stringValue, "utf8").toString("hex");
 			quoted = false;
@@ -417,6 +453,7 @@ function renderValue(
 			stringValue,
 			quoted ? budget - 2 : budget,
 		);
+
 		if (quoted) {
 			value = quoteStringValue(value);
 		}
@@ -453,6 +490,7 @@ function formatFunctionDescription(
 	characterBudget: number,
 ): string {
 	const builder = new BudgetStringBuilder(characterBudget);
+
 	const text = description
 		.replace(/^function [gs]et /, "function ")
 		.replace(/^function [gs]et\(/, "function(")
@@ -461,11 +499,17 @@ function formatFunctionDescription(
 	// This set of best-effort regular expressions captures common function descriptions.
 	// Ideally, some parser would provide prefix, arguments, function body text separately.
 	const asyncMatch = text.match(/^(async\s+function)/);
+
 	const isGenerator = text.startsWith("function*");
+
 	const isGeneratorShorthand = text.startsWith("*");
+
 	const isBasic = !isGenerator && text.startsWith("function");
+
 	const isClass = text.startsWith("class ") || text.startsWith("class{");
+
 	const firstArrowIndex = text.indexOf("=>");
+
 	const isArrow =
 		!asyncMatch &&
 		!isGenerator &&
@@ -474,10 +518,14 @@ function formatFunctionDescription(
 		firstArrowIndex > 0;
 
 	let textAfterPrefix: string;
+
 	if (isClass) {
 		textAfterPrefix = text.substring("class".length);
+
 		const classNameMatch = /^[^{\s]+/.exec(textAfterPrefix.trim());
+
 		let className = "";
+
 		if (classNameMatch) className = classNameMatch[0].trim() || "";
 		addToken("class", textAfterPrefix, className);
 	} else if (asyncMatch) {
@@ -494,6 +542,7 @@ function formatFunctionDescription(
 		addToken("ƒ", textAfterPrefix, nameAndArguments(textAfterPrefix));
 	} else if (isArrow) {
 		let abbreviation = text;
+
 		if (text.length > maxArrowFunctionCharacterLength) {
 			abbreviation = text.substring(0, firstArrowIndex + 2) + " {\u2026}";
 		}
@@ -505,9 +554,12 @@ function formatFunctionDescription(
 
 	function nameAndArguments(contents: string): string {
 		const startOfArgumentsIndex = contents.indexOf("(");
+
 		const endOfArgumentsMatch = contents.match(/\)\s*{/);
+
 		const endIndex =
 			(endOfArgumentsMatch && endOfArgumentsMatch.index) || 0;
+
 		if (
 			startOfArgumentsIndex !== -1 &&
 			endOfArgumentsMatch &&
@@ -515,10 +567,12 @@ function formatFunctionDescription(
 		) {
 			const name =
 				contents.substring(0, startOfArgumentsIndex).trim() || "";
+
 			const args = contents.substring(
 				startOfArgumentsIndex,
 				endIndex + 1,
 			);
+
 			return name + args;
 		}
 		return "()";
@@ -526,12 +580,15 @@ function formatFunctionDescription(
 
 	function addToken(prefix: string, body: string, abbreviation: string) {
 		if (!builder.checkBudget()) return;
+
 		if (prefix.length) builder.append(prefix + " ");
 		body = body.trim();
+
 		if (body.endsWith(" { [native code] }")) {
 			body = body.substring(0, body.length - " { [native code] }".length);
 		}
 		if (builder.budget() >= body.length) builder.append(body);
+
 		else builder.append(abbreviation.replace(/\n/g, " "));
 	}
 }
@@ -540,6 +597,7 @@ export function previewException(
 	rawException: Cdp.Runtime.RemoteObject | ObjectPreview.AnyObject,
 ): { title: string; stackTrace?: string } {
 	const exception = rawException as ObjectPreview.AnyObject;
+
 	if (exception.type !== "object" || exception.subtype === "null") {
 		return {
 			title: renderValue(
@@ -554,10 +612,14 @@ export function previewException(
 		exception.description ??
 		(exception as { className?: string }).className ??
 		"Error";
+
 	const firstCallFrame = /^\s+at\s/m.exec(description);
+
 	if (!firstCallFrame) {
 		const lastLineBreak = description.lastIndexOf("\n");
+
 		if (lastLineBreak === -1) return { title: description };
+
 		return { title: description.substring(0, lastLineBreak) };
 	}
 
@@ -580,20 +642,24 @@ function formatAsNumber(
 
 		const value =
 			param.value !== undefined ? param.value : +param.description;
+
 		return format?.hex ? value.toString(16) : String(value);
 	}
 
 	if (param.type === "bigint") {
 		// parse unserializableValue is "1234n", slice the "n" off to parse and then base16 the number
 		const v = param.unserializableValue || param.description;
+
 		return format?.hex ? BigInt(v.slice(0, -1)).toString(16) : v;
 	}
 
 	const fallback = param as Cdp.Runtime.RemoteObject;
+
 	const value =
 		typeof fallback.value === "number"
 			? fallback.value
 			: +String(fallback.description);
+
 	return stringUtils.trimEnd(
 		String(round ? Math.floor(value) : value),
 		characterBudget,
@@ -617,7 +683,9 @@ function formatAsString(
 export function formatAsTable(param: Cdp.Runtime.ObjectPreview): string {
 	// Collect columns, values and measure lengths.
 	const rows: Map<string | undefined, string>[] = [];
+
 	const colNames = new Set<string | undefined>([undefined]);
+
 	const colLengths = new Map<string | undefined, number>();
 
 	// Measure entries.
@@ -655,9 +723,12 @@ export function formatAsTable(param: Cdp.Runtime.ObjectPreview): string {
 		(a, c) => a + c,
 		0,
 	);
+
 	const maxColumnsWidth = maxTableWidth - 4 - (colNames.size - 1) * 3;
+
 	if (columnsWidth > maxColumnsWidth) {
 		const ratio = maxColumnsWidth / columnsWidth;
+
 		for (const name of colLengths.keys()) {
 			// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 			const newWidth = Math.max(
@@ -673,6 +744,7 @@ export function formatAsTable(param: Cdp.Runtime.ObjectPreview): string {
 	// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 	for (const name of colNames.values())
 		colTemplates.push("-".repeat(colLengths.get(name)!));
+
 	const rowTemplate = "[-" + colTemplates.join("-|-") + "-]";
 
 	const table: string[] = [];
@@ -683,6 +755,7 @@ export function formatAsTable(param: Cdp.Runtime.ObjectPreview): string {
 			.replace("]", "╮")
 			.replace(/-/g, "┄"), // CodeQL [SM02383] The non-global replaces are replacing the sides of the table and do not need to be global.
 	);
+
 	const header: string[] = [];
 	// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 	for (const name of colNames.values())
@@ -698,6 +771,7 @@ export function formatAsTable(param: Cdp.Runtime.ObjectPreview): string {
 
 	for (const value of rows) {
 		const row: string[] = [];
+
 		for (const colName of colNames.values()) {
 			// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 			row.push(pad(value.get(colName) || "", colLengths.get(colName)!));
@@ -711,6 +785,7 @@ export function formatAsTable(param: Cdp.Runtime.ObjectPreview): string {
 			.replace("]", "╯")
 			.replace(/-/g, "┄"), // CodeQL [SM02383] The non-global replaces are replacing the sides of the table and do not need to be global.
 	);
+
 	return table
 		.map((row) => stringUtils.trimEnd(row, maxTableWidth))
 		.join("\n");
@@ -770,6 +845,8 @@ export const messageFormatters: messageFormat.Formatters<ObjectPreview.AnyObject
 
 function pad(text: string, length: number) {
 	if (text.length === length) return text;
+
 	if (text.length < length) return text + " ".repeat(length - text.length);
+
 	return stringUtils.trimEnd(text, length);
 }

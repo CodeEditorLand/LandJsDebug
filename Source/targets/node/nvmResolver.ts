@@ -60,16 +60,20 @@ export class NvmResolver implements INvmResolver {
 
 	public async resolveNvmVersionPath(version: string) {
 		let directory: string | undefined = undefined;
+
 		const versionManagers: string[] = [];
+
 		const versionData = this.parseVersionString(version);
 
 		let nvsHome = this.env[Vars.NvsHome];
+
 		if (!nvsHome) {
 			// NVS_HOME is not always set. Probe for 'nvs' directory instead
 			const nvsDir =
 				this.platform === "win32"
 					? path.join(this.env["LOCALAPPDATA"] || "", "nvs")
 					: path.join(this.env["HOME"] || "", ".nvs");
+
 			if (fs.existsSync(nvsDir)) {
 				nvsHome = nvsDir;
 			}
@@ -77,6 +81,7 @@ export class NvmResolver implements INvmResolver {
 
 		if (versionData.nvsFormat || nvsHome) {
 			directory = await this.resolveNvs(nvsHome, versionData);
+
 			if (!directory && versionData.nvsFormat) {
 				throw new ProtocolError(nvmVersionNotFound(version, "nvs"));
 			}
@@ -93,6 +98,7 @@ export class NvmResolver implements INvmResolver {
 				const nvmDir =
 					this.env[Vars.UnixNvmHome] ||
 					path.join(this.homedir, ".nvm");
+
 				if (await this.fsUtils.exists(nvmDir)) {
 					directory = await this.resolveUnixNvm(version);
 					versionManagers.push("nvm");
@@ -106,6 +112,7 @@ export class NvmResolver implements INvmResolver {
 					? this.env[Vars.FnmHome] ||
 						path.join(this.env["APPDATA"] || "", "fnm")
 					: this.env[Vars.FnmHome] || path.join(this.homedir, ".fnm");
+
 			if (await this.fsUtils.exists(fnmDir)) {
 				directory = await this.resolveFnm(version, fnmDir);
 				versionManagers.push("fnm");
@@ -170,9 +177,11 @@ export class NvmResolver implements INvmResolver {
 	private async resolveUnixNvm(version: string) {
 		// macOS and linux
 		let nvmHome = this.env[Vars.UnixNvmHome];
+
 		if (!nvmHome) {
 			// if NVM_DIR is not set. Probe for '.nvm' directory instead
 			const nvmDir = path.join(this.env["HOME"] || "", ".nvm");
+
 			if (await this.fsUtils.exists(nvmDir)) {
 				nvmHome = nvmDir;
 			}
@@ -190,6 +199,7 @@ export class NvmResolver implements INvmResolver {
 
 	private async resolveWindowsNvm(version: string) {
 		const nvmHome = this.env[Vars.WindowsNvmHome];
+
 		if (!nvmHome) {
 			throw new ProtocolError(nvmHomeNotFound());
 		}
@@ -220,6 +230,7 @@ export class NvmResolver implements INvmResolver {
 		}
 
 		const available = fs.readdirSync(dir);
+
 		if (available.includes(version)) {
 			return path.join(dir, version);
 		}
@@ -243,13 +254,17 @@ export class NvmResolver implements INvmResolver {
 			/^(([\w-]+)\/)?(v?(\d+(\.\d+(\.\d+)?)?))(\/((x86)|(32)|((x)?64)|(arm\w*)|(ppc\w*)))?$/i;
 
 		const match = versionRegex.exec(versionString);
+
 		if (!match) {
 			throw new Error("Invalid version string: " + versionString);
 		}
 
 		const nvsFormat = !!(match[2] || match[8]);
+
 		const remoteName = match[2] || "node";
+
 		const semanticVersion = match[4] || "";
+
 		const arch = nvsStandardArchName(match[8] || this.arch);
 
 		return { nvsFormat, remoteName, semanticVersion, arch };
@@ -258,13 +273,17 @@ export class NvmResolver implements INvmResolver {
 
 const semverSortAscending = (a: string, b: string) => {
 	const matchA = /([0-9]+)\.([0-9]+)\.([0-9]+)/.exec(a);
+
 	const matchB = /([0-9]+)\.([0-9]+)\.([0-9]+)/.exec(b);
+
 	if (!matchA || !matchB) {
 		return (matchB ? -1 : 0) + (matchA ? 1 : 0);
 	}
 
 	const [, aMajor, aMinor, aPatch] = matchA;
+
 	const [, bMajor, bMinor, bPatch] = matchB;
+
 	return (
 		Number(aMajor) - Number(bMajor) ||
 		Number(aMinor) - Number(bMinor) ||
@@ -278,14 +297,18 @@ function nvsStandardArchName(arch: string) {
 		case "x86":
 		case "ia32":
 			return "x86";
+
 		case "64":
 		case "x64":
 		case "amd64":
 			return "x64";
+
 		case "arm":
 			// eslint-disable-next-line
 			const armVersion = (process.config.variables as any).arm_version;
+
 			return armVersion ? "armv" + armVersion + "l" : "arm";
+
 		default:
 			return arch;
 	}

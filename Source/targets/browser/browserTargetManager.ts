@@ -49,9 +49,13 @@ export class BrowserTargetManager implements IDisposable {
 		targetOrigin: ITargetOrigin,
 	): Promise<BrowserTargetManager | undefined> {
 		const rootSession = connection.rootSession();
+
 		const result = await rootSession.Target.attachToBrowserTarget({});
+
 		if (!result) return;
+
 		const browserSession = connection.createSession(result.sessionId);
+
 		return new this(
 			connection,
 			process,
@@ -105,6 +109,7 @@ export class BrowserTargetManager implements IDisposable {
 		filter?: (target: Cdp.Target.TargetInfo) => boolean,
 	) {
 		const targets = await this._browser.Target.getTargets({});
+
 		if (!targets) {
 			return [];
 		}
@@ -140,9 +145,11 @@ export class BrowserTargetManager implements IDisposable {
 		filter?: (target: Cdp.Target.TargetInfo) => boolean,
 	): Promise<BrowserTarget | undefined> {
 		let callback: (result: BrowserTarget | undefined) => void;
+
 		const promise = new Promise<BrowserTarget | undefined>(
 			(f) => (callback = f),
 		);
+
 		const attachInner = async (targetInfo: Cdp.Target.TargetInfo) => {
 			if (
 				[...this._targets.values()].some(
@@ -169,6 +176,7 @@ export class BrowserTargetManager implements IDisposable {
 			);
 
 			let response: Cdp.Target.AttachToBrowserTargetResult | undefined;
+
 			try {
 				response = await this._browser.Target.attachToTarget({
 					targetId: targetInfo.targetId,
@@ -180,6 +188,7 @@ export class BrowserTargetManager implements IDisposable {
 
 			if (!response) {
 				callback(undefined);
+
 				return;
 			}
 
@@ -231,11 +240,13 @@ export class BrowserTargetManager implements IDisposable {
 		waitForDebuggerOnStart = true,
 	): BrowserTarget {
 		const existing = this._targets.get(sessionId);
+
 		if (existing) {
 			return existing;
 		}
 
 		const cdp = this._connection.createSession(sessionId);
+
 		const target = new BrowserTarget(
 			this,
 			targetInfo,
@@ -251,6 +262,7 @@ export class BrowserTargetManager implements IDisposable {
 			},
 		);
 		this._targets.set(sessionId, target);
+
 		if (parentTarget)
 			parentTarget._children.set(targetInfo.targetId, target);
 
@@ -290,6 +302,7 @@ export class BrowserTargetManager implements IDisposable {
 		}
 
 		const type = targetInfo.type as BrowserTargetType;
+
 		if (domDebuggerTypes.has(type))
 			this.frameModel.attached(cdp, targetInfo.targetId);
 		this.serviceWorkerModel.attached(cdp);
@@ -310,6 +323,7 @@ export class BrowserTargetManager implements IDisposable {
 	private async retrieveBrowserTelemetry(cdp: Cdp.Api) {
 		try {
 			const info = await cdp.Browser.getVersion({});
+
 			if (!info) {
 				throw new Error("Undefined return from getVersion()");
 			}
@@ -331,6 +345,7 @@ export class BrowserTargetManager implements IDisposable {
 			);
 
 			const parts = (info.product || "").split("/");
+
 			if (parts.length === 2) {
 				// Currently response.product looks like "Chrome/65.0.3325.162" so we split the project and the actual version number
 				properties.targetProject = parts[0];
@@ -355,6 +370,7 @@ export class BrowserTargetManager implements IDisposable {
 		isStillAttachedInternally = true,
 	) {
 		const target = this._targets.get(sessionId);
+
 		if (!target) {
 			return;
 		}
@@ -369,6 +385,7 @@ export class BrowserTargetManager implements IDisposable {
 		}
 
 		this._onTargetRemovedEmitter.fire(target);
+
 		if (isStillAttachedInternally) {
 			this._detachedTargets.add(target.targetId);
 			await this._browser.Target.detachFromTarget({ sessionId });

@@ -20,11 +20,13 @@ export class ReporterBatcher {
 	 */
 	public add(method: string, measurement: number, error?: Error) {
 		let arr = this.measurements[method];
+
 		if (!arr) {
 			arr = this.measurements[method] = { times: [], errors: [] };
 		}
 
 		arr.times.push(measurement);
+
 		if (error) {
 			arr.errors.push(error);
 		}
@@ -36,8 +38,10 @@ export class ReporterBatcher {
 	 */
 	public flush(): IRPCMetricsAndErrorsMap {
 		const results: IRPCMetricsAndErrorsMap = { errors: [] };
+
 		for (const key in this.measurements) {
 			const { times, errors } = this.measurements[key];
+
 			const item: IRPCMetrics = {
 				operation: key,
 				totalTime: 0,
@@ -54,6 +58,7 @@ export class ReporterBatcher {
 			}
 
 			item.avg = item.totalTime / item.count;
+
 			for (const t of times) {
 				item.stddev += (t - item.avg) ** 2;
 			}

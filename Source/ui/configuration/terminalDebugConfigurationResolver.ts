@@ -41,6 +41,7 @@ export class TerminalDebugConfigurationResolver
 				undefined,
 				folder,
 			);
+
 			return undefined;
 		}
 

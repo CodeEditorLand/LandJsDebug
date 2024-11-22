@@ -83,6 +83,7 @@ export class StreamDapTransport implements IDapTransport {
 
 	send(message: Message, shouldLog = true, onDidWrite?: () => void): void {
 		const json = JSON.stringify(message);
+
 		if (shouldLog) {
 			let objectToLog = message;
 
@@ -100,17 +101,20 @@ export class StreamDapTransport implements IDapTransport {
 			});
 		}
 		const data = `Content-Length: ${Buffer.byteLength(json, "utf8")}\r\n\r\n${json}`;
+
 		if (this.outputStream.destroyed) {
 			this.logger?.warn(
 				LogTag.DapSend,
 				"Message not sent. Connection was closed.",
 			);
 			onDidWrite?.();
+
 			return;
 		}
 
 		this.outputStream.write(data, "utf8", (err) => {
 			onDidWrite?.();
+
 			if (err) {
 				console.log(message);
 				this.logger?.error(
@@ -130,12 +134,14 @@ export class StreamDapTransport implements IDapTransport {
 
 	setLogger(logger: ILogger) {
 		this.logger = logger;
+
 		return this;
 	}
 
 	_handleData = (data: Buffer): void => {
 		const receivedTime = new HrTime();
 		this._rawData = Buffer.concat([this._rawData, data]);
+
 		while (true) {
 			if (this._contentLength >= 0) {
 				if (this._rawData.length >= this._contentLength) {
@@ -146,6 +152,7 @@ export class StreamDapTransport implements IDapTransport {
 					);
 					this._rawData = this._rawData.slice(this._contentLength);
 					this._contentLength = -1;
+
 					if (message.length > 0) {
 						try {
 							const msg: Message = JSON.parse(message);
@@ -167,16 +174,21 @@ export class StreamDapTransport implements IDapTransport {
 				}
 			} else {
 				const idx = this._rawData.indexOf(_TWO_CRLF);
+
 				if (idx !== -1) {
 					const header = this._rawData.toString("utf8", 0, idx);
+
 					const lines = header.split("\r\n");
+
 					for (let i = 0; i < lines.length; i++) {
 						const pair = lines[i].split(/: +/);
+
 						if (pair[0] === "Content-Length") {
 							this._contentLength = +pair[1];
 						}
 					}
 					this._rawData = this._rawData.slice(idx + _TWO_CRLF.length);
+
 					continue;
 				}
 			}
@@ -221,6 +233,7 @@ export class SessionIdDapTransport implements IDapTransport {
 
 	setLogger(logger: ILogger) {
 		this.rootTransport.setLogger(logger);
+
 		return this;
 	}
 

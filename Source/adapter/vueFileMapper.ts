@@ -90,11 +90,13 @@ export class VueFileMapper implements IVueFileMapper {
 	 */
 	public async lookup(sourceUrl: string) {
 		const match = vueSourceUrlRe.exec(sourceUrl);
+
 		if (!match) {
 			return undefined;
 		}
 
 		const basenameToPath = await this.getMapping();
+
 		return basenameToPath.get(match[1]);
 	}
 

@@ -14,10 +14,14 @@ export const getNodeChildren = remoteFunction(function (
 	count: number,
 ) {
 	const result: Record<number, Node | string> = {};
+
 	const from = start === -1 ? 0 : start;
+
 	const to = count === -1 ? this.childNodes.length : start + count;
+
 	for (let i = from; i < to && i < this.childNodes.length; ++i) {
 		const cn = this.childNodes[i];
+
 		if (cn.nodeName === "#comment") {
 			result[i] = `<!-- ${cn.textContent} -->`;
 		} else if (cn.nodeName === "#text") {

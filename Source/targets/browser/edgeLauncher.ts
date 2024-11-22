@@ -116,10 +116,12 @@ export class EdgeLauncher extends BrowserLauncher<IEdgeLaunchConfiguration> {
 		if (!params.runtimeExecutable) {
 			// runtimeExecutable is required for web view debugging.
 			promisedPort.resolve(params.port);
+
 			return promisedPort.promise;
 		}
 
 		const exeName = params.runtimeExecutable.split(/\\|\//).pop();
+
 		const pipeName = `VSCode_${randomBytes(12).toString("base64")}`;
 		// This is a known pipe name scheme described in the web view documentation
 		// https://docs.microsoft.com/microsoft-edge/hosting/webview2/reference/webview2.idl
@@ -134,17 +136,21 @@ export class EdgeLauncher extends BrowserLauncher<IEdgeLaunchConfiguration> {
 				// devtoolsActivePort will always start with the port number
 				// and look something like '92202\n ...'
 				const dtString = info.devtoolsActivePort || "";
+
 				const dtPort = parseInt(dtString.split("\n").shift() || "");
+
 				const port = params.port || dtPort;
 
 				promisedPort.resolve(port);
 
 				// All web views started under our debugger are waiting to to be resumed.
 				const wsURL = `ws://${params.address}:${port}/devtools/${info.type}/${info.id}`;
+
 				const ws = await WebSocketTransport.create(
 					wsURL,
 					NeverCancelled,
 				);
+
 				const connection = new CdpConnection(
 					ws,
 					this.logger,
@@ -186,6 +192,7 @@ export class EdgeLauncher extends BrowserLauncher<IEdgeLaunchConfiguration> {
 			this.browserFinder,
 			executablePath,
 		);
+
 		if (!resolvedPath || !(await canAccess(this.fs, resolvedPath))) {
 			throw new ProtocolError(
 				browserNotFound(

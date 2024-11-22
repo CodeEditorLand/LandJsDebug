@@ -71,8 +71,10 @@ export class FrameModel {
 	): Frame {
 		const frame = new Frame(this, cdp, frameId, parentFrameId);
 		this._frames.set(frame.id, frame);
+
 		if (frame.isMainFrame()) this._mainFrame = frame;
 		this._onFrameAddedEmitter.fire(frame);
+
 		return frame;
 	}
 
@@ -83,8 +85,10 @@ export class FrameModel {
 		parentFrameId: Cdp.Page.FrameId | undefined,
 	): Frame {
 		let frame = this._frames.get(frameId);
+
 		if (!frame) frame = this._addFrame(cdp, frameId, parentFrameId);
 		frame._ref(targetId);
+
 		return frame;
 	}
 
@@ -94,6 +98,7 @@ export class FrameModel {
 		framePayload: Cdp.Page.Frame,
 	) {
 		let frame = this._frames.get(framePayload.id);
+
 		if (!frame) {
 			// Simulate missed "frameAttached" for a main frame navigation to the new backend process.
 			frame = this._frameAttached(
@@ -113,6 +118,7 @@ export class FrameModel {
 		frameId: Cdp.Page.FrameId,
 	) {
 		const frame = this._frames.get(frameId);
+
 		if (!frame) return;
 		frame._unref(targetId);
 	}
@@ -132,7 +138,9 @@ export class FrameModel {
 		targetId: Cdp.Target.TargetID,
 	) {
 		const framePayload = frameTreePayload.frame;
+
 		let frame = this._frames.get(framePayload.id);
+
 		if (frame) {
 			frame._navigate(framePayload, targetId);
 			this._onFrameNavigatedEmitter.fire(frame);
@@ -232,6 +240,7 @@ export class Frame {
 
 	_unref(targetId: Cdp.Target.TargetID) {
 		this._targets.delete(targetId);
+
 		if (this._targets.size) return;
 		this._unrefChildFrames(targetId);
 		this.model._frames.delete(this.id);
@@ -240,17 +249,20 @@ export class Frame {
 
 	displayName(): string {
 		if (this._name) return this._name;
+
 		return displayName(this._url) || `<iframe ${this.id}>`;
 	}
 }
 
 function trimEnd(text: string, maxLength: number) {
 	if (text.length <= maxLength) return text;
+
 	return text.substr(0, maxLength - 1) + "…";
 }
 
 function displayName(urlstring: string): string {
 	let url: URL;
+
 	try {
 		url = new URL(urlstring);
 	} catch (e) {
@@ -260,10 +272,14 @@ function displayName(urlstring: string): string {
 	if (url.protocol === "data") return trimEnd(urlstring, 20);
 
 	if (url.protocol === "blob") return urlstring;
+
 	if (urlstring === "about:blank") return urlstring;
 
 	let displayName = path.basename(url.pathname);
+
 	if (!displayName) displayName = (url.host || "") + "/";
+
 	if (displayName === "/") displayName = trimEnd(urlstring, 20);
+
 	return displayName;
 }

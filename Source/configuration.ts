@@ -1049,6 +1049,7 @@ export function applyNodeDefaults({
 	...config
 }: ResolvingNodeConfiguration): AnyNodeConfiguration {
 	applyNodeishDefaults(config);
+
 	if (config.request === "attach") {
 		return { ...nodeAttachConfigDefaults, ...config };
 	} else {
@@ -1099,6 +1100,7 @@ export function applyExtensionHostDefaults(
 		"**/node_modules.asar/**",
 		"**/bootstrap-fork.js",
 	];
+
 	return resolved;
 }
 
@@ -1106,6 +1108,7 @@ export function applyTerminalDefaults(
 	config: ResolvingTerminalConfiguration,
 ): AnyTerminalConfiguration {
 	applyNodeishDefaults(config);
+
 	return config.request === "launch"
 		? { ...terminalBaseDefaults, ...config }
 		: { ...delegateDefaults, ...config };
@@ -1124,30 +1127,42 @@ export function applyDefaults(
 	location?: "local" | "remote",
 ): AnyLaunchConfiguration {
 	let configWithDefaults: AnyLaunchConfiguration;
+
 	const defaultBrowserLocation =
 		location === "remote" ? ("ui" as const) : ("workspace" as const);
+
 	switch (config.type) {
 		case DebugType.Node:
 			configWithDefaults = applyNodeDefaults(config);
+
 			break;
+
 		case DebugType.Edge:
 			configWithDefaults = applyEdgeDefaults(
 				config,
 				defaultBrowserLocation,
 			);
+
 			break;
+
 		case DebugType.Chrome:
 			configWithDefaults = applyChromeDefaults(
 				config,
 				defaultBrowserLocation,
 			);
+
 			break;
+
 		case DebugType.ExtensionHost:
 			configWithDefaults = applyExtensionHostDefaults(config);
+
 			break;
+
 		case DebugType.Terminal:
 			configWithDefaults = applyTerminalDefaults(config);
+
 			break;
+
 		default:
 			throw assertNever(config, "Unknown config: {value}");
 	}
@@ -1164,6 +1179,7 @@ export function removeOptionalWorkspaceFolderUsages<
 	T extends AnyLaunchConfiguration,
 >(config: T): T {
 	const token = "${workspaceFolder}";
+
 	const cast: AnyLaunchConfiguration = {
 		...config,
 		rootPath: undefined,
@@ -1230,6 +1246,7 @@ export function resolveVariableInConfig<T>(
 	varValue: string | undefined,
 ): T {
 	let out: unknown;
+
 	if (typeof config === "string") {
 		out = config.replace(new RegExp(`\\$\\{${varName}\\}`, "g"), () => {
 			if (!varValue) {
@@ -1245,6 +1262,7 @@ export function resolveVariableInConfig<T>(
 		);
 	} else if (typeof config === "object" && config) {
 		const obj: { [key: string]: unknown } = {};
+
 		for (const [key, value] of Object.entries(config)) {
 			obj[resolveVariableInConfig(key, varName, varValue)] =
 				resolveVariableInConfig(value, varName, varValue);

@@ -34,6 +34,7 @@ export const getNodeLaunchArgs = (
 	config: INodeLaunchConfiguration,
 ): string[] => {
 	let program = config.program;
+
 	if (program && path.isAbsolute(program)) {
 		const maybeRel = path.relative(config.cwd, program);
 		program = path.isAbsolute(maybeRel)

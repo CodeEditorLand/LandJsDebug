@@ -120,10 +120,12 @@ export function analyseArguments(args: string) {
 	const DEBUG_PORT_PATTERN = /--inspect-port=(\d+)/;
 
 	let address: string | undefined;
+
 	let port: number | undefined;
 
 	// match --inspect, --inspect=1234, --inspect-brk, --inspect-brk=1234
 	let matches = DEBUG_FLAGS_PATTERN().exec(args);
+
 	if (matches?.groups) {
 		const portStr = matches.groups.port1 || matches.groups.port2;
 		port = portStr ? Number(portStr) : 9229;
@@ -132,6 +134,7 @@ export function analyseArguments(args: string) {
 
 	// a --inspect-port=1234 overrides the port
 	matches = DEBUG_PORT_PATTERN.exec(args);
+
 	if (matches && matches.length === 2) {
 		address ||= "127.0.0.1";
 		port = parseInt(matches[1]);

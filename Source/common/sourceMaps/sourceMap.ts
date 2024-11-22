@@ -64,7 +64,9 @@ export class SourceMap {
 
 		for (let i = 0; i < actualSources.length; i++) {
 			const a = actualSources[i];
+
 			const o = original.sources[i];
+
 			if (a !== null && o !== null) {
 				this.sourceActualToOriginal.set(a, o);
 				this.sourceOriginalToActual.set(o, a);
@@ -114,6 +116,7 @@ export class SourceMap {
 		bias?: 1 | -1;
 	}): NullableMappedPosition {
 		const mapped = originalPositionFor(this.original, generatedPosition);
+
 		if (mapped.source) {
 			mapped.source =
 				this.sourceOriginalToActual.get(mapped.source) ?? mapped.source;
@@ -138,6 +141,7 @@ export class SourceMap {
 		// For non-finite lines, get the any closest location to the desired bounds
 		if (!isFinite(originalPosition.line)) {
 			const bias = originalPosition.bias || GREATEST_LOWER_BOUND;
+
 			return this.getBestGeneratedForOriginal(
 				source,
 				(a, b) => sortOriginalLocationAscending(a, b) * bias,
@@ -169,7 +173,9 @@ export class SourceMap {
 	 */
 	sourceContentFor(source: string): string | null {
 		source = this.sourceActualToOriginal.get(source) ?? source;
+
 		const index = this.original.sources.indexOf(source);
+
 		return index === -1
 			? null
 			: (this.original.sourcesContent?.[index] ?? null);

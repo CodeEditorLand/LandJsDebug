@@ -128,11 +128,13 @@ export class BootloaderEnvironment {
 
 	public get inspectorOptions() {
 		const value = this.processEnv.VSCODE_INSPECTOR_OPTIONS;
+
 		if (!value) {
 			return undefined;
 		}
 
 		const ownOptions = value.split(variableDelimiter).find((v) => !!v);
+
 		if (!ownOptions) {
 			return;
 		}
@@ -167,6 +169,7 @@ export class BootloaderEnvironment {
 		value: IBootloaderInfo[K],
 	) {
 		const options = this.inspectorOptions;
+
 		if (options) {
 			this.inspectorOptions = { ...options, [key]: value };
 		}

@@ -36,6 +36,7 @@ export class Hasher implements IDisposable {
 			mode,
 			id: this.idCounter++,
 		});
+
 		return r.hash;
 	}
 	/**
@@ -48,6 +49,7 @@ export class Hasher implements IDisposable {
 			mode,
 			id: this.idCounter++,
 		});
+
 		return r.hash;
 	}
 	/**
@@ -65,6 +67,7 @@ export class Hasher implements IDisposable {
 			expected,
 			checkNode,
 		});
+
 		return r.matches;
 	}
 
@@ -83,6 +86,7 @@ export class Hasher implements IDisposable {
 			expected,
 			checkNode,
 		});
+
 		return r.matches;
 	}
 
@@ -96,6 +100,7 @@ export class Hasher implements IDisposable {
 
 	private send<T extends HashRequest>(req: T): Promise<HashResponse<T>> {
 		const cp = this.getProcess();
+
 		if (!cp) {
 			throw new Error("hash.js process unexpectedly exited");
 		}
@@ -133,7 +138,9 @@ export class Hasher implements IDisposable {
 		instance.setMaxListeners(Infinity);
 		instance.on("message", (raw) => {
 			const msg = raw as HashResponse<HashRequest>;
+
 			const pending = this.deferredMap.get(msg.id);
+
 			if (!pending) {
 				return;
 			}
@@ -145,6 +152,7 @@ export class Hasher implements IDisposable {
 		instance.on("exit", () => {
 			this.instance = undefined;
 			this.failureCount++;
+
 			const newInstance = this.getProcess();
 
 			if (!newInstance) {
@@ -157,6 +165,7 @@ export class Hasher implements IDisposable {
 				this.deferCleanup.clear();
 			} else {
 				this.deferCleanup();
+
 				for (const { request } of this.deferredMap.values()) {
 					newInstance.postMessage(request);
 				}

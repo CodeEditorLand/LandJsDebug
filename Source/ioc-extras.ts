@@ -110,7 +110,9 @@ export const trackDispose = <T>(ctx: interfaces.Context, service: T): T => {
 	}
 
 	const disposable = service as unknown as IDisposable;
+
 	const list = toDispose.get(ctx.container);
+
 	if (!list) {
 		toDispose.set(ctx.container, [disposable]);
 	} else {

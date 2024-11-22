@@ -14,8 +14,11 @@ import { IExperimentationService } from "../telemetry/experimentationService";
 import { ITelemetryReporter } from "../telemetry/telemetryReporter";
 
 const ignoredModulePatterns = /\/node_modules\/|^node\:/;
+
 const consecutiveSessions = 2;
+
 const suggestDelay = 5000;
+
 const minDuration = suggestDelay / 2;
 
 /**

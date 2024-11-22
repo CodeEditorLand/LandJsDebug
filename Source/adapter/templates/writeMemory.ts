@@ -22,6 +22,7 @@ export const writeMemory = remoteFunction(function (
 				: this;
 
 	const writeStart = byteOffset + Math.min(offset, byteLength);
+
 	const writeLen = Math.max(0, Math.min(bytes.length, byteLength - offset));
 	new Uint8Array(buffer, writeStart, writeLen).set(
 		bytes.subarray(0, writeLen),
@@ -31,6 +32,7 @@ export const writeMemory = remoteFunction(function (
 
 	function decodeHex(str: string) {
 		const output = new Uint8Array(str.length >>> 1);
+
 		for (let i = 0; i < str.length; i += 2) {
 			output[i >>> 1] = parseInt(str.slice(i, i + 2), 16);
 		}

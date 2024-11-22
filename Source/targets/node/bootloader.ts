@@ -40,6 +40,7 @@ const jsDebugRegisteredToken = "$jsDebugIsRegistered";
 		}
 
 		const env = new BootloaderEnvironment(process.env);
+
 		const inspectorOptions = env.inspectorOptions;
 		bootloaderLogger.enabled = !!inspectorOptions?.verbose;
 		bootloaderLogger.info(LogTag.RuntimeLaunch, "Bootloader imported", {
@@ -73,7 +74,9 @@ const jsDebugRegisteredToken = "$jsDebugIsRegistered";
 		}
 
 		const ownId = createTargetId();
+
 		const didAttach = inspectOrQueue(inspectorOptions, ownId);
+
 		if (inspectorOptions.onlyEntrypoint) {
 			env.unsetForTree();
 		} else if (didAttach) {
@@ -102,6 +105,7 @@ function inspectOrQueue(env: IBootloaderInfo, ownId: string): boolean {
 			: Mode.Immediate;
 
 	bootloaderLogger.info(LogTag.Runtime, "Set debug mode", { mode });
+
 	if (mode === Mode.Inactive) {
 		return false;
 	}
@@ -109,6 +113,7 @@ function inspectOrQueue(env: IBootloaderInfo, ownId: string): boolean {
 	// inspector.url() will be defined if --inspect is passed to the process.
 	// Don't call it again to avoid https://github.com/nodejs/node/issues/33012
 	const openedFromCli = inspector.url() !== undefined;
+
 	if (!openedFromCli) {
 		// if the debugger isn't explicitly enabled, turn it on based on our inspect mode
 		if (!shouldForceProcessIntoDebugMode(env)) {
@@ -139,6 +144,7 @@ function inspectOrQueue(env: IBootloaderInfo, ownId: string): boolean {
     // Minified code is given in spawnSync:
 
     const c: Socket = require('net').createConnection(process.env.NODE_INSPECTOR_IPC);
+
     setTimeout(() => {
       console.error('timeout');
       process.exit(1);
@@ -179,6 +185,7 @@ function inspectOrQueue(env: IBootloaderInfo, ownId: string): boolean {
 			console.error(
 				`Error activating auto attach, please report to https://aka.ms/js-dbg-issue`,
 			);
+
 			return false; // some error status code
 		}
 	}
@@ -187,6 +194,7 @@ function inspectOrQueue(env: IBootloaderInfo, ownId: string): boolean {
 	const cast = inspector as unknown as typeof inspector & {
 		waitForDebugger?(): void;
 	};
+
 	if (cast.waitForDebugger) {
 		cast.waitForDebugger();
 	} else {
@@ -217,8 +225,10 @@ function shouldForceProcessIntoDebugMode(env: IBootloaderInfo) {
 	switch (env.autoAttachMode) {
 		case AutoAttachMode.Always:
 			return true;
+
 		case AutoAttachMode.Smart:
 			return shouldSmartAttach(env);
+
 		case AutoAttachMode.OnlyWithFlag:
 		default:
 			return false;
@@ -234,6 +244,7 @@ function shouldForceProcessIntoDebugMode(env: IBootloaderInfo) {
  */
 function shouldSmartAttach(env: IBootloaderInfo) {
 	const script: string | undefined = process.argv[1];
+
 	if (!script) {
 		return true; // node REPL
 	}
@@ -279,6 +290,7 @@ function isPipeAvailable(pipe?: string): pipe is string {
  */
 function reportTelemetry(env: BootloaderEnvironment) {
 	const callbackFile = env.inspectorOptions?.fileCallback;
+
 	if (!callbackFile) {
 		return;
 	}

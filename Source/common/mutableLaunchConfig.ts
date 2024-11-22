@@ -28,8 +28,10 @@ export const createMutableLaunchConfig = (source: AnyLaunchConfiguration) => {
 							source = value;
 							change.fire();
 						};
+
 					case "onChange":
 						return change.event;
+
 					default:
 						return source[key as keyof AnyLaunchConfiguration];
 				}

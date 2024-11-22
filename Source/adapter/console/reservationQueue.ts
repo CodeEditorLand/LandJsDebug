@@ -37,6 +37,7 @@ export class ReservationQueue<T> implements IDisposable {
 		}
 
 		this.q.push(new Reservation(value));
+
 		if (this.q.length === 1) {
 			this.process();
 		}
@@ -53,6 +54,7 @@ export class ReservationQueue<T> implements IDisposable {
 
 	private async process(): Promise<void> {
 		const toIndex = this.q.findIndex((r) => r.value === unsettled);
+
 		if (toIndex === 0) {
 			await this.q[0].wait;
 		} else if (toIndex === -1) {
@@ -75,6 +77,7 @@ const extractResolved = <T>(list: ReadonlyArray<Reservation<T>>) =>
 	list.map((i) => i.value).filter((v): v is T => v !== rejected);
 
 const unsettled = Symbol("unsettled");
+
 const rejected = Symbol("unsettled");
 
 /**

@@ -16,20 +16,30 @@ export const serializeForClipboardTmpl = templateFunction(function (
 	spaces: number,
 ) {
 	const indent = " ".repeat(spaces);
+
 	const eol = "\n";
 
 	function getTypedArrayContructor(
 		value: unknown,
 	): TypedArrayConstructor | undefined {
 		if (value instanceof Uint8Array) return Uint8Array;
+
 		if (value instanceof Uint8ClampedArray) return Uint8ClampedArray;
+
 		if (value instanceof Uint16Array) return Uint16Array;
+
 		if (value instanceof Uint32Array) return Uint32Array;
+
 		if (value instanceof BigUint64Array) return BigUint64Array;
+
 		if (value instanceof Int8Array) return Int8Array;
+
 		if (value instanceof Int32Array) return Int32Array;
+
 		if (value instanceof BigInt64Array) return BigInt64Array;
+
 		if (value instanceof Float32Array) return Float32Array;
+
 		if (value instanceof Float64Array) return Float64Array;
 	}
 
@@ -41,20 +51,26 @@ export const serializeForClipboardTmpl = templateFunction(function (
 		switch (typeof value) {
 			case "bigint":
 				return `${value}n`;
+
 			case "boolean":
 				return value.toString();
+
 			case "function": {
 				const lines = value
 					.toString()
 					.replace(/^[^\s]+\(/, "function(")
 					.split(/\r?\n/g);
+
 				let trimSpaceRe = /^$/;
+
 				for (const line of lines) {
 					const match = /^[ \t]+/.exec(line);
+
 					if (match) {
 						trimSpaceRe = new RegExp(
 							`^[ \\t]{0,${match[0].length}}`,
 						);
+
 						break;
 					}
 				}
@@ -77,6 +93,7 @@ export const serializeForClipboardTmpl = templateFunction(function (
 			}
 			case "number":
 				return `${value}`;
+
 			case "object":
 				if (value === null) {
 					return "null";
@@ -98,6 +115,7 @@ export const serializeForClipboardTmpl = templateFunction(function (
 				}
 
 				const typedCtor = getTypedArrayContructor(value);
+
 				if (typedCtor) {
 					return `new ${typedCtor.name}([${(value as TypedArray).join(", ")}])`;
 				}
@@ -123,6 +141,7 @@ export const serializeForClipboardTmpl = templateFunction(function (
 				}
 
 				const asPropMap = value as { [key: string]: unknown };
+
 				return [
 					`{`,
 					...Object.keys(asPropMap).map(
@@ -141,12 +160,16 @@ export const serializeForClipboardTmpl = templateFunction(function (
 					),
 					indent.repeat(level) + "}",
 				].join(eol);
+
 			case "string":
 				return JSON.stringify(value);
+
 			case "symbol":
 				return value.toString();
+
 			case "undefined":
 				return "undefined";
+
 			default:
 				return String(value);
 		}
@@ -162,6 +185,7 @@ export const serializeForClipboardTmpl = templateFunction(function (
 export const serializeForClipboard = remoteFunction<[number], string>(`
   function(spaces2) {
     const result = ${serializeForClipboardTmpl.expr("this", "spaces2")};
+
     return result;
   }
 `);

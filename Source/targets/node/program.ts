@@ -48,6 +48,7 @@ export class CombinedProgram implements IProgram {
 
 	public async stop(): Promise<IStopMetadata> {
 		const r = await Promise.all([this.a.stop(), this.b.stop()]);
+
 		return r[0];
 	}
 }
@@ -81,6 +82,7 @@ export class SubprocessProgram implements IProgram {
 	public stop(): Promise<IStopMetadata> {
 		this.killed = true;
 		killTree(this.child.pid as number, this.logger, this.killBehavior);
+
 		return this.stopped;
 	}
 }
@@ -104,6 +106,7 @@ export class StubProgram implements IProgram {
 
 	public stop() {
 		this.stopDefer({ code: 0, killed: true });
+
 		return this.stopped;
 	}
 }
@@ -122,6 +125,7 @@ export class WatchDogProgram extends StubProgram {
 
 	public stop() {
 		this.wd.dispose();
+
 		return this.stopped;
 	}
 }
@@ -164,6 +168,7 @@ export class TerminalProcess implements IProgram {
 	public gotTelemetery({ processId }: IProcessTelemetry) {
 		if (this.didStop) {
 			killTree(processId, this.logger, this.killBehavior);
+
 			return; // to avoid any races
 		}
 
@@ -231,6 +236,7 @@ function isProcessAlive(processId: number) {
 	try {
 		// kill with signal=0 just test for whether the proc is alive. It throws if not.
 		process.kill(processId, 0);
+
 		return true;
 	} catch {
 		return false;

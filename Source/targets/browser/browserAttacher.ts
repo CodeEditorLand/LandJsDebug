@@ -68,7 +68,9 @@ export class BrowserAttacher<
 	public dispose() {
 		for (const disposable of this._disposables) disposable.dispose();
 		this._disposables = [];
+
 		if (this._attemptTimer) clearTimeout(this._attemptTimer);
+
 		if (this._targetManager) this._targetManager.dispose();
 	}
 
@@ -93,6 +95,7 @@ export class BrowserAttacher<
 		context: ILaunchContext,
 	): Promise<ILaunchResult> {
 		const resolved = this.resolveParams(params);
+
 		if (!resolved) {
 			return { blockSessionTermination: false };
 		}
@@ -100,6 +103,7 @@ export class BrowserAttacher<
 		this._lastLaunchParams = { ...params, timeout: Infinity } as T;
 
 		await this.attemptToAttach(this._lastLaunchParams, context);
+
 		return { blockSessionTermination: true };
 	}
 
@@ -149,6 +153,7 @@ export class BrowserAttacher<
 		connection.onDisconnected(
 			() => {
 				this._connection = undefined;
+
 				if (this._targetManager) {
 					this._targetManager.dispose();
 					this._targetManager = undefined;
@@ -183,6 +188,7 @@ export class BrowserAttacher<
 		});
 		targetManager.onTargetRemoved(() => {
 			this._onTargetListChangedEmitter.fire();
+
 			if (!targetManager.targetList().length) {
 				// graceful exit
 				this._onTerminatedEmitter.fire({ killed: true, code: 0 });
@@ -210,12 +216,15 @@ export class BrowserAttacher<
 		params: AnyChromiumAttachConfiguration,
 	): Promise<TargetFilter> {
 		const rawFilter = createTargetFilterForConfig(params);
+
 		const baseFilter = requirePageTarget(rawFilter);
+
 		if (params.targetSelection !== "pick") {
 			return baseFilter;
 		}
 
 		const targets = await manager.getCandiateInfo(baseFilter);
+
 		if (targets.length === 0) {
 			return baseFilter;
 		}
@@ -225,6 +234,7 @@ export class BrowserAttacher<
 		}
 
 		const placeHolder = l10n.t("Select a tab");
+
 		const selected = await this.vscode.window.showQuickPick(
 			targets.map((target) => ({
 				label: target.title,
@@ -293,6 +303,7 @@ export class BrowserAttacher<
 		cancellationToken: CancellationToken,
 	) {
 		const browserURL = `http://${params.address}:${params.port}`;
+
 		return await launcher.attach(
 			{ browserURL, inspectUri: params.inspectUri, pageURL: params.url },
 			cancellationToken,
@@ -324,6 +335,7 @@ export class BrowserAttacher<
 
 	targetList(): ITarget[] {
 		const manager = this._targetManager;
+
 		return manager ? manager.targetList() : [];
 	}
 }

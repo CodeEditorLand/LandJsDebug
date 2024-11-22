@@ -5,6 +5,7 @@
 import { IDiagnosticDump, IDiagnosticSource } from "../adapter/diagnosics";
 
 const nodeInternalMarker = "<node_internals>";
+
 const node16InternalUrl = "node:";
 
 export const isNodeType = (dump: IDiagnosticDump) =>
@@ -54,6 +55,7 @@ export const prettyName = (
 
 export const basename = (source: { prettyName?: string; url: string }) => {
 	const parts = (source.prettyName || source.url).split(/\\|\//g);
+
 	return parts[parts.length - 1];
 };
 
@@ -69,7 +71,9 @@ export const isAbsoluteWin32 = (path: string) => /^[a-z]:/i.test(path);
 export const relative = (fromPath: string, toPath: string) => {
 	// shift off the shared prefix of both paths
 	const fromParts = fromPath.split("/");
+
 	const toParts = toPath.split("/");
+
 	while (fromParts.length && toParts[0] === fromParts[0]) {
 		fromParts.shift();
 		toParts.shift();
@@ -79,6 +83,7 @@ export const relative = (fromPath: string, toPath: string) => {
 	const nav = fromParts.length
 		? new Array(fromParts.length).fill("..")
 		: ["."];
+
 	return nav.concat(toParts).join("/");
 };
 

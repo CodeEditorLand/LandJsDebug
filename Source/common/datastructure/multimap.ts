@@ -14,6 +14,7 @@ export class MultiMap<T, K extends { [key: string]: unknown }> {
 	constructor(keygen: { [K2 in keyof K]: (v: T) => K[K2] }) {
 		this.maps = {} as any;
 		this.keygenPairs = Object.entries(keygen);
+
 		for (const [key] of this.keygenPairs) {
 			this.maps[key] = new Map();
 		}
@@ -36,6 +37,7 @@ export class MultiMap<T, K extends { [key: string]: unknown }> {
 	public delete(value: T) {
 		for (const [name, keyFn] of this.keygenPairs) {
 			const key = keyFn(value) as any;
+
 			if (value === this.maps[name].get(key)) {
 				this.maps[name].delete(key);
 			}

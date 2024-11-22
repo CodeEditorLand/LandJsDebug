@@ -25,6 +25,7 @@ export class WindowsProcessTree extends BaseProcessTree {
 			"wbem",
 			"WMIC.exe",
 		);
+
 		return this.spawn(wmic, [
 			"process",
 			"get",
@@ -42,24 +43,32 @@ export class WindowsProcessTree extends BaseProcessTree {
 
 		return (line) => {
 			const matches = CMD_PAT.exec(line.trim());
+
 			if (!matches || matches.length !== 5) {
 				return;
 			}
 
 			const pid = Number(matches[4]);
+
 			const ppid = Number(matches[3]);
+
 			const date = Number(matches[2]);
+
 			let args = matches[1].trim();
+
 			if (!isNaN(pid) && !isNaN(ppid) && args) {
 				let command = args;
+
 				if (args[0] === '"') {
 					const end = args.indexOf('"', 1);
+
 					if (end > 0) {
 						command = args.substr(1, end - 1);
 						args = args.substr(end + 2);
 					}
 				} else {
 					const end = args.indexOf(" ");
+
 					if (end > 0) {
 						command = args.substr(0, end);
 						args = args.substr(end + 1);

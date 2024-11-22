@@ -12,6 +12,7 @@ import { debuggers, DescribedAttribute } from "./generate-contributions.js";
 
 (async () => {
 	let out = `# Options\n\n`;
+
 	for (const dbg of debuggers) {
 		out += `### ${getPreferredOrDebugType(dbg.type)}: ${dbg.request}\n\n`;
 		out += `<details>`;
@@ -19,6 +20,7 @@ import { debuggers, DescribedAttribute } from "./generate-contributions.js";
 		const entries = Object.entries(dbg.configurationAttributes).sort(
 			([a], [b]) => a.localeCompare(b),
 		);
+
 		for (const [key, value] of entries as Iterable<
 			[string, DescribedAttribute<unknown>]
 		>) {
@@ -26,12 +28,15 @@ import { debuggers, DescribedAttribute } from "./generate-contributions.js";
 				"markdownDescription" in value
 					? value.markdownDescription
 					: value.description;
+
 			if (!descriptionKeyRaw) {
 				continue;
 			}
 
 			const descriptionKey = descriptionKeyRaw.slice(1, -1);
+
 			const description = strings[descriptionKey].replace(/\n/g, "<br>");
+
 			if (!description) {
 				continue;
 			}
@@ -39,6 +44,7 @@ import { debuggers, DescribedAttribute } from "./generate-contributions.js";
 			const defaultValue = (
 				dbg.defaults as unknown as { [key: string]: unknown }
 			)[key];
+
 			const docDefault =
 				value.docDefault ??
 				JSON.stringify(defaultValue, null, 2) ??

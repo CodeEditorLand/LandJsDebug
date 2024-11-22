@@ -54,14 +54,18 @@ export class BrowserSourcePathResolver extends SourcePathResolverBase<IOptions> 
   /** @override */
   private absolutePathToUrlPath(absolutePath: string): { url: string; needsWildcard: boolean } {
     absolutePath = path.normalize(absolutePath);
+
     const { baseUrl, pathMapping } = this.options;
+
     const defaultMapping = ['/', pathMapping['/']] as const;
+
     const bestMatch = Object.entries(pathMapping)
       .sort(
         ([p1, directoryA], [p2, directoryB]) =>
           directoryB.length - directoryA.length || p2.length - p1.length,
       )
       .find(([, directory]) => isSubpathOrEqualTo(directory, absolutePath)) || defaultMapping;
+
     if (!bestMatch) {
       return { url: utils.absolutePathToFileUrl(absolutePath), needsWildcard: false };
     }
@@ -74,7 +78,9 @@ export class BrowserSourcePathResolver extends SourcePathResolverBase<IOptions> 
     }
 
     let urlPath = utils.platformPathToUrlPath(path.relative(bestMatch[1], absolutePath));
+
     const urlPrefix = bestMatch[0].replace(/\/$|^\//g, '');
+
     if (urlPrefix) {
       urlPath = urlPrefix + '/' + urlPath;
     }
@@ -125,6 +131,7 @@ export class BrowserSourcePathResolver extends SourcePathResolverBase<IOptions> 
     }
 
     let pathname: string;
+
     try {
       const parsed = new URL(url);
       if (!parsed.pathname || parsed.pathname === '/') {
@@ -141,9 +148,11 @@ export class BrowserSourcePathResolver extends SourcePathResolverBase<IOptions> 
     }
 
     const extname = path.extname(pathname);
+
     const pathParts = pathname
       .replace(/^\//, '') // Strip leading /
       .split(/[\/\\]/);
+
     while (pathParts.length > 0) {
       const joinedPath = '/' + pathParts.join('/');
       const clientPath = await defaultPathMappingResolver(
@@ -174,6 +183,7 @@ export class BrowserSourcePathResolver extends SourcePathResolverBase<IOptions> 
         return undefined;
       case VueHandling.Lookup:
         const vuePath = await this.vueMapper.lookup(url);
+
         if (vuePath) {
           return fixDriveLetterAndSlashes(vuePath);
         }
@@ -185,8 +195,11 @@ export class BrowserSourcePathResolver extends SourcePathResolverBase<IOptions> 
     url = this.normalizeSourceMapUrl(url);
 
     const { pathMapping } = this.options;
+
     const fullSourceEntry = getFullSourceEntry(map.sourceRoot, url);
+
     let mappedFullSourceEntry = this.sourceMapOverrides.apply(fullSourceEntry);
+
     if (mappedFullSourceEntry !== fullSourceEntry) {
       mappedFullSourceEntry = fixDriveLetterAndSlashes(mappedFullSourceEntry);
       // Prefixing ../ClientApp is a workaround for a bug in ASP.NET debugging in VisualStudio because the wwwroot is not properly configured
@@ -233,11 +246,13 @@ export class BrowserSourcePathResolver extends SourcePathResolverBase<IOptions> 
    */
   public absolutePathToUrlRegexp(absolutePath: string) {
     const transform = this.absolutePathToUrlPath(absolutePath);
+
     let url = transform.url;
 
     // Make "index" paths optional since some servers, like vercel's serve,
     // allow omitting them.
     let endRegexEscape = url.length;
+
     if (url.endsWith(Suffix.Index)) {
       endRegexEscape = url.length - Suffix.Index.length - 1;
       url = url.slice(0, endRegexEscape) + `\\/?($|index(\\.html)?)`;
@@ -248,6 +263,7 @@ export class BrowserSourcePathResolver extends SourcePathResolverBase<IOptions> 
 
     // If there's no base URL, allow the URL to match _any_ protocol
     let startRegexEscape = 0;
+
     if (transform.needsWildcard) {
       url = wildcardHostname + url;
       startRegexEscape = wildcardHostname.length;
@@ -255,6 +271,7 @@ export class BrowserSourcePathResolver extends SourcePathResolverBase<IOptions> 
     }
 
     const urlRegex = urlToRegex(url, [startRegexEscape, endRegexEscape]);
+
     return transform.needsWildcard
       ? `${urlToRegex(utils.absolutePathToFileUrl(absolutePath))}|${urlRegex}`
       : urlRegex;

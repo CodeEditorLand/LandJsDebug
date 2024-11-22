@@ -102,8 +102,10 @@ export class DapTelemetryReporter implements ITelemetryReporter {
 			Batchable,
 			NodeJS.Timeout,
 		][];
+
 		for (const [key, value] of pending) {
 			const metrics = this.batchers[key].flush();
+
 			if (metrics.length) {
 				this.report(key, metrics);
 			}
@@ -129,6 +131,7 @@ export class DapTelemetryReporter implements ITelemetryReporter {
 	 */
 	public pushOutput(event: Dap.OutputEventParams) {
 		event.data = mapOutput(event.data) as object;
+
 		if (this.target instanceof Array) {
 			this.target.push(event);
 		} else {
@@ -177,6 +180,7 @@ export function extractErrorDetails(e: Error): {
 	error: IErrorTelemetryProperties;
 } {
 	const message = String(e.message);
+
 	const name = String(e.name);
 
 	extractFileNamePattern.lastIndex = 0;

@@ -64,8 +64,10 @@ export class NodeDynamicDebugConfigurationProvider extends BaseConfigurationProv
 				const config = configRaw as unknown as {
 					[key: string]: string | undefined;
 				};
+
 				for (const key of keysToRelativize) {
 					const value = config[key];
+
 					if (value && path.isAbsolute(value)) {
 						config[key] = path.join(
 							"${workspaceFolder}",
@@ -105,11 +107,13 @@ export class NodeDynamicDebugConfigurationProvider extends BaseConfigurationProv
 		}
 
 		const scripts = await findScripts([folder], true);
+
 		if (!scripts) {
 			return [openTerminal];
 		}
 
 		const packageManager = await getPackageManager(folder);
+
 		return scripts
 			.map<DynamicConfig>((script) => ({
 				type: getPreferredOrDebugType(DebugType.Terminal),
@@ -126,6 +130,7 @@ export class NodeDynamicDebugConfigurationProvider extends BaseConfigurationProv
 	 */
 	protected getFromActiveFile(): DynamicConfig[] {
 		const editor = vscode.window.activeTextEditor;
+
 		if (
 			!editor ||
 			!breakpointLanguages.includes(editor.document.languageId) ||

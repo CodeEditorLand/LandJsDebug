@@ -259,6 +259,7 @@ export class SourceContainer {
 			"webRoot" in launchConfig
 				? launchConfig.webRoot
 				: launchConfig.rootPath;
+
 		if (mainRootPath) {
 			// Prefixing ../ClientApp is a workaround for a bug in ASP.NET debugging in VisualStudio because the wwwroot is not properly configured
 			this.rootPaths = [
@@ -285,6 +286,7 @@ export class SourceContainer {
 	setFileContentOverrideForTest(absolutePath: string, content?: string) {
 		if (content === undefined)
 			this._fileContentOverridesForTest.delete(absolutePath);
+
 		else this._fileContentOverridesForTest.set(absolutePath, content);
 	}
 
@@ -293,8 +295,10 @@ export class SourceContainer {
 	 */
 	public async loadedSources(): Promise<Dap.Source[]> {
 		const promises: Promise<Dap.Source>[] = [];
+
 		for (const source of this._sourceByReference.values())
 			promises.push(source.toDap());
+
 		return await Promise.all(promises);
 	}
 
@@ -305,7 +309,9 @@ export class SourceContainer {
 	public source(ref: Dap.Source): Source | undefined {
 		if (ref.sourceReference)
 			return this._sourceByReference.get(ref.sourceReference);
+
 		if (ref.path) return this._sourceByAbsolutePath.get(ref.path);
+
 		return undefined;
 	}
 
@@ -321,6 +327,7 @@ export class SourceContainer {
 	 */
 	public addScriptById(script: Script | ISourceScript) {
 		this.scriptsById.set(script.scriptId, script);
+
 		if ("source" in script) {
 			this.onScriptEmitter.fire(script);
 		}
@@ -339,6 +346,7 @@ export class SourceContainer {
 	 */
 	public getScriptById(scriptId: string): Script | undefined {
 		const s = this.scriptsById.get(scriptId);
+
 		return s && "source" in s ? s : undefined;
 	}
 
@@ -379,6 +387,7 @@ export class SourceContainer {
 			false,
 			"Max iterations exceeding for source reference assignment",
 		);
+
 		return id; // conflicts, but it's better than nothing, maybe?
 	}
 
@@ -394,12 +403,16 @@ export class SourceContainer {
 		uiLocation: IUiLocation,
 	): Promise<IPreferredUiLocation> {
 		let isMapped = false;
+
 		let unmappedReason: UnmappedReason | undefined =
 			UnmappedReason.CannotMap;
+
 		while (true) {
 			const next = await this._originalPositionFor(uiLocation);
+
 			if (!isUiLocation(next)) {
 				unmappedReason = isMapped ? undefined : next;
+
 				break;
 			}
 
@@ -422,6 +435,7 @@ export class SourceContainer {
 		inSource?: Source,
 	): Promise<IUiLocation[]> {
 		const locations = await this._uiLocations(uiLocation);
+
 		return inSource
 			? locations.filter((ui) => ui.source === inSource)
 			: locations;
@@ -433,11 +447,13 @@ export class SourceContainer {
 	 */
 	public clear(silent: boolean) {
 		this.scriptsById.clear();
+
 		for (const source of this._sourceByReference.values()) {
 			this.removeSource(source, silent);
 		}
 
 		this._sourceByReference.clear();
+
 		if (this.sourceMapFactory instanceof CachingSourceMapFactory) {
 			this.sourceMapFactory.invalidateCache();
 		}
@@ -468,12 +484,14 @@ export class SourceContainer {
 		uiLocation: IUiLocation,
 	): Promise<IUiLocation[]> {
 		const sourceMapUiLocation = await this._originalPositionFor(uiLocation);
+
 		if (!isUiLocation(sourceMapUiLocation)) {
 			return [];
 		}
 
 		const r = await this.getSourceMapUiLocations(sourceMapUiLocation);
 		r.push(sourceMapUiLocation);
+
 		return r;
 	}
 
@@ -490,6 +508,7 @@ export class SourceContainer {
 			uiLocation.source.sourceMap,
 			this._sourceMapTimeouts.resolveLocation,
 		);
+
 		if (!map) {
 			return UnmappedReason.MapLoadingFailed;
 		}
@@ -505,8 +524,10 @@ export class SourceContainer {
 					uiLocation.columnNumber,
 				),
 			);
+
 			const mapped =
 				l && uiLocation.source.sourceMap.sourceByUrl.get(l.url);
+
 			if (mapped) {
 				return mapped
 					? {
@@ -529,6 +550,7 @@ export class SourceContainer {
 		map: SourceMap | IWasmSymbols,
 	): Promise<IUiLocation | UnmappedReason> {
 		const compiled = uiLocation.source;
+
 		if (!isSourceWithMap(compiled)) {
 			return UnmappedReason.HasNoMap;
 		}
@@ -550,11 +572,13 @@ export class SourceContainer {
 		}
 
 		const source = compiled.sourceMap.sourceByUrl.get(entry.url);
+
 		if (!source) {
 			return UnmappedReason.MapPositionMissing;
 		}
 
 		const base1 = entry.position.base1;
+
 		return {
 			lineNumber: base1.lineNumber,
 			columnNumber: base1.columnNumber, // adjust for 0-based columns
@@ -570,6 +594,7 @@ export class SourceContainer {
 		}
 
 		let output: IUiLocation[] = [];
+
 		for (const [compiled, sourceUrl] of uiLocation.source
 			.compiledToSourceUrl) {
 			const value = await SourceLocationProvider.waitForValueWithTimeout(
@@ -582,6 +607,7 @@ export class SourceContainer {
 			}
 
 			let locations: IUiLocation[];
+
 			if ("decompiledUrl" in value) {
 				const entry = await value.compiledPositionFor(
 					sourceUrl,
@@ -590,6 +616,7 @@ export class SourceContainer {
 						uiLocation.columnNumber,
 					),
 				);
+
 				if (!entry) {
 					continue;
 				}
@@ -712,6 +739,7 @@ export class SourceContainer {
 		);
 
 		let source: Source;
+
 		if (event.scriptLanguage === "WebAssembly") {
 			source = new WasmSource(this, event, absolutePath);
 		} else {
@@ -738,6 +766,7 @@ export class SourceContainer {
 		}
 
 		this._addSource(source);
+
 		return source;
 	}
 
@@ -747,12 +776,14 @@ export class SourceContainer {
 		// behavior in Node for tools that transpile sources inline.
 		const existingByUrl =
 			source.url && this._sourceByOriginalUrl.get(source.url);
+
 		if (existingByUrl && !isOriginalSourceOf(existingByUrl, source)) {
 			this.removeSource(existingByUrl, true);
 		}
 
 		this._sourceByOriginalUrl.set(source.url, source);
 		this._sourceByReference.set(source.sourceReference, source);
+
 		if (source instanceof SourceFromMap) {
 			this._sourceMapSourcesByUrl.set(source.url, source);
 		}
@@ -764,6 +795,7 @@ export class SourceContainer {
 		const existingByPath = this._sourceByAbsolutePath.get(
 			source.absolutePath,
 		);
+
 		if (
 			existingByPath === undefined ||
 			existingByPath.url.length >= source.url.length ||
@@ -773,6 +805,7 @@ export class SourceContainer {
 		}
 
 		this.scriptSkipper.initializeSkippingValueForSource(source);
+
 		if (!source.sendLazy) {
 			this.emitLoadedSource(source);
 		}
@@ -788,10 +821,14 @@ export class SourceContainer {
 		const symbols = await this.wasmSymbols.loadWasmSymbols(compiled.event);
 
 		const todo: Promise<unknown>[] = [];
+
 		for (const url of symbols.files) {
 			let absolutePath: string | undefined;
+
 			let resolvedUrl: string;
+
 			let contentGetter: ContentGetter;
+
 			if (url === symbols.decompiledUrl) {
 				absolutePath = ensureWATExtension(compiled.absolutePath);
 				resolvedUrl = ensureWATExtension(compiled.url);
@@ -839,7 +876,9 @@ export class SourceContainer {
 		source: ISourceWithMap<ISourceMapLocationProvider>,
 	) {
 		const deferred = source.sourceMap.value;
+
 		let value: SourceMap | undefined;
+
 		try {
 			value = await this.sourceMapFactory.load(source.sourceMap.metadata);
 		} catch (urlError) {
@@ -847,6 +886,7 @@ export class SourceContainer {
 				// On VS we want to support loading source-maps from storage if the web-server doesn't serve them
 				const originalSourceMapUrl =
 					source.sourceMap.metadata.sourceMapUrl;
+
 				try {
 					const sourceMapAbsolutePath =
 						await this.sourcePathResolver.urlToAbsolutePath({
@@ -917,6 +957,7 @@ export class SourceContainer {
 
 	public removeSource(source: Source, silent = false) {
 		const existing = this._sourceByReference.get(source.sourceReference);
+
 		if (existing === undefined) {
 			return; // already removed
 		}
@@ -934,12 +975,14 @@ export class SourceContainer {
 
 		if (source instanceof SourceFromMap) {
 			this._sourceMapSourcesByUrl.delete(source.url);
+
 			for (const [compiled, key] of source.compiledToSourceUrl) {
 				compiled.sourceMap.sourceByUrl.delete(key);
 			}
 		}
 
 		this._sourceByAbsolutePath.delete(source.absolutePath);
+
 		if (isSourceWithMap(source)) {
 			this._permanentlyDisabledSourceMaps.delete(source);
 			this._temporarilyDisabledSourceMaps.delete(source);
@@ -967,6 +1010,7 @@ export class SourceContainer {
 	 */
 	public emitLoadedSource(source: Source): Promise<void> {
 		source.hasBeenAnnounced = true;
+
 		return source
 			.toDap()
 			.then((dap) =>
@@ -976,6 +1020,7 @@ export class SourceContainer {
 
 	async _addSourceMapSources(compiled: ISourceWithMap, map: SourceMap) {
 		const todo: Promise<unknown>[] = [];
+
 		for (const url of map.sources) {
 			if (url === null) {
 				continue;
@@ -983,6 +1028,7 @@ export class SourceContainer {
 
 			const absolutePath =
 				await this.sourcePathResolver.urlToAbsolutePath({ url, map });
+
 			const resolvedUrl = absolutePath
 				? utils.absolutePathToFileUrl(absolutePath)
 				: map.computedSourceUrl(url);
@@ -1003,6 +1049,7 @@ export class SourceContainer {
 				} else {
 					existing.compiledToSourceUrl.set(compiled, url);
 					compiled.sourceMap.sourceByUrl.set(url, existing);
+
 					continue;
 				}
 			}
@@ -1020,6 +1067,7 @@ export class SourceContainer {
 
 			const fileUrl =
 				absolutePath && utils.absolutePathToFileUrl(absolutePath);
+
 			const smContent = this.sourceMapFactory.guardSourceMapFn(
 				map,
 				() => map.sourceContentFor(url),
@@ -1027,10 +1075,13 @@ export class SourceContainer {
 			);
 
 			let sourceMapUrl: string | undefined;
+
 			if (smContent) {
 				const rawSmUri = sourceUtils.parseSourceMappingUrl(smContent);
+
 				if (rawSmUri) {
 					const smIsDataUri = utils.isDataUri(rawSmUri);
+
 					if (!smIsDataUri && absolutePath) {
 						sourceMapUrl = utils.completeUrl(
 							absolutePath
@@ -1094,6 +1145,7 @@ export class SourceContainer {
 	private _removeSourceMapSources(compiled: ISourceWithMap, silent: boolean) {
 		for (const url of compiled.sourceMap.sourceByUrl.keys()) {
 			const source = compiled.sourceMap.sourceByUrl.get(url);
+
 			if (!source) {
 				// Previously, we would have always expected the source to exist here.
 				// However, with webpack HMR, we can unload sources that get replaced,
@@ -1103,6 +1155,7 @@ export class SourceContainer {
 
 			compiled.sourceMap.sourceByUrl.delete(url);
 			source.compiledToSourceUrl.delete(compiled);
+
 			if (source.compiledToSourceUrl.size) continue;
 			this.removeSource(source, silent);
 		}
@@ -1117,6 +1170,7 @@ export class SourceContainer {
 		const sourcesByUrl = await SourceLocationProvider.waitForSources(
 			source.sourceMap,
 		);
+
 		return [...sourcesByUrl.values()];
 	}
 

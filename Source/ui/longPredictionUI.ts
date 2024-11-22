@@ -40,8 +40,11 @@ export class LongPredictionUI implements IExtensionContribution {
 		const message = l10n.t(
 			"It's taking a while to configure your breakpoints. You can speed this up by updating the 'outFiles' in your launch.json.",
 		);
+
 		const openLaunch = l10n.t("Open launch.json");
+
 		const dontShow = l10n.t("Don't show again");
+
 		const result = await vscode.window.showWarningMessage(
 			message,
 			dontShow,
@@ -50,6 +53,7 @@ export class LongPredictionUI implements IExtensionContribution {
 
 		if (result === dontShow) {
 			this.context.workspaceState.update(omitLongPredictionKey, true);
+
 			return;
 		}
 
@@ -65,6 +69,7 @@ export class LongPredictionUI implements IExtensionContribution {
 			await vscode.window.showWarningMessage(
 				l10n.t("No workspace folder open."),
 			);
+
 			return;
 		}
 

@@ -16,11 +16,14 @@ export function binarySearch<T>(
 	comparator: (a: T, b: T) => number,
 ): number {
 	let low = 0;
+
 	let high = array.length - 1;
 
 	while (low <= high) {
 		const mid = ((low + high) / 2) | 0;
+
 		const comp = comparator(array[mid], key);
+
 		if (comp < 0) {
 			low = mid + 1;
 		} else if (comp > 0) {
@@ -44,7 +47,9 @@ export function groupBy<T, K>(
 
 	for (const item of array) {
 		const key = accessor(item);
+
 		const group = groups.get(key);
+
 		if (group) {
 			group.push(item);
 		} else {

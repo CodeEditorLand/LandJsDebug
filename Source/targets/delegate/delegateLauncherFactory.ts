@@ -44,6 +44,7 @@ export class DelegateLauncherFactory {
 		};
 		this.refsByTarget.set(target, ref);
 		this.delegateSessions.add(ref.id, ref);
+
 		return ref.id;
 	}
 
@@ -52,6 +53,7 @@ export class DelegateLauncherFactory {
 	 */
 	public removeDelegate(target: ITarget) {
 		const ref = this.refsByTarget.get(target);
+
 		if (ref) {
 			this.delegateSessions.remove(ref.id);
 		}

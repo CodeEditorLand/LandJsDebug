@@ -55,6 +55,7 @@ export class NodeTarget implements ITarget {
 		this._cdp = cdp;
 		cdp.pause();
 		this._waitingForDebugger = targetInfo.type === "waitingForDebugger";
+
 		if (targetInfo.title) {
 			this._targetName = `${basename(targetInfo.title)} [${targetInfo.processId}]`;
 		} else this._targetName = `[${targetInfo.processId}]`;
@@ -106,6 +107,7 @@ export class NodeTarget implements ITarget {
 		const isPath =
 			url[0] === "/" ||
 			(process.platform === "win32" && url[1] === ":" && url[2] === "\\");
+
 		return isPath ? absolutePathToFileUrl(url) : url;
 	}
 
@@ -140,17 +142,21 @@ export class NodeTarget implements ITarget {
 	async attach(): Promise<Cdp.Api | undefined> {
 		this._serialize = this._serialize.then(async () => {
 			if (this._attached) return;
+
 			return this._doAttach();
 		});
+
 		return this._serialize;
 	}
 
 	async _doAttach(): Promise<Cdp.Api | undefined> {
 		this._waitingForDebugger = false;
 		this._attached = true;
+
 		const result = await this._cdp.Target.attachToTarget({
 			targetId: this.targetInfo.targetId,
 		});
+
 		if (!result) {
 			this.logger.info(
 				LogTag.RuntimeLaunch,
@@ -159,6 +165,7 @@ export class NodeTarget implements ITarget {
 					targetId: this.targetInfo.targetId,
 				},
 			);
+
 			return; // timed out or cancelled, may have been a short-lived process
 		}
 
@@ -181,6 +188,7 @@ export class NodeTarget implements ITarget {
 			if (event.executionContextId === defaultCountextId)
 				this.connection.close();
 		});
+
 		return this._cdp;
 	}
 

@@ -35,6 +35,7 @@ export class SourceAnnotationHelper {
 		].join(":");
 
 		const existing = this.locationsByRef.get(ref);
+
 		if (existing) {
 			return existing.id;
 		}
@@ -47,6 +48,7 @@ export class SourceAnnotationHelper {
 				const source = await this.sources.getScriptById(
 					callFrame.scriptId,
 				)?.source;
+
 				if (!source) {
 					return [];
 				}

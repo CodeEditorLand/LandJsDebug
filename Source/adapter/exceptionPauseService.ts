@@ -104,6 +104,7 @@ export class ExceptionPauseService implements IExceptionPauseService {
 				throw e;
 			}
 			this.dap.output({ category: "stderr", output: e.message });
+
 			return;
 		}
 
@@ -146,6 +147,7 @@ export class ExceptionPauseService implements IExceptionPauseService {
 		}
 
 		const cond = this.state.condition;
+
 		if (evt.data?.uncaught) {
 			if (
 				cond.uncaught &&
@@ -186,6 +188,7 @@ export class ExceptionPauseService implements IExceptionPauseService {
 			{ callFrameId: evt.callFrames[0].callFrameId },
 			(v) => (v === "error" ? evt.data : undefined),
 		);
+
 		return !!r?.result.value;
 	}
 
@@ -213,6 +216,7 @@ export class ExceptionPauseService implements IExceptionPauseService {
 		const script = this.sourceContainer.getScriptById(
 			evt.callFrames[0].location.scriptId,
 		);
+
 		return !!script && this.scriptSkipper.isScriptSkipped(script.url);
 	}
 
@@ -228,12 +232,15 @@ export class ExceptionPauseService implements IExceptionPauseService {
 		);
 
 		let cdp = PauseOnExceptionsState.None;
+
 		const caughtConditions: string[] = [];
+
 		const uncaughtConditions: string[] = [];
 
 		for (const { filterId, condition } of filters) {
 			if (filterId === PauseOnExceptionsState.All) {
 				cdp = PauseOnExceptionsState.All;
+
 				if (condition) {
 					caughtConditions.push(filterId);
 				}
@@ -261,6 +268,7 @@ export class ExceptionPauseService implements IExceptionPauseService {
 				")";
 
 			const err = getSyntaxErrorIn(expr);
+
 			if (err) {
 				throw new ProtocolError(
 					invalidBreakPointCondition(
@@ -271,6 +279,7 @@ export class ExceptionPauseService implements IExceptionPauseService {
 			}
 
 			const wrapped = wrapBreakCondition(expr, this.breakOnError);
+
 			return this.evaluator.prepare(wrapped, { hoist: ["error"] }).invoke;
 		};
 

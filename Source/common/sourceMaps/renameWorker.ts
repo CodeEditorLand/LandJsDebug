@@ -15,6 +15,7 @@ import type { FlatTree } from "./renameScopeTree";
  */
 export function extractScopeRangesWithFactory(source: string): FlatTree {
 	const program = parseProgram(source);
+
 	const output: FlatTree = [];
 
 	const push = (
@@ -33,6 +34,7 @@ export function extractScopeRangesWithFactory(source: string): FlatTree {
 	// nodes ignored because they're already captured in the top
 	// level statement, such as the body of `for` loops.
 	const coveredBlocks = new Set<Node>();
+
 	const stack: Node[] = [];
 
 	traverse(program, {
@@ -43,10 +45,12 @@ export function extractScopeRangesWithFactory(source: string): FlatTree {
 				case "ArrowFunctionExpression":
 					push(node, node.params[0] || node.body, node.body);
 					coveredBlocks.add(node.body);
+
 					break;
 				// include the top level program:
 				case "Program":
 					push(node);
+
 					break;
 				// include the entire loop to handle declarations inside the statement:
 				case "ForStatement":
@@ -54,6 +58,7 @@ export function extractScopeRangesWithFactory(source: string): FlatTree {
 				case "ForInStatement":
 					push(node);
 					coveredBlocks.add(node.body);
+
 					break;
 				// everything else is captured with block statements:
 				case "BlockStatement":

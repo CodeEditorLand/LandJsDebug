@@ -41,12 +41,15 @@ export abstract class BaseConfigurationProvider<
 	): Promise<vscode.DebugConfiguration[]> {
 		try {
 			const r = await this.provide(folder, token);
+
 			if (!r) {
 				return [];
 			}
 
 			const configs = r instanceof Array ? r : [r];
+
 			const preferredType = preferredDebugTypes.get(this.type);
+
 			if (preferredType) {
 				for (const config of configs) {
 					if (config.type === this.type) {
@@ -58,6 +61,7 @@ export abstract class BaseConfigurationProvider<
 			return configs;
 		} catch (err) {
 			vscode.window.showErrorMessage(err.message, { modal: true });
+
 			return [];
 		}
 	}

@@ -42,6 +42,7 @@ export class LeaseFile implements IDisposable {
 	public static isValid(file: string) {
 		try {
 			const contents = readFileSync(file);
+
 			if (!contents.length) {
 				return false;
 			}
@@ -59,6 +60,7 @@ export class LeaseFile implements IDisposable {
 	 */
 	public async startTouchLoop() {
 		await this.touch();
+
 		if (!this.disposed) {
 			this.updateInterval = setInterval(
 				() => this.touch(),
@@ -72,6 +74,7 @@ export class LeaseFile implements IDisposable {
 	 */
 	public async touch(dateProvider = () => Date.now()) {
 		const fd = await this.file;
+
 		const buf = Buffer.alloc(8);
 		buf.writeDoubleBE(dateProvider());
 		await fd.write(buf, 0, buf.length, 0);
@@ -86,6 +89,7 @@ export class LeaseFile implements IDisposable {
 		}
 
 		this.disposed = true;
+
 		if (this.updateInterval) {
 			clearInterval(this.updateInterval);
 		}

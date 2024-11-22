@@ -14,6 +14,7 @@ function customDebuggerDescription(obj: any, defaultValue: string): string {
 	} else if (defaultValue.startsWith("class ")) {
 		// just print class name without the constructor source code
 		const className: string = defaultValue.split(" ", 2)[1];
+
 		return `class ${className}`;
 	} else {
 		return defaultValue;
@@ -53,12 +54,15 @@ class Fraction {
 	public customPropertiesGenerator(): object {
 		const properties: object = Object.create((this as any).__proto__);
 		Object.assign(properties, { ...this, asRational: this.floatValue() });
+
 		return properties;
 	}
 }
 
 const fraction1: Fraction = new Fraction(2, 3);
+
 const fraction2: Fraction = new Fraction(3, 4);
+
 const fraction3: Fraction = new Fraction(5, 6);
 
 console.log("Line 1");

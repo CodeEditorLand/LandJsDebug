@@ -23,6 +23,7 @@ export async function canAccess(
 
 	try {
 		await access(file);
+
 		return true;
 	} catch (e) {
 		return false;
@@ -169,6 +170,7 @@ export class LocalFsUtils implements IFsUtils {
 		// Check if the file exists in the current directory.
 		try {
 			await this.fs.access(path, fs.constants.F_OK);
+
 			return true;
 		} catch {
 			return false;
@@ -192,6 +194,7 @@ export class RemoteFsThroughDapUtils implements IFsUtils {
 			const { doesExists } = await this.dap.remoteFileExistsRequest({
 				localFilePath: path,
 			});
+
 			return doesExists;
 		} catch {
 			return false;
@@ -220,6 +223,7 @@ export class LocalAndRemoteFsUtils implements IFsUtils {
 		dap: Dap.Api,
 	): IFsUtils {
 		const localFsUtils = new LocalFsUtils(fsPromises);
+
 		if (remoteFilePrefix !== undefined) {
 			return new this(
 				remoteFilePrefix.toLowerCase(),

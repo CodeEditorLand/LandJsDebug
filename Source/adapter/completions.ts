@@ -90,6 +90,7 @@ const inferCompletionInfoForDeclaration = (node: Node) => {
 		case "ClassDeclaration":
 		case "ClassExpression":
 			return { type: CompletionKind.Class, id: node.id };
+
 		case "MethodDefinition":
 			return {
 				type:
@@ -99,6 +100,7 @@ const inferCompletionInfoForDeclaration = (node: Node) => {
 						: CompletionKind.Method,
 				id: node.key,
 			};
+
 		case "VariableDeclarator":
 			return {
 				type:
@@ -123,6 +125,7 @@ function maybeHasSideEffects(node: Node): boolean {
 				node.type === "ClassBody"
 			) {
 				result = true;
+
 				return VisitorOption.Break;
 			}
 		},
@@ -156,15 +159,18 @@ export class Completions {
 		options: ICompletionContext & ICompletionExpression,
 	): Promise<Dap.CompletionItem[]> {
 		const source = parseProgram(options.expression);
+
 		const offset = new PositionToOffset(options.expression).convert(
 			options.position,
 		);
+
 		let candidate: () => Promise<ICompletionWithSort[]> = () =>
 			Promise.resolve([]);
 
 		traverse(source, {
 			enter: (node, parent) => {
 				const asAcorn = node as AcornNode;
+
 				if (asAcorn.start < offset && offset <= asAcorn.end) {
 					if (
 						node.type === "MemberExpression" ||
@@ -231,6 +237,7 @@ export class Completions {
 			getStart(node.property) + 1,
 			offset,
 		);
+
 		const completions = await this.defaultCompletions(options, prefix);
 
 		// Filter out the array access, adjust replacement ranges
@@ -258,6 +265,7 @@ export class Completions {
 		traverse(source, {
 			enter(node) {
 				const completion = inferCompletionInfoForDeclaration(node);
+
 				if (completion?.id?.type === "Identifier") {
 					localIdentifiers.push({
 						label: completion.id.name,
@@ -269,6 +277,7 @@ export class Completions {
 		});
 
 		const prefix = options.expression.slice(getStart(node), offset);
+
 		const completions = [
 			...localIdentifiers,
 			...(await this.defaultCompletions(options, prefix)),
@@ -315,6 +324,7 @@ export class Completions {
 		// For any properties are aren't valid identifiers, (erring on the side of
 		// caution--not checking unicode and such), quote them as foo['bar!']
 		const validIdentifierRe = /^[$a-z_][0-9a-z_$]*$/i;
+
 		for (const item of result) {
 			if (!validIdentifierRe.test(item.label)) {
 				item.text = `[${JSON.stringify(item.label)}]`;
@@ -352,6 +362,7 @@ export class Completions {
 		stackFrame?: StackFrame;
 		expression: string;
 		prefix: string;
+
 		throwOnSideEffect?: boolean;
 		isInGlobalScope?: boolean;
 	}): Promise<{ result: ICompletionWithSort[]; isArray: boolean }> {
@@ -363,6 +374,7 @@ export class Completions {
 		};
 
 		const callFrameId = stackFrame && stackFrame.callFrameId();
+
 		const objRefResult = await this.evaluator.evaluate(
 			callFrameId
 				? { ...params, callFrameId }
@@ -439,7 +451,9 @@ export class Completions {
 			if (options.stackFrame) {
 				// When evaluating on a call frame, also autocomplete with scope variables.
 				const lowerPrefix = prefix.toLowerCase();
+
 				const names = new Set(items.map((item) => item.label));
+
 				for (const completion of await options.stackFrame.completions()) {
 					if (
 						names.has(completion.label) ||

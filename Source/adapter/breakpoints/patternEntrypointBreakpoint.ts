@@ -30,6 +30,7 @@ export class PatternEntryBreakpoint extends EntryBreakpoint {
 		}
 
 		this.isEnabled = true;
+
 		const re = makeRe(forceForwardSlashes(this.pattern), {
 			contains: true,
 			lookbehinds: false,

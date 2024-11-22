@@ -11,5 +11,6 @@ export const logOmittedCalls = new WeakSet<object>();
  */
 export const omitLoggingFor = <T extends object>(obj: T): T => {
 	logOmittedCalls.add(obj);
+
 	return obj;
 };

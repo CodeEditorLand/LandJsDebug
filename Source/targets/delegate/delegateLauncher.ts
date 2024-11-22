@@ -94,6 +94,7 @@ export class DelegateLauncher implements ILauncher {
 		}
 
 		const delegate = this.parentList.get(params.delegateId);
+
 		if (delegate === undefined) {
 			// Parent session was disconnected. Take the launch, but then say it's
 			// town down a moment later. Ref: https://github.com/microsoft/vscode/issues/106576
@@ -101,10 +102,12 @@ export class DelegateLauncher implements ILauncher {
 				() => this.onTerminatedEmitter.fire({ killed: true, code: 0 }),
 				1,
 			);
+
 			return { blockSessionTermination: true };
 		}
 
 		const origin = delegate.target.targetOrigin();
+
 		if (!(origin instanceof MutableTargetOrigin)) {
 			throw new Error(
 				`Expected delegate session to have a mutable target origin`,
@@ -112,6 +115,7 @@ export class DelegateLauncher implements ILauncher {
 		}
 
 		const logger = delegate.target.logger;
+
 		if (!(logger instanceof ProxyLogger)) {
 			throw new Error(`Expected delegate session to have a proxy logger`);
 		}

@@ -31,6 +31,7 @@ export class MapUsingProjection<K, V, P = K> implements Map<K, V> {
 			[P, KeyAndValue<K, V>]
 		>((pair) => {
 			const projected = this.projection(pair[0]);
+
 			return [projected, new KeyAndValue(pair[0], pair[1])];
 		});
 
@@ -43,6 +44,7 @@ export class MapUsingProjection<K, V, P = K> implements Map<K, V> {
 
 	public delete(key: K): boolean {
 		const keyProjected = this.projection(key);
+
 		return this.projectionToKeyAndValue.delete(keyProjected);
 	}
 
@@ -64,7 +66,9 @@ export class MapUsingProjection<K, V, P = K> implements Map<K, V> {
 
 	public get(key: K): V | undefined {
 		const keyProjected = this.projection(key);
+
 		const value = this.projectionToKeyAndValue.get(keyProjected);
+
 		return value ? value.value : undefined;
 	}
 
@@ -77,6 +81,7 @@ export class MapUsingProjection<K, V, P = K> implements Map<K, V> {
 			this.projection(key),
 			new KeyAndValue(key, value),
 		);
+
 		return this;
 	}
 

@@ -67,12 +67,14 @@ export class VSCodeSessionManager
 		debugSession: vscode.DebugSession,
 	): Promise<vscode.DebugAdapterDescriptor> {
 		const useLocal = process.env.JS_DEBUG_USE_LOCAL_DAP_PORT;
+
 		if (useLocal) {
 			return new vscode.DebugAdapterServer(+useLocal);
 		}
 
 		const result =
 			await this.sessionServerManager.createDebugServer(debugSession);
+
 		return new vscode.DebugAdapterNamedPipeServer(
 			result.server.address() as string,
 		);

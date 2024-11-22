@@ -81,10 +81,12 @@ export async function launch(
 	} = options;
 
 	let browserArguments = new BrowserArgs(args);
+
 	let actualConnection = browserArguments.getSuggestedConnection();
 
 	if (options.includeLaunchArgs !== false) {
 		browserArguments = defaultArgs(browserArguments, options);
+
 		if (actualConnection === undefined) {
 			browserArguments =
 				browserArguments.setConnection(defaultConnection);
@@ -95,16 +97,20 @@ export async function launch(
 	}
 
 	let stdio: ("pipe" | "ignore")[] = ["pipe", "pipe", "pipe"];
+
 	if (actualConnection === "pipe") {
 		if (dumpio) stdio = ["ignore", "pipe", "pipe", "pipe", "pipe"];
+
 		else stdio = ["ignore", "ignore", "ignore", "pipe", "pipe"];
 	}
 
 	let browserProcess: IBrowserProcess;
+
 	const launchUnelevated = !!(
 		clientCapabilities.supportsLaunchUnelevatedProcessRequest &&
 		options.launchUnelevated
 	);
+
 	if (
 		launchUnelevated &&
 		typeof actualConnection === "number" &&
@@ -207,6 +213,7 @@ export async function launch(
 		};
 	} catch (e) {
 		browserProcess.kill();
+
 		throw e;
 	}
 }
@@ -219,8 +226,10 @@ export function defaultArgs(
 	> = {},
 ): BrowserArgs {
 	const { userDataDir = null, ignoreDefaultArgs = false } = options;
+
 	let browserArguments =
 		ignoreDefaultArgs === true ? new BrowserArgs() : BrowserArgs.default;
+
 	if (ignoreDefaultArgs instanceof Array) {
 		browserArguments = browserArguments.filter(
 			(key) => !ignoreDefaultArgs.includes(key),
@@ -263,6 +272,7 @@ export async function attach(
 			browserWSEndpoint,
 			cancellationToken,
 		);
+
 		return new CdpConnection(
 			connectionTransport,
 			logger,
@@ -287,6 +297,7 @@ export async function attach(
 			inspectWs,
 			cancellationToken,
 		);
+
 		return new CdpConnection(
 			connectionTransport,
 			logger,

@@ -119,6 +119,7 @@ export class WatchDog implements IDisposable {
 		});
 
 		const server = new RawPipeTransport(Logger.null, pipe);
+
 		return new WatchDog(info, server);
 	}
 
@@ -149,10 +150,12 @@ export class WatchDog implements IDisposable {
 				!data.includes(Method.DetachFromTarget)
 			) {
 				this.target.send(data);
+
 				return;
 			}
 
 			const result = await this.execute(data);
+
 			if (result) {
 				server.send(JSON.stringify(result));
 			}
@@ -183,6 +186,7 @@ export class WatchDog implements IDisposable {
 	 */
 	private async execute(data: string): Promise<{} | void> {
 		const object = JSON.parse(data);
+
 		switch (object.method) {
 			case Method.AttachToTarget:
 				if (this.target) {
@@ -203,10 +207,12 @@ export class WatchDog implements IDisposable {
 			case Method.DetachFromTarget:
 				this.gracefulExit = true;
 				this.disposeTarget();
+
 				return { id: object.id, result: {} };
 
 			default:
 				this.target?.send(object);
+
 				return;
 		}
 	}

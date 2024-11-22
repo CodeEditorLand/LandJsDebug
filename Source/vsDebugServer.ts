@@ -45,6 +45,7 @@ class VSDebugSession implements IDebugSessionLike {
 	}
 
 	private _name: string;
+
 	set name(newName: string) {
 		this._name = newName;
 		this.childConnection
@@ -71,12 +72,14 @@ class VsDebugServer implements ISessionLauncher<VSDebugSession> {
 		this.sessionServer = new ServerSessionManager(services, this, host);
 
 		const deferredConnection: IDeferred<DapConnection> = getDeferred();
+
 		const rootSession = new VSDebugSession(
 			"root",
 			l10n.t("JavaScript debug adapter"),
 			deferredConnection.promise,
 			{ type: DebugType.Chrome, name: "root", request: "launch" },
 		);
+
 		if (inputStream && outputStream) {
 			this.launchRootFromExisting(
 				deferredConnection,
@@ -127,7 +130,9 @@ class VsDebugServer implements ISessionLauncher<VSDebugSession> {
 			sessionId: target.id,
 			__jsDebugChildServer: "",
 		};
+
 		const deferredConnection: IDeferred<DapConnection> = getDeferred();
+
 		const session = new VSDebugSession(
 			target.id(),
 			target.name(),
@@ -157,10 +162,12 @@ class VsDebugServer implements ISessionLauncher<VSDebugSession> {
 }
 
 let debugServerPort: number | undefined = undefined;
+
 let debugServerHost: string | undefined = undefined;
 
 if (process.argv.length >= 3) {
 	debugServerPort = +process.argv[2];
+
 	if (process.argv.length >= 4) {
 		debugServerHost = process.argv[3];
 	}

@@ -15,6 +15,7 @@ export const breakOnWasmInit = templateFunction(function () {
 		"compile",
 		"compileStreaming",
 	] satisfies (keyof typeof WebAssembly)[];
+
 	for (const fn of fns) {
 		const original = (WebAssembly as any)[fn];
 		WebAssembly[fn] = function (...args) {

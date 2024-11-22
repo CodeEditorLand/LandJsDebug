@@ -30,13 +30,16 @@ const disabled: IAsyncStackPolicy = { connect: async () => noOpDisposable };
 const eager = (maxDepth: number): IAsyncStackPolicy => ({
 	async connect(cdp) {
 		await cdp.Debugger.setAsyncCallStackDepth({ maxDepth });
+
 		return noOpDisposable;
 	},
 });
 
 const onceBp = (maxDepth: number): IAsyncStackPolicy => {
 	const onEnable: EventEmitter<void> | undefined = new EventEmitter<void>();
+
 	let enabled = false;
+
 	const tryEnable = () => {
 		if (!enabled) {
 			enabled = true;
@@ -48,6 +51,7 @@ const onceBp = (maxDepth: number): IAsyncStackPolicy => {
 		async connect(cdp) {
 			if (enabled) {
 				await cdp.Debugger.setAsyncCallStackDepth({ maxDepth });
+
 				return noOpDisposable;
 			}
 

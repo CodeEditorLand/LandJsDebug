@@ -44,6 +44,7 @@ export class DefaultBrowserProvider implements IDefaultBrowserProvider {
 	 */
 	public lookup = once(async () => {
 		let name: string;
+
 		if (this.location === "remote" && this.vscode) {
 			name = await this.vscode.commands.executeCommand(
 				"js-debug-companion.defaultBrowser",
@@ -56,6 +57,7 @@ export class DefaultBrowserProvider implements IDefaultBrowserProvider {
 		const match = [DefaultBrowser.Chrome, DefaultBrowser.Edge].find(
 			(browser) => name.toLowerCase().includes(browser),
 		);
+
 		return match ?? DefaultBrowser.Other;
 	});
 }

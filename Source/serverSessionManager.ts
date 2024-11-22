@@ -99,6 +99,7 @@ export class ServerSessionManager<T extends IDebugSessionLike> {
 		outputStream: Writable,
 	): Session<T> {
 		const transport = new StreamDapTransport(inputStream, outputStream);
+
 		return this.sessionManager.createNewRootSession(
 			debugSession,
 			transport,
@@ -133,8 +134,10 @@ export class ServerSessionManager<T extends IDebugSessionLike> {
 		port?: number,
 	): Promise<IDebugServerCreateResult> {
 		const deferredConnection: IDeferred<DapConnection> = getDeferred();
+
 		const onSocket = (socket: net.Socket) => {
 			const transport = new StreamDapTransport(socket, socket);
+
 			const session = sessionCreationFunc(transport);
 			deferredConnection.resolve(session.connection);
 		};
@@ -143,6 +146,7 @@ export class ServerSessionManager<T extends IDebugSessionLike> {
 			port === undefined
 				? await new Promise<net.Server>((resolve, reject) => {
 						const pipe = getRandomPipe();
+
 						const s = net
 							.createServer(onSocket)
 							.on("error", reject)
@@ -159,6 +163,7 @@ export class ServerSessionManager<T extends IDebugSessionLike> {
 					);
 
 		this.servers.set(debugSession.id, server);
+
 		return { server, connectionPromise: deferredConnection.promise };
 	}
 

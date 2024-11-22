@@ -13,12 +13,14 @@ export async function toggleSkippingFile(
 ): Promise<void> {
 	if (!aPath) {
 		const activeEditor = vscode.window.activeTextEditor;
+
 		if (!activeEditor) return;
 		aPath = activeEditor && activeEditor.document.fileName;
 	}
 
 	if (aPath && vscode.debug.activeDebugSession) {
 		let args: Dap.ToggleSkipFileStatusParams;
+
 		if (typeof aPath === "string") {
 			if (isFileUrl(aPath)) {
 				args = { resource: fileURLToPath(aPath) };

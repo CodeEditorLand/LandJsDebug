@@ -36,7 +36,9 @@ export class LogPointCompiler {
 		logMessage: string,
 	): IBreakpointCondition {
 		const expression = this.logMessageToExpression(logMessage);
+
 		const err = getSyntaxErrorIn(expression);
+
 		if (err) {
 			throw new ProtocolError(
 				invalidBreakPointCondition(params, err.message),
@@ -45,6 +47,7 @@ export class LogPointCompiler {
 
 		const { canEvaluateDirectly, invoke } =
 			this.evaluator.prepare(expression);
+
 		if (canEvaluateDirectly) {
 			return new SimpleCondition(
 				params,
@@ -66,7 +69,9 @@ export class LogPointCompiler {
 	 */
 	private logMessageToExpression(msg: string) {
 		const unescape = (str: string) => str.replace(/%/g, "%%");
+
 		const formatParts = [];
+
 		const args: string[] = [];
 
 		let end = 0;
@@ -76,8 +81,10 @@ export class LogPointCompiler {
 		// We want to reach to the end of that block and evaluate any code therein.
 		while (true) {
 			const start = msg.indexOf("{", end);
+
 			if (start === -1) {
 				formatParts.push(unescape(msg.slice(end)));
+
 				break;
 			}
 
@@ -89,6 +96,7 @@ export class LogPointCompiler {
 			// unclosed or empty bracket is not valid, emit it as text
 			if (end - 1 === start + 1 || msg[end - 1] !== "}") {
 				formatParts.push(unescape(msg.slice(start, end)));
+
 				continue;
 			}
 
@@ -105,12 +113,14 @@ export class LogPointCompiler {
 			}
 
 			args.push(generate(this.serializeLogStatements(block.body)));
+
 			formatParts.push("%O");
 		}
 
 		const evalArgs = [JSON.stringify(formatParts.join("")), ...args].join(
 			", ",
 		);
+
 		const result = `console.log(${evalArgs}), false`; // false for #1191
 		const hash = createHash("sha256")
 			.update(result)

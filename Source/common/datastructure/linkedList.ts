@@ -34,6 +34,7 @@ export class LinkedList<E> {
 
 	clear(): void {
 		let node = this._first;
+
 		while (node !== Node.Undefined) {
 			const next = node.next;
 			node.prev = Node.Undefined;
@@ -56,6 +57,7 @@ export class LinkedList<E> {
 
 	private _insert(element: E, atTheEnd: boolean): () => void {
 		const newNode = new Node(element);
+
 		if (this._first === Node.Undefined) {
 			this._first = newNode;
 			this._last = newNode;
@@ -75,6 +77,7 @@ export class LinkedList<E> {
 		this._size += 1;
 
 		let didRemove = false;
+
 		return () => {
 			if (!didRemove) {
 				didRemove = true;
@@ -89,6 +92,7 @@ export class LinkedList<E> {
 		} else {
 			const res = this._first.element;
 			this._remove(this._first);
+
 			return res;
 		}
 	}
@@ -99,6 +103,7 @@ export class LinkedList<E> {
 		} else {
 			const res = this._last.element;
 			this._remove(this._last);
+
 			return res;
 		}
 	}
@@ -106,8 +111,10 @@ export class LinkedList<E> {
 	// #region custom methods
 	applyFilter(fn: (value: E) => boolean) {
 		let node = this._first;
+
 		while (node !== Node.Undefined) {
 			const next = node.next;
+
 			if (!fn(node.element)) {
 				this._remove(node);
 			}
@@ -146,6 +153,7 @@ export class LinkedList<E> {
 
 	*[Symbol.iterator](): Iterator<E> {
 		let node = this._first;
+
 		while (node !== Node.Undefined) {
 			yield node.element;
 			node = node.next;

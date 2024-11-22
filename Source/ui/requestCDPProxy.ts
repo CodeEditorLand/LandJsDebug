@@ -22,12 +22,14 @@ export const registerRequestCDPProxy = (
 			Commands.RequestCDPProxy,
 			async (sessionId, forwardToUi) => {
 				const session = tracker.getById(sessionId);
+
 				if (!session) {
 					return undefined;
 				}
 
 				const proxied: Dap.RequestCDPProxyResult =
 					await session.customRequest("requestCDPProxy");
+
 				if (!forwardToUi) {
 					return proxied;
 				}

@@ -128,6 +128,7 @@ const codeToFunctionExecutingCode = (
 	catchAndReturnErrors: boolean,
 ): AnyFunctionExpression => {
 	const param: Identifier = { type: "Identifier", name: "e" };
+
 	const innerWithTry: TryStatement = {
 		type: "TryStatement",
 		block: { type: "BlockStatement", body: body as Statement[] },
@@ -247,8 +248,10 @@ function statementToFunction(
 	catchAndReturnErrors: boolean,
 ) {
 	const last = statements[statements.length - 1];
+
 	if (last.type !== "ReturnStatement") {
 		const expr = statementToExpression(last);
+
 		if (expr) {
 			statements = [
 				...statements.slice(0, -1),
@@ -269,6 +272,7 @@ export function statementToExpression(stmt: Statement): Expression | undefined {
 	switch (stmt.type) {
 		case "ExpressionStatement":
 			return stmt.expression;
+
 		case "BlockStatement":
 			return {
 				type: "CallExpression",
@@ -281,8 +285,10 @@ export function statementToExpression(stmt: Statement): Expression | undefined {
 				},
 				optional: false,
 			};
+
 		case "ReturnStatement":
 			return stmt.argument || undefined;
+
 		default:
 			return undefined;
 	}
@@ -324,6 +330,7 @@ export const replace = <T extends Node>(
 	},
 ): T => {
 	const r = traverseInner(node, visitor);
+
 	if (r && typeof r === "object") {
 		return r.replace as T;
 	}
@@ -349,6 +356,7 @@ const traverseInner = (
 	}
 
 	const opt = visitor.enter(node, parent);
+
 	if (opt === VisitorOption.Break) {
 		return VisitorOption.Break;
 	} else if (opt && typeof opt === "object") {
@@ -358,14 +366,17 @@ const traverseInner = (
 	}
 
 	const keys = evk.KEYS[node.type];
+
 	if (keys) {
 		for (const key of keys) {
 			const child = (node as unknown as Record<string, Node | Node[]>)[
 				key
 			];
+
 			if (child instanceof Array) {
 				for (const [i, c] of child.entries()) {
 					const result = traverseInner(c, visitor, node);
+
 					if (result === VisitorOption.Break) {
 						return VisitorOption.Break;
 					} else if (result && typeof result === "object") {
@@ -374,6 +385,7 @@ const traverseInner = (
 				}
 			} else if (child) {
 				const result = traverseInner(child, visitor, node);
+
 				if (result === VisitorOption.Break) {
 					return VisitorOption.Break;
 				} else if (result && typeof result === "object") {

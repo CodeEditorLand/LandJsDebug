@@ -54,6 +54,7 @@ class VSDebugSession implements IDebugSessionLike {
 	}
 
 	private _name: string;
+
 	set name(newName: string) {
 		this._name = newName;
 		this.childConnection
@@ -114,16 +115,19 @@ class VSSessionManager {
 		config: IPseudoAttachConfiguration,
 	) {
 		const deferredConnection = getDeferred<DapConnection>();
+
 		const vsSession = new VSDebugSession(
 			sessionId || "root",
 			name,
 			deferredConnection.promise,
 			config,
 		);
+
 		const transport = new SessionIdDapTransport(
 			sessionId,
 			this.rootTransport,
 		);
+
 		const newSession = config.__pendingTargetId
 			? this.sessionManager.createNewChildSession(
 					vsSession,
@@ -132,6 +136,7 @@ class VSSessionManager {
 				)
 			: this.sessionManager.createNewRootSession(vsSession, transport);
 		deferredConnection.resolve(newSession.connection);
+
 		return newSession;
 	}
 }

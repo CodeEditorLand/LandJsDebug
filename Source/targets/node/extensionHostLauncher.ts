@@ -41,6 +41,7 @@ export class ExtensionHostLauncher extends NodeLauncherBase<IExtensionHostLaunch
 		runData: IRunData<IExtensionHostLaunchConfiguration>,
 	): Promise<void> {
 		const port = runData.params.port || (await findOpenPort());
+
 		const result = await runData.context.dap.launchVSCodeRequest({
 			args: resolveCodeLaunchArgs(runData.params, port),
 			env: this.getConfiguredEnvironment(runData.params).defined(),
@@ -70,6 +71,7 @@ const resolveCodeLaunchArgs = (
 		if (arg.startsWith("-")) {
 			// arg is an option
 			const pair = arg.split("=", 2);
+
 			if (
 				pair.length === 2 &&
 				(existsSync(pair[1]) || existsSync(pair[1] + ".js"))
@@ -81,6 +83,7 @@ const resolveCodeLaunchArgs = (
 			// arg is a path
 			try {
 				const stat = lstatSync(arg);
+
 				if (stat.isDirectory()) {
 					return { prefix: "--folder-uri=", path: arg };
 				} else if (stat.isFile()) {

@@ -91,7 +91,9 @@ export class Session<TSessionImpl extends IDebugSessionLike>
 
 	private setName(target: ITarget) {
 		const substate = this.sessionStates.get(this.debugSession.id);
+
 		let name = target.name();
+
 		if (this.parent instanceof RootSession) {
 			name = `${name} « ${this.parent.debugSession.name}`;
 		}
@@ -169,6 +171,7 @@ export class SessionManager<TSessionImpl extends IDebugSessionLike>
 	public terminate(debugSession: TSessionImpl) {
 		const session = this._sessions.get(debugSession.id);
 		this._sessions.delete(debugSession.id);
+
 		if (session) session.dispose();
 	}
 
@@ -190,6 +193,7 @@ export class SessionManager<TSessionImpl extends IDebugSessionLike>
 		);
 		root.createBinder(this);
 		this._sessions.set(debugSession.id, root);
+
 		return root;
 	}
 
@@ -202,11 +206,13 @@ export class SessionManager<TSessionImpl extends IDebugSessionLike>
 		transport: IDapTransport | DapConnection,
 	): Session<TSessionImpl> {
 		const pending = this._pendingTarget.get(pendingTargetId);
+
 		if (!pending) {
 			throw new Error(`Cannot find target ${pendingTargetId}`);
 		}
 
 		const { target, parent } = pending;
+
 		const session = new Session<TSessionImpl>(
 			debugSession,
 			transport,
@@ -218,10 +224,12 @@ export class SessionManager<TSessionImpl extends IDebugSessionLike>
 		this._pendingTarget.delete(pendingTargetId);
 		session.debugSession.name = target.name();
 		session.listenToTarget(target);
+
 		const callbacks = this._sessionForTargetCallbacks.get(target);
 		this._sessionForTargetCallbacks.delete(target);
 		callbacks?.fulfill?.(session);
 		this._sessions.set(debugSession.id, session);
+
 		return session;
 	}
 
@@ -230,6 +238,7 @@ export class SessionManager<TSessionImpl extends IDebugSessionLike>
 	 */
 	public async acquireDap(target: ITarget): Promise<DapConnection> {
 		const session = await this.getOrLaunchSession(target);
+
 		return session.connection;
 	}
 
@@ -238,6 +247,7 @@ export class SessionManager<TSessionImpl extends IDebugSessionLike>
 	 */
 	public getOrLaunchSession(target: ITarget): Promise<Session<TSessionImpl>> {
 		const existingSession = this._sessionForTarget.get(target);
+
 		if (existingSession) {
 			return existingSession;
 		}
@@ -245,7 +255,9 @@ export class SessionManager<TSessionImpl extends IDebugSessionLike>
 		const newSession = new Promise<Session<TSessionImpl>>(
 			async (fulfill, reject) => {
 				let parentSession: Session<TSessionImpl> | undefined;
+
 				const parentTarget = target.parent();
+
 				if (parentTarget) {
 					parentSession = await this.getOrLaunchSession(parentTarget);
 				} else {
@@ -271,6 +283,7 @@ export class SessionManager<TSessionImpl extends IDebugSessionLike>
 
 				const parentConfig = parentSession.debugSession
 					.configuration as IMandatedConfiguration;
+
 				const config: IPseudoAttachConfiguration = {
 					// see https://github.com/microsoft/vscode/issues/98993
 					type:
@@ -295,6 +308,7 @@ export class SessionManager<TSessionImpl extends IDebugSessionLike>
 		);
 
 		this._sessionForTarget.set(target, newSession);
+
 		return newSession;
 	}
 
@@ -314,7 +328,9 @@ export class SessionManager<TSessionImpl extends IDebugSessionLike>
 	 */
 	public releaseDap(target: ITarget) {
 		this._sessionForTarget.delete(target);
+
 		const callbacks = this._sessionForTargetCallbacks.get(target);
+
 		if (callbacks) callbacks.reject(new Error("Target gone"));
 		this._sessionForTargetCallbacks.delete(target);
 	}
@@ -328,6 +344,7 @@ export class SessionManager<TSessionImpl extends IDebugSessionLike>
 		this._pendingTarget.clear();
 		this._sessionForTarget.clear();
 		this._sessionForTargetCallbacks.clear();
+
 		for (const disposable of this._disposables) disposable.dispose();
 		this._disposables = [];
 	}

@@ -97,6 +97,7 @@ export interface IProfilerFactory {
  */
 export const getDefaultProfileName = () => {
 	const now = new Date();
+
 	return [
 		"vscode-profile",
 		now.getFullYear(),
@@ -125,6 +126,7 @@ export class ProfilerFactory implements IProfilerFactory {
 
 	public get<T>(type: string): IProfiler<T> {
 		const ctor = ProfilerFactory.ctors.find((p) => p.type === type);
+
 		if (!ctor) {
 			throw new Error(`Invalid profilter type ${type}`);
 		}

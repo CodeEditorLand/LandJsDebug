@@ -42,6 +42,7 @@ export class DiagnosticsUI implements IExtensionContribution {
 				Commands.GetDiagnosticLogs,
 				async () => {
 					const session = await this.getTargetSession();
+
 					if (!session) {
 						return;
 					}
@@ -49,6 +50,7 @@ export class DiagnosticsUI implements IExtensionContribution {
 					const uri = await vscode.window.showSaveDialog({
 						filters: { JSON: ["json"] },
 					});
+
 					if (uri) {
 						session.customRequest("saveDiagnosticLogs", {
 							toFile: uri.fsPath,
@@ -79,8 +81,11 @@ export class DiagnosticsUI implements IExtensionContribution {
 				this.isPrompting = true;
 
 				const yes = l10n.t("Yes");
+
 				const notNow = l10n.t("Not Now");
+
 				const never = l10n.t("Never");
+
 				const response = await vscode.window.showInformationMessage(
 					"It looks like you might be having trouble with breakpoints. Would you like to open our diagnostic tool?",
 					yes,
@@ -96,12 +101,17 @@ export class DiagnosticsUI implements IExtensionContribution {
 							await this.getTargetSession(),
 							true,
 						);
+
 						break;
+
 					case never:
 						context.workspaceState.update(neverRemindKey, true);
+
 						break;
+
 					case notNow:
 						this.dismissedForSession = true;
+
 						break;
 				}
 			}),
@@ -110,6 +120,7 @@ export class DiagnosticsUI implements IExtensionContribution {
 
 	private getTargetSession() {
 		const active = vscode.debug.activeDebugSession;
+
 		if (!active || !isDebugType(active?.type)) {
 			return this.pickSession();
 		}
@@ -119,6 +130,7 @@ export class DiagnosticsUI implements IExtensionContribution {
 		}
 
 		const children = this.tracker.getChildren(active);
+
 		if (children.length === 1) {
 			return children[0];
 		}

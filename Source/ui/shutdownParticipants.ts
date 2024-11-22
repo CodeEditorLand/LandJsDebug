@@ -50,6 +50,7 @@ export class ShutdownParticipants implements IShutdownParticipants {
 	): IDisposable {
 		if (this.shutdownStage !== undefined && this.shutdownStage >= order) {
 			p(true);
+
 			return noOpDisposable;
 		}
 
@@ -58,6 +59,7 @@ export class ShutdownParticipants implements IShutdownParticipants {
 		}
 
 		this.participants[order].add(p);
+
 		return { dispose: () => this.participants[order].delete(p) };
 	}
 

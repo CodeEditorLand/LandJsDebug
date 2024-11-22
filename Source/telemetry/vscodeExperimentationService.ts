@@ -68,6 +68,7 @@ export class VSCodeExperimentationService implements IJsDebugExpService {
 				name,
 				true,
 			);
+
 			return r as IExperiments[K];
 		} catch (e) {
 			return defaultValue;

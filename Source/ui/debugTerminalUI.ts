@@ -45,6 +45,7 @@ export const launchVirtualTerminalParent = (
 	filterTarget: (target: ITarget) => boolean = () => true,
 ) => {
 	const telemetry = new DapTelemetryReporter();
+
 	const baseDebugOptions: Partial<ITerminalLaunchConfiguration> = {
 		...readConfig(vscode.workspace, Configuration.TerminalDebugConfig),
 		// Prevent switching over the the Debug Console whenever a process starts
@@ -69,9 +70,12 @@ export const launchVirtualTerminalParent = (
 	// Gets the ideal workspace folder for the given process.
 	const getWorkingDirectory = async (target: ITarget) => {
 		const telemetry = await launcher.getProcessTelemetry(target);
+
 		const fromTelemetry = telemetry && vscode.Uri.file(telemetry.cwd);
+
 		const preferred =
 			fromTelemetry && vscode.workspace.getWorkspaceFolder(fromTelemetry);
+
 		if (preferred) {
 			return preferred.uri;
 		}
@@ -85,12 +89,15 @@ export const launchVirtualTerminalParent = (
 
 	launcher.onTargetListChanged(async () => {
 		const trusted = await vscode.workspace.requestWorkspaceTrust();
+
 		const newTargets = new Set<ITarget>();
+
 		for (const target of launcher.targetList()) {
 			newTargets.add(target);
 
 			if (previousTargets.has(target)) {
 				previousTargets.delete(target);
+
 				continue;
 			}
 
@@ -103,18 +110,21 @@ export const launchVirtualTerminalParent = (
 			// Skip targets the consumer asked to filter out.
 			if (!filterTarget(target)) {
 				target.detach();
+
 				continue;
 			}
 
 			// Check that we didn't detach from the parent session.
 			if (target.targetInfo.openerId && !target.parent()) {
 				target.detach();
+
 				continue;
 			}
 
 			// Detach from targets if workspace trust was not granted
 			if (!trusted) {
 				target.detach();
+
 				continue;
 			}
 
@@ -168,6 +178,7 @@ export const launchVirtualTerminalParent = (
 const Abort = Symbol("Abort");
 
 const home = homedir();
+
 const tildify: (s: string) => string =
 	process.platform === "win32"
 		? (s) => s
@@ -175,6 +186,7 @@ const tildify: (s: string) => string =
 
 async function getWorkspaceFolder() {
 	const folders = vscode.workspace.workspaceFolders;
+
 	if (!folders || folders.length < 2) {
 		return folders?.[0];
 	}
@@ -202,6 +214,7 @@ class ProfileTerminalLauncher extends TerminalNodeLauncher {
 	/** @override */
 	protected createTerminal(options: vscode.TerminalOptions) {
 		this.optionsReadyEmitter.fire(options);
+
 		return new Promise<vscode.Terminal>((resolve) => {
 			const listener = vscode.window.onDidOpenTerminal((t) => {
 				listener.dispose();
@@ -251,6 +264,7 @@ export function registerDebugTerminalUI(
 	) {
 		if (!workspaceFolder) {
 			const picked = await getWorkspaceFolder();
+
 			if (picked === Abort) {
 				return;
 			}
@@ -268,12 +282,14 @@ export function registerDebugTerminalUI(
 				) {
 					terminal.show(true);
 					terminal.sendText(command);
+
 					return;
 				}
 			}
 		}
 
 		const logger = new ProxyLogger();
+
 		const launcher = createLauncherFn(
 			logger,
 			new NodeBinaryProvider(

@@ -94,6 +94,7 @@ export class StackTrace {
 		stack: Cdp.Runtime.StackTrace,
 	): StackTrace {
 		const result = new StackTrace(thread);
+
 		for (const frame of stack.callFrames) {
 			if (!frame.url.endsWith(SourceConstants.InternalExtension)) {
 				result.frames.push(
@@ -119,6 +120,7 @@ export class StackTrace {
 		parentId?: Cdp.Runtime.StackTraceId,
 	): StackTrace {
 		const result = new StackTrace(thread);
+
 		for (const callFrame of frames) {
 			result._appendFrame(StackFrame.fromDebugger(thread, callFrame));
 		}
@@ -141,6 +143,7 @@ export class StackTrace {
 	): Promise<FrameElement[]> {
 		await this.expandAsyncStack(limit, noFuncEval);
 		await this.expandWasmFrames();
+
 		return this.frames;
 	}
 
@@ -154,6 +157,7 @@ export class StackTrace {
 
 			if (!this._lastFrameThread) {
 				this._asyncStackTraceId = undefined;
+
 				break;
 			}
 
@@ -172,6 +176,7 @@ export class StackTrace {
 					stackTraceId: this._asyncStackTraceId,
 				});
 			this._asyncStackTraceId = undefined;
+
 			if (response) {
 				this._appendStackTrace(
 					this._lastFrameThread,
@@ -186,16 +191,19 @@ export class StackTrace {
 			this._lastInlineWasmExpanded.then(async (last) => {
 				for (; last < this.frames.length; last++) {
 					const frame = this.frames[last];
+
 					if (!(frame instanceof StackFrame)) {
 						continue;
 					}
 
 					const source = frame.scriptSource?.resolvedSource;
+
 					if (!isSourceWithWasm(source)) {
 						continue;
 					}
 
 					const symbols = await source.sourceMap.value.promise;
+
 					if (!symbols.getFunctionStack) {
 						continue;
 					}
@@ -203,11 +211,13 @@ export class StackTrace {
 					const stack = await symbols.getFunctionStack(
 						frame.rawPosition,
 					);
+
 					if (stack.length === 0) {
 						continue;
 					}
 
 					const newFrames: InlinedFrame[] = [];
+
 					for (let i = 0; i < stack.length; i++) {
 						const inlinedFrame = new InlinedFrame({
 							source,
@@ -250,6 +260,7 @@ export class StackTrace {
 				this._appendFrame(
 					new AsyncSeparator(stackTrace.description || "async"),
 				);
+
 				for (const callFrame of stackTrace.callFrames) {
 					this._appendFrame(
 						StackFrame.fromRuntime(thread, callFrame, true),
@@ -272,6 +283,7 @@ export class StackTrace {
 		...frames: FrameElement[]
 	) {
 		this.frames.splice(index, deleteCount, ...frames);
+
 		for (const frame of frames) {
 			if (!(frame instanceof AsyncSeparator)) {
 				this._frameById.set(frame.frameId, frame);
@@ -298,12 +310,15 @@ export class StackTrace {
 		// REPL may call back into itself; slice at the highest REPL eval in the call chain.
 		for (let i = stackFrames.length - 1; i >= 0; i--) {
 			const frame = stackFrames[i];
+
 			if (frame instanceof StackFrame && frame.isReplEval) {
 				stackFrames = stackFrames.slice(0, i + 1);
+
 				break;
 			}
 		}
 		const promises = stackFrames.map(mapper);
+
 		return (await Promise.all(promises)).join("\n") + "\n";
 	}
 
@@ -311,11 +326,14 @@ export class StackTrace {
 		params: Dap.StackTraceParamsExtended,
 	): Promise<Dap.StackTraceResult> {
 		const from = params.startFrame || 0;
+
 		let to = (params.levels || 50) + from;
+
 		const frames = await this.loadFrames(to, params.noFuncEval);
 		to = Math.min(frames.length, params.levels ? to : frames.length);
 
 		const result: Promise<Dap.StackFrame>[] = [];
+
 		for (let index = from; index < to; index++) {
 			result.push(frames[index].toDap(params.format));
 		}
@@ -330,7 +348,9 @@ export class StackTrace {
 interface IScope {
 	chain: Cdp.Debugger.Scope[];
 	thisObject: Cdp.Runtime.RemoteObject;
+
 	returnValue?: Cdp.Runtime.RemoteObject;
+
 	variables: (IVariableContainer | undefined)[];
 	callFrameId: string;
 }
@@ -362,6 +382,7 @@ export class AsyncSeparator implements IFrameElement {
 }
 
 const fallbackName = "<anonymous>";
+
 const CLASS_CTOR_RE = /^class\s+(.+) {($|\n)/;
 
 async function getEnhancedName(
@@ -383,6 +404,7 @@ async function getEnhancedName(
 	}
 
 	let objName: string | undefined;
+
 	if (callFrame.this.objectId && useCustomName) {
 		const ret = await thread.cdp().Runtime.callFunctionOn({
 			functionDeclaration: getToStringIfCustom.decl("64", "null"),
@@ -397,6 +419,7 @@ async function getEnhancedName(
 
 		// Static methods `this` is described like `class Foo {` -- make that just `Foo`
 		const classCtor = CLASS_CTOR_RE.exec(objName);
+
 		if (classCtor) {
 			objName = classCtor[1];
 		}
@@ -406,11 +429,13 @@ async function getEnhancedName(
 	}
 
 	const idx = objName.indexOf("\n");
+
 	if (idx !== -1) {
 		objName = objName.slice(0, idx).trim();
 	}
 
 	const fnName = callFrame.functionName;
+
 	if (objName === fnName) {
 		return `${objName}.constructor`;
 	}
@@ -485,6 +510,7 @@ export class StackFrame implements IStackFrameElement {
 			// eslint-disable-next-line
 			callFrameId: callFrame.callFrameId!,
 		};
+
 		return result;
 	}
 
@@ -501,6 +527,7 @@ export class StackFrame implements IStackFrameElement {
 			thread.rawLocationToUiLocation(rawLocation),
 		);
 		this._thread = thread;
+
 		const script = rawLocation.scriptId
 			? thread.getScriptById(rawLocation.scriptId)
 			: undefined;
@@ -554,6 +581,7 @@ export class StackFrame implements IStackFrameElement {
 	/** @inheritdoc */
 	async scopes(): Promise<Dap.ScopesResult> {
 		const currentScope = this._scope;
+
 		if (!currentScope) {
 			throw new ProtocolError(asyncScopesNotAvailable());
 		}
@@ -561,49 +589,70 @@ export class StackFrame implements IStackFrameElement {
 		const scopes = await Promise.all(
 			currentScope.chain.map(async (scope, scopeNumber) => {
 				let name = "";
+
 				let presentationHint:
 					| "arguments"
 					| "locals"
 					| "registers"
 					| undefined;
+
 				switch (scope.type) {
 					case "global":
 						name = l10n.t("Global");
+
 						break;
+
 					case "local":
 						name = l10n.t("Local");
 						presentationHint = "locals";
+
 						break;
+
 					case "with":
 						name = l10n.t("With Block");
 						presentationHint = "locals";
+
 						break;
+
 					case "closure":
 						name = l10n.t("Closure");
 						presentationHint = "arguments";
+
 						break;
+
 					case "catch":
 						name = l10n.t("Catch Block");
 						presentationHint = "locals";
+
 						break;
+
 					case "block":
 						name = l10n.t("Block");
 						presentationHint = "locals";
+
 						break;
+
 					case "script":
 						name = l10n.t("Script");
+
 						break;
+
 					case "eval":
 						name = l10n.t("Eval");
+
 						break;
+
 					case "module":
 						name = l10n.t("Module");
+
 						break;
+
 					default:
 						// fallback for custom scope types from other runtimes (#651)
 						name =
 							scope.type.substr(0, 1).toUpperCase() +
 							scope.type.substr(1);
+
 						break;
 				}
 				if (scope.name && scope.type === "closure") {
@@ -613,6 +662,7 @@ export class StackFrame implements IStackFrameElement {
 				}
 
 				const variable = this._scopeVariable(scopeNumber, currentScope);
+
 				if (!variable) {
 					return undefined;
 				}
@@ -623,10 +673,12 @@ export class StackFrame implements IStackFrameElement {
 					expensive: scope.type === "global",
 					variablesReference: variable.id,
 				};
+
 				if (scope.startLocation) {
 					const startRawLocation = this._thread.rawLocation(
 						scope.startLocation,
 					);
+
 					const startUiLocation =
 						await this._thread.rawLocationToUiLocation(
 							startRawLocation,
@@ -635,12 +687,15 @@ export class StackFrame implements IStackFrameElement {
 					dap.column = (
 						startUiLocation || startRawLocation
 					).columnNumber;
+
 					if (startUiLocation)
 						dap.source = await startUiLocation.source.toDap();
+
 					if (scope.endLocation) {
 						const endRawLocation = this._thread.rawLocation(
 							scope.endLocation,
 						);
+
 						const endUiLocation =
 							await this._thread.rawLocationToUiLocation(
 								endRawLocation,
@@ -670,6 +725,7 @@ export class StackFrame implements IStackFrameElement {
 
 	private readonly getLocationInfo = once(async () => {
 		const uiLocation = this.uiLocation();
+
 		const isSmartStepped = await shouldStepOverStackFrame(this);
 		// only use the relatively expensive custom tostring lookup for frames
 		// that aren't skipped, to avoid unnecessary work e.g. on node_internals
@@ -690,8 +746,11 @@ export class StackFrame implements IStackFrameElement {
 	async toDap(format?: Dap.StackFrameFormat): Promise<Dap.StackFrame> {
 		const { isSmartStepped, name, uiLocation } =
 			await this.getLocationInfo();
+
 		const source = uiLocation ? await uiLocation.source.toDap() : undefined;
+
 		const presentationHint = isSmartStepped ? "deemphasize" : "normal";
+
 		if (isSmartStepped && source) {
 			source.origin =
 				isSmartStepped === StackFrameStepOverReason.SmartStep
@@ -700,6 +759,7 @@ export class StackFrame implements IStackFrameElement {
 		}
 
 		const line = (uiLocation || this._rawLocation).lineNumber;
+
 		const column = (uiLocation || this._rawLocation).columnNumber;
 
 		let formattedName = name;
@@ -732,23 +792,31 @@ export class StackFrame implements IStackFrameElement {
 	/** @inheritdoc */
 	async formatAsNative(): Promise<string> {
 		const { name, uiLocation } = await this.getLocationInfo();
+
 		const url =
 			(await uiLocation?.source.existingAbsolutePath()) ||
 			(await uiLocation?.source.prettyName()) ||
 			this.callFrame.url;
+
 		const { lineNumber, columnNumber } = uiLocation || this._rawLocation;
+
 		return `    at ${name} (${url}:${lineNumber}:${columnNumber})`;
 	}
 
 	/** @inheritdoc */
 	async format(): Promise<string> {
 		const { name, uiLocation } = await this.getLocationInfo();
+
 		const prettyName =
 			(await uiLocation?.source.prettyName()) || "<unknown>";
+
 		const anyLocation = uiLocation || this._rawLocation;
+
 		let text = `${name} @ ${prettyName}:${anyLocation.lineNumber}`;
+
 		if (anyLocation.columnNumber > 1)
 			text += `:${anyLocation.columnNumber}`;
+
 		return text;
 	}
 
@@ -758,6 +826,7 @@ export class StackFrame implements IStackFrameElement {
 		scope: IScope,
 	): IVariableContainer | undefined {
 		const existing = scope.variables[scopeNumber];
+
 		if (existing) {
 			return existing;
 		}
@@ -769,9 +838,11 @@ export class StackFrame implements IStackFrameElement {
 		};
 
 		const extraProperties: IExtraProperty[] = [];
+
 		if (scopeNumber === 0) {
 			if (scope.thisObject)
 				extraProperties.push({ name: "this", value: scope.thisObject });
+
 			if (scope.returnValue) {
 				extraProperties.push({
 					name: l10n.t("Return value"),
@@ -781,6 +852,7 @@ export class StackFrame implements IStackFrameElement {
 		}
 
 		const paused = this._thread.pausedVariables();
+
 		if (!paused) {
 			return undefined;
 		}
@@ -790,18 +862,22 @@ export class StackFrame implements IStackFrameElement {
 			scopeRef,
 			extraProperties,
 		);
+
 		return (scope.variables[scopeNumber] = variable);
 	}
 
 	public readonly completions = once(
 		async (): Promise<Dap.CompletionItem[]> => {
 			if (!this._scope) return [];
+
 			const variableStore = this._thread.pausedVariables();
+
 			if (!variableStore) {
 				return [];
 			}
 
 			const promises: Promise<Dap.CompletionItem[]>[] = [];
+
 			for (
 				let scopeNumber = 0;
 				scopeNumber < this._scope.chain.length;
@@ -811,6 +887,7 @@ export class StackFrame implements IStackFrameElement {
 					scopeNumber,
 					this._scope,
 				);
+
 				if (!scopeVariable) {
 					continue;
 				}
@@ -829,6 +906,7 @@ export class StackFrame implements IStackFrameElement {
 				);
 			}
 			const completions = await Promise.all(promises);
+
 			return ([] as Dap.CompletionItem[]).concat(...completions);
 		},
 	);
@@ -885,19 +963,23 @@ export class InlinedFrame implements IStackFrameElement {
 	/** @inheritdoc */
 	public async formatAsNative(): Promise<string> {
 		const { columnNumber, lineNumber, source } = await this.uiLocation();
+
 		return `    at ${this.name} (${source.url}:${lineNumber}:${columnNumber})`;
 	}
 
 	/** @inheritdoc */
 	public async format(): Promise<string> {
 		const { columnNumber, lineNumber, source } = await this.uiLocation();
+
 		const prettyName = (await source.prettyName()) || "<unknown>";
+
 		return `${this.name} @ ${prettyName}:${lineNumber}:${columnNumber}`;
 	}
 
 	/** @inheritdoc */
 	public async toDap(): Promise<Dap.StackFrame> {
 		const { columnNumber, lineNumber, source } = await this.uiLocation();
+
 		return Promise.resolve({
 			id: this.frameId,
 			name: this.name,
@@ -912,11 +994,13 @@ export class InlinedFrame implements IStackFrameElement {
 		direction: StepDirection,
 	): Promise<Range[] | undefined> {
 		const sm = this.source.sourceMap.value.settledValue;
+
 		if (!sm?.getStepSkipList) {
 			return;
 		}
 
 		const uiLocation = await this.uiLocation();
+
 		if (uiLocation) {
 			return sm.getStepSkipList(
 				direction,
@@ -937,7 +1021,9 @@ export class InlinedFrame implements IStackFrameElement {
 	/** @inheritdoc */
 	public async scopes(): Promise<Dap.ScopesResult> {
 		const v = this.source.sourceMap.value.settledValue;
+
 		const callFrameId = this.root.callFrameId();
+
 		if (!v || !callFrameId) {
 			return EMPTY_SCOPES;
 		}
@@ -946,11 +1032,13 @@ export class InlinedFrame implements IStackFrameElement {
 			callFrameId,
 			this.wasmPosition,
 		);
+
 		if (!variables) {
 			return EMPTY_SCOPES;
 		}
 
 		const paused = this.thread.pausedVariables();
+
 		if (!paused) {
 			return EMPTY_SCOPES;
 		}

@@ -86,6 +86,7 @@ export class AutoAttachLauncher
 		const env = new BootloaderEnvironment({
 			VSCODE_INSPECTOR_OPTIONS: options.value,
 		});
+
 		return env.inspectorOptions?.inspectorIpc;
 	}
 
@@ -145,6 +146,7 @@ export class AutoAttachLauncher
 		runData: IRunData<ITerminalLaunchConfiguration>,
 	) {
 		let binary: NodeBinary;
+
 		try {
 			binary = await this.resolveNodePath(runData.params);
 		} catch (e) {
@@ -162,6 +164,7 @@ export class AutoAttachLauncher
 			vscode.workspace,
 			Configuration.AutoAttachMode,
 		);
+
 		const debugVars = await this.resolveEnvironment(runData, binary, {
 			deferredMode: true,
 			inspectorIpc:
@@ -177,6 +180,7 @@ export class AutoAttachLauncher
 			debugVars.defined() as unknown as IBootloaderEnvironment;
 
 		variables.persistent = true;
+
 		variables.description = new vscode.MarkdownString(
 			l10n.t({
 				message:
@@ -191,7 +195,9 @@ export class AutoAttachLauncher
 				],
 			}),
 		);
+
 		variables.prepend("NODE_OPTIONS", bootloaderEnv.NODE_OPTIONS);
+
 		variables.append(
 			"VSCODE_INSPECTOR_OPTIONS",
 			bootloaderEnv.VSCODE_INSPECTOR_OPTIONS,
@@ -203,10 +209,12 @@ export class AutoAttachLauncher
 			vscode.workspace,
 			Configuration.AutoAttachSmartPatterns,
 		);
+
 		const allFolders =
 			vscode.workspace.workspaceFolders?.length === 1
 				? vscode.workspace.workspaceFolders[0].uri.fsPath
 				: `{${vscode.workspace.workspaceFolders?.map((f) => f.uri.fsPath).join(",")}}`;
+
 		return configured
 			?.map((c) => c.replace("${workspaceFolder}", allFolders))
 			.map(forceForwardSlashes);
@@ -229,6 +237,7 @@ export class AutoAttachLauncher
 		const storagePath =
 			this.extensionContext.storagePath ||
 			this.extensionContext.globalStoragePath;
+
 		if (storagePath.includes(" ")) {
 			if (
 				binary.isPreciselyKnown &&
@@ -242,6 +251,7 @@ export class AutoAttachLauncher
 		}
 
 		const bootloaderPath = path.join(storagePath, "bootloader.js");
+
 		try {
 			await this.fs.mkdir(storagePath);
 		} catch {
@@ -258,6 +268,7 @@ export class AutoAttachLauncher
 		]);
 
 		const p = forceForwardSlashes(bootloaderPath);
+
 		return {
 			interpolatedPath: p.includes(" ") ? `"${p}"` : p,
 			dispose: () => undefined,
@@ -274,6 +285,7 @@ export class AutoAttachLauncher
 
 		const pid = Number(data.pid ?? "0");
 		this.telemetryItems.set(pid, data.telemetry);
+
 		const wd = await WatchDog.attach({
 			...data,
 			ipcAddress: this.run.serverAddress, // may be outdated from a previous set of vars

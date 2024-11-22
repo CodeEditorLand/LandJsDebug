@@ -6,8 +6,10 @@ import { once } from "./objUtils";
 
 export const argsToMap = (args: ReadonlyArray<string>) => {
 	const map: { [key: string]: string | null } = {};
+
 	for (const arg of args) {
 		const delimiter = arg.indexOf("=");
+
 		if (delimiter === -1) {
 			map[arg] = null;
 		} else {
@@ -22,8 +24,10 @@ export const mapToArgs = (map: {
 	[key: string]: string | null | undefined;
 }) => {
 	const out: string[] = [];
+
 	for (const key of Object.keys(map)) {
 		const value = map[key];
+
 		if (value === undefined) {
 			continue;
 		}
@@ -54,6 +58,7 @@ export class ProcessArgs {
 	 */
 	public get(key: string) {
 		const am = this.argMap();
+
 		return am.hasOwnProperty(key) ? am[key] : undefined;
 	}
 
@@ -85,9 +90,12 @@ export class ProcessArgs {
 		predicate: (key: string, value: string | null) => boolean,
 	): this {
 		const args = this.argMap();
+
 		const out: string[] = [];
+
 		for (const key of Object.keys(args)) {
 			const value = args[key];
+
 			if (!predicate(key, value)) {
 				continue;
 			}
@@ -107,6 +115,7 @@ export class ProcessArgs {
 
 	private newThis(args: ReadonlyArray<string>) {
 		type X = this;
+
 		return new (this.constructor as { new (args: readonly string[]): X })(
 			args,
 		);

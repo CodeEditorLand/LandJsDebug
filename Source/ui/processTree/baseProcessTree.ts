@@ -32,6 +32,7 @@ export abstract class BaseProcessTree implements IProcessTree {
 	): Promise<T> {
 		return new Promise((resolve, reject) => {
 			const proc = this.createProcess();
+
 			const parser = this.createParser();
 
 			proc.on("error", reject);
@@ -40,6 +41,7 @@ export abstract class BaseProcessTree implements IProcessTree {
 			);
 			proc.stdout.pipe(new StreamSplitter("\n")).on("data", (line) => {
 				const process = parser(line.toString());
+
 				if (process) {
 					value = onEntry(process, value);
 				}

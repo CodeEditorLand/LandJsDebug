@@ -14,10 +14,14 @@ export const getArraySlots = remoteFunction(function (
 	count: number,
 ) {
 	const result = {};
+
 	const from = start === -1 ? 0 : start;
+
 	const to = count === -1 ? this.length : start + count;
+
 	for (let i = from; i < to && i < this.length; ++i) {
 		const descriptor = Object.getOwnPropertyDescriptor(this, i);
+
 		if (descriptor) {
 			Object.defineProperty(result, i, descriptor);
 		}

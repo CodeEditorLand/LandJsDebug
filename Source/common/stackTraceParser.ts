@@ -10,6 +10,7 @@ import { Base1Position } from "./positions";
 // "    at /Users/roblou/code/testapp-node2/out/app.js:60:23"
 // and replace the path in them
 const re1 = /^(\W*at .*\()(.*):(\d+):(\d+)(\))$/;
+
 const re2 = /^(\W*at )(.*):(\d+):(\d+)$/;
 
 /**
@@ -26,12 +27,15 @@ export class StackTraceParser {
 	*[Symbol.iterator]() {
 		for (const line of this.stack.split("\n")) {
 			const match = re1.exec(line) || re2.exec(line);
+
 			if (!match) {
 				yield line + "\n";
+
 				continue;
 			}
 
 			const [, prefix, url, lineNo, columnNo, suffix] = match;
+
 			if (prefix) {
 				yield prefix;
 			}

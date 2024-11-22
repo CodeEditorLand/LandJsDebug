@@ -74,10 +74,12 @@ export class NodeWorkerTarget implements ITarget {
 		// order matters! The runtime must be enabled first so we know what
 		// execution contexts scripts are in
 		await this.cdp.Runtime.enable({});
+
 		if (!this.launchConfig.noDebug) {
 			await this.cdp.Debugger.enable({});
 		}
 		this.attached = true;
+
 		return this.cdp;
 	}
 
@@ -100,6 +102,7 @@ export class NodeWorkerTarget implements ITarget {
 
 	public afterBind(): Promise<void> {
 		this.cdp.resume();
+
 		return Promise.resolve();
 	}
 
@@ -129,6 +132,7 @@ export class NodeWorkerTarget implements ITarget {
 		const isPath =
 			url[0] === "/" ||
 			(process.platform === "win32" && url[1] === ":" && url[2] === "\\");
+
 		return isPath ? absolutePathToFileUrl(url) : url;
 	}
 

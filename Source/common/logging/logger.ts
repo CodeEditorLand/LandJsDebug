@@ -59,6 +59,7 @@ export class Logger implements ILogger, IDisposable {
 	public static null = (() => {
 		const logger = new Logger();
 		logger.setup({ sinks: [] });
+
 		return logger;
 	})();
 
@@ -68,6 +69,7 @@ export class Logger implements ILogger, IDisposable {
 	public static async test() {
 		const logger = new Logger();
 		logger.setup({ sinks: [new TestLogSink()], showWelcome: false });
+
 		return logger;
 	}
 
@@ -171,6 +173,7 @@ export class Logger implements ILogger, IDisposable {
 
 		if ("queue" in this.logTarget) {
 			this.logTarget.queue.push(data);
+
 			return;
 		}
 
@@ -213,6 +216,7 @@ export class Logger implements ILogger, IDisposable {
 
 		if (options.showWelcome !== false) {
 			const message = createWelcomeMessage();
+
 			for (const sink of options.sinks) {
 				sink.write(message);
 			}

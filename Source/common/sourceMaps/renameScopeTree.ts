@@ -36,10 +36,12 @@ export class ScopeNode<T> {
 		);
 
 		const stack = [root];
+
 		let stackLen = 1;
 
 		for (let i = 1; i < flat.length; i++) {
 			const node = flat[i];
+
 			while (node.depth < stackLen) {
 				stackLen--;
 				stack[stackLen].data = depthFirstHydration(stack[stackLen]);
@@ -79,6 +81,7 @@ export class ScopeNode<T> {
 
 		for (const child of this.children) {
 			const found = child.search(pos);
+
 			if (found) {
 				return found;
 			}
@@ -99,6 +102,7 @@ export class ScopeNode<T> {
 		if (this.children) {
 			for (const child of this.children) {
 				const found = child.findDeepest(position, predicate);
+
 				if (found !== undefined) {
 					return found;
 				}

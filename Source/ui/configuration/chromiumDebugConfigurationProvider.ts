@@ -94,6 +94,7 @@ export abstract class ChromiumDebugConfigurationResolver<
 		}
 
 		const browserLocation = this.location === "remote" ? "ui" : "workspace";
+
 		if (isLaunch(config) && !config.browserLaunchLocation) {
 			config.browserLaunchLocation = browserLocation;
 		}
@@ -128,12 +129,14 @@ export abstract class ChromiumDebugConfigurationResolver<
 		}
 
 		let config = debugConfiguration as T;
+
 		if ("port" in config && typeof config.port === "string") {
 			config.port = Number(config.port);
 		}
 
 		if (config.request === "launch") {
 			const resolvedDataDir = await this.ensureNoLockfile(config);
+
 			if (resolvedDataDir === undefined) {
 				return;
 			}
@@ -177,6 +180,7 @@ export abstract class ChromiumDebugConfigurationResolver<
 			userDataDir,
 			process.platform === "win32" ? "lockfile" : "SingletonLock",
 		);
+
 		const lockfileExists = await some<unknown>([
 			existsWithoutDeref(this.fs, platformLock),
 			this.isVsCodeLocked(join(userDataDir, "code.lock")),
@@ -184,6 +188,7 @@ export abstract class ChromiumDebugConfigurationResolver<
 
 		if (lockfileExists) {
 			const debugAnyway = l10n.t("Debug Anyway");
+
 			const result = await vscode.window.showErrorMessage(
 				l10n.t(
 					"It looks like a browser is already running from {0}. Please close it before trying to debug, otherwise VS Code may not be able to connect to it.",
@@ -228,6 +233,7 @@ export abstract class ChromiumDebugConfigurationProvider<
 
 	public createLaunchConfigFromContext() {
 		const editor = vscode.window.activeTextEditor;
+
 		if (editor && editor.document.languageId === "html") {
 			return {
 				type: this.getType(),

@@ -82,6 +82,7 @@ export class Console implements IConsole {
 	 */
 	public dispatch(thread: Thread, event: Cdp.Runtime.ConsoleAPICalledEvent) {
 		const parsed = this.parse(event);
+
 		if (parsed) {
 			this.enqueue(thread, parsed);
 		}
@@ -112,6 +113,7 @@ export class Console implements IConsole {
 			// Ignore the duplicate group events that Node.js can emit:
 			// See: https://github.com/nodejs/node/issues/31973
 			const firstFrame = event.stackTrace?.callFrames[0];
+
 			if (
 				firstFrame &&
 				firstFrame.url === "internal/console/constructor.js" &&
@@ -124,25 +126,34 @@ export class Console implements IConsole {
 		switch (event.type) {
 			case "clear":
 				return new ClearMessage();
+
 			case "endGroup":
 				return new EndGroupMessage();
+
 			case "assert":
 				return new AssertMessage(event);
+
 			case "table":
 				return new TableMessage(event);
+
 			case "startGroup":
 			case "startGroupCollapsed":
 				return new StartGroupMessage(event);
+
 			case "debug":
 			case "log":
 			case "info":
 				return new LogMessage(event);
+
 			case "trace":
 				return new TraceMessage(event);
+
 			case "error":
 				return new ErrorMessage(event);
+
 			case "warning":
 				return new WarningMessage(event);
+
 			case "dir":
 			case "dirxml":
 				return new LogMessage(event); // a normal object inspection

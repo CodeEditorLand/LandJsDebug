@@ -39,11 +39,13 @@ export const acquireTrackedServer = async (
 				{ tester: makeAcquireTcpServer(onSocket, host) },
 				ct,
 			);
+
 	const dispose = tracker.register(
 		(server.address() as net.AddressInfo).port,
 	);
 	server.on("close", () => dispose.dispose());
 	server.on("error", () => dispose.dispose());
+
 	return server;
 };
 
@@ -59,11 +61,13 @@ export const acquireTrackedWebSocketServer = async (
 		{ tester: makeAcquireWebSocketServer(options) },
 		ct,
 	);
+
 	const dispose = tracker.register(
 		(server.address() as net.AddressInfo).port,
 	);
 	server.on("close", () => dispose.dispose());
 	server.on("error", () => dispose.dispose());
+
 	return server;
 };
 
@@ -117,6 +121,7 @@ export class PortLeaseTracker implements IPortLeaseTracker {
 	register(port: number): IDisposable {
 		this.usedPorts.add(port);
 		this.onRegistered.fire(port);
+
 		return { dispose: () => this.usedPorts.delete(port) };
 	}
 

@@ -41,22 +41,29 @@ export class BreakpointsStatisticsCalculator {
 
 	private getStatistics(breakpointId: number): BreakpointStatistic {
 		const statistic = this._statisticsById.get(breakpointId);
+
 		if (statistic !== undefined) {
 			return statistic;
 		} else {
 			const newStatistic = new BreakpointStatistic();
 			this._statisticsById.set(breakpointId, newStatistic);
+
 			return newStatistic;
 		}
 	}
 
 	public statistics(): IManyBreakpointsStatistics {
 		let count = 0;
+
 		let verified = 0;
+
 		let hit = 0;
+
 		for (const singleStatistic of this._statisticsById.values()) {
 			count++;
+
 			if (singleStatistic.hit) hit++;
+
 			if (singleStatistic.verified) verified++;
 		}
 

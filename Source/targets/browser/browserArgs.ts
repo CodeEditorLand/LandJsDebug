@@ -11,6 +11,7 @@ import { mapToArgs, ProcessArgs } from "../../common/processArgs";
 export type BrowserConnection = "pipe" | number;
 
 const debugPortArg = "--remote-debugging-port";
+
 const debugPipeArg = "--remote-debugging-pipe";
 
 /**
@@ -54,11 +55,13 @@ export class BrowserArgs extends ProcessArgs {
 	 */
 	public getSuggestedConnection(): BrowserConnection | undefined {
 		const args = this.argMap();
+
 		if (args.hasOwnProperty(debugPipeArg)) {
 			return "pipe";
 		}
 
 		const port = args[debugPortArg];
+
 		if (port === undefined) {
 			return undefined;
 		}

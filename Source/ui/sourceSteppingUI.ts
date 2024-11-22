@@ -47,6 +47,7 @@ export class SourceSteppingUI implements IExtensionContribution {
 				this.context.workspaceState,
 				enabled,
 			);
+
 			for (const session of this.tracker.getConcreteSessions()) {
 				session.customRequest("setSourceMapStepping", { enabled });
 			}

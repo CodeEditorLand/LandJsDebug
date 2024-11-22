@@ -100,6 +100,7 @@ class BasicProfile implements IProfile {
 	 */
 	public async stop() {
 		const result = await this.cdp.HeapProfiler.stopSampling({});
+
 		if (!result) {
 			throw new ProtocolError(profileCaptureError());
 		}
@@ -129,6 +130,7 @@ class BasicProfile implements IProfile {
 			for (const child of node.children) {
 				const destChild = { ...child, children: [] };
 				destNode.children.push(destChild);
+
 				setLocationId(child, destChild);
 			}
 		};

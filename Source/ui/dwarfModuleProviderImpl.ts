@@ -11,6 +11,7 @@ import { IDwarfModuleProvider } from "../adapter/dwarf/dwarfModuleProvider";
 import { ExtensionContext } from "../ioc-extras";
 
 const EXT_ID = "ms-vscode.wasm-dwarf-debugging";
+
 const NEVER_REMIND = "dwarf.neverRemind";
 
 @injectable()
@@ -35,6 +36,7 @@ export class DwarfModuleProvider implements IDwarfModuleProvider {
 		}
 
 		const ext = vscode.extensions.getExtension<typeof dwf>(EXT_ID);
+
 		if (!ext) {
 			return undefined;
 		}
@@ -54,7 +56,9 @@ export class DwarfModuleProvider implements IDwarfModuleProvider {
 		this.didPromptForSession = true;
 
 		const yes = l10n.t("Yes");
+
 		const never = l10n.t("Never");
+
 		const response = await vscode.window.showInformationMessage(
 			l10n.t({
 				message:

@@ -46,6 +46,7 @@ export async function findOpenPort<T>(
 	cancellationToken: CancellationToken = NeverCancelled,
 ) {
 	let port = randomInRange(min, max);
+
 	for (let i = Math.min(attempts, max - min); ; i--) {
 		try {
 			return await tester(port, cancellationToken);
@@ -65,6 +66,7 @@ export async function findOpenPort<T>(
 export async function isPortOpen(port: number, ct?: CancellationToken) {
 	try {
 		await acquirePortNumber(port, ct);
+
 		return true;
 	} catch {
 		return false;
@@ -80,6 +82,7 @@ export function acquirePortNumber(
 	ct: CancellationToken = NeverCancelled,
 ) {
 	let disposable: IDisposable | undefined;
+
 	return new Promise((resolve, reject) => {
 		const server = net.createServer();
 		server.listen(port, "127.0.0.1", () => {
@@ -108,6 +111,7 @@ export const makeAcquireTcpServer =
 	(port, ct) => {
 		const server = net.createServer(onSocket);
 		server.listen(port, host);
+
 		return waitForServerToListen(server, ct);
 	};
 
@@ -138,6 +142,7 @@ export const waitForServerToListen = <T extends IServerLike>(
 	ct: CancellationToken,
 ): Promise<T> => {
 	let disposable: IDisposable | undefined;
+
 	return new Promise<T>((resolve, reject) => {
 		server.on("error", reject);
 		server.on("listening", () => resolve(server));

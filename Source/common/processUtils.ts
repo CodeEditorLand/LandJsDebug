@@ -42,6 +42,7 @@ export function spawnAsync(
 ): Promise<{ stdout: string; stderr: string }> {
 	return new Promise((resolve, reject) => {
 		const fmt = formatSubprocessArguments(command, args, options?.cwd);
+
 		const process = spawn(fmt.executable, fmt.args, {
 			...options,
 			cwd: fmt.cwd,
@@ -50,6 +51,7 @@ export function spawnAsync(
 		});
 
 		const stderr: Buffer[] = [];
+
 		const stdout: Buffer[] = [];
 		process.stderr.on("data", (chunk) => stderr.push(chunk));
 		process.stdout.on("data", (chunk) => stdout.push(chunk));
@@ -96,6 +98,7 @@ export const formatSubprocessArguments = (
 ) => {
 	if (process.platform === "win32") {
 		executable = platformPathToPreferredCase(executable);
+
 		if (cwd) {
 			cwd = platformPathToPreferredCase(cwd.toString());
 		}

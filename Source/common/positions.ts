@@ -55,6 +55,7 @@ export class Base0Position implements IPosition {
 
 	public compare(other: Base0Position) {
 		const other0 = other.base0;
+
 		return (
 			this.lineNumber - other0.lineNumber ||
 			this.columnNumber - other0.columnNumber
@@ -87,6 +88,7 @@ export class Base1Position implements IPosition {
 
 	public compare(other: Base1Position) {
 		const other1 = other.base1;
+
 		return (
 			this.lineNumber - other1.lineNumber ||
 			this.columnNumber - other1.columnNumber ||
@@ -120,6 +122,7 @@ export class Base01Position implements IPosition {
 
 	public compare(other: Base01Position) {
 		const other01 = other.base01;
+
 		return (
 			this.lineNumber - other01.lineNumber ||
 			this.columnNumber - other01.columnNumber
@@ -148,11 +151,14 @@ export class Range {
 		const sortedRanges = rangeList
 			.slice()
 			.sort((a, b) => a.begin.compare(b.begin));
+
 		const mergedRanges: Range[] = [];
 
 		let currentRange = sortedRanges[0];
+
 		for (let i = 1; i < sortedRanges.length; i++) {
 			const nextRange = sortedRanges[i];
+
 			if (currentRange.end.compare(nextRange.begin) >= 0) {
 				currentRange = new Range(currentRange.begin, nextRange.end);
 			} else {
@@ -182,7 +188,9 @@ export class Range {
 	/** Returns a human-debuggable representation of the range. */
 	public toString() {
 		const b1 = this.begin.base0;
+
 		const e1 = this.end.base0;
+
 		return `Range[${b1.lineNumber}:${b1.columnNumber} -> ${e1.lineNumber}:${e1.columnNumber}]`;
 	}
 }

@@ -48,12 +48,14 @@ export class StatefulResourceProvider
 		headers: Headers = {},
 	): Promise<Response<string>> {
 		const res = await super.fetchHttp(url, cancellationToken, headers);
+
 		if (!res.ok) {
 			this.logger.info(
 				LogTag.Runtime,
 				"Network load failed, falling back to CDP",
 				{ url, res },
 			);
+
 			return this.fetchOverBrowserNetwork(url, res);
 		}
 
@@ -94,17 +96,21 @@ export class StatefulResourceProvider
 		// Small optimization: normally we'd need a trailing `IO.read` request to
 		// get an EOF, but if the response headers have a length then we can avoid that!
 		let maxOffset = Number(res.resource.headers?.["Content-Length"]);
+
 		if (isNaN(maxOffset)) {
 			maxOffset = Infinity;
 		}
 
 		const result: string[] = [];
+
 		let offset = 0;
+
 		while (true) {
 			const chunkRes = await this.cdp.IO.read({
 				handle: res.resource.stream,
 				offset,
 			});
+
 			if (!chunkRes) {
 				this.logger.info(
 					LogTag.Runtime,
@@ -113,6 +119,7 @@ export class StatefulResourceProvider
 						url,
 					},
 				);
+
 				return original;
 			}
 
@@ -122,6 +129,7 @@ export class StatefulResourceProvider
 			// V8 uses byte length, not UTF-16 length, see #1814
 			offset += Buffer.byteLength(chunk, "utf-8");
 			result.push(chunk);
+
 			if (offset >= maxOffset) {
 				this.cdp.IO.close({ handle: res.resource.stream }); // no await: do this in the background
 				break;

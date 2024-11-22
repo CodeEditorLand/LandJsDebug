@@ -8,11 +8,14 @@ import { escapeRegexSpecialChars } from "../common/stringUtils";
 
 // Patterns to match against various patterns:
 const capturingGroup = "*";
+
 const capturingGroupRe = new RegExp(
 	escapeRegexSpecialChars(capturingGroup),
 	"g",
 );
+
 const nonCapturingGroup = "?:" + capturingGroup;
+
 const nonCapturingGroupRe = new RegExp(
 	escapeRegexSpecialChars(nonCapturingGroup),
 	"g",
@@ -21,6 +24,7 @@ const nonCapturingGroupRe = new RegExp(
 const occurencesInString = (re: RegExp, str: string) => {
 	const matches = str.match(re);
 	re.lastIndex = 0;
+
 	return matches ? matches.length : 0;
 };
 
@@ -54,6 +58,7 @@ export class SourceMapOverrides {
 		// Iterate the key/vals, only apply the first one that matches.
 		for (const leftPatternRaw of sortedOverrideKeys) {
 			let rightPattern = sourceMapOverrides[leftPatternRaw];
+
 			if (
 				!rightPattern.includes("*") &&
 				/\$[0-9'`&]/.test(rightPattern)
@@ -62,11 +67,14 @@ export class SourceMapOverrides {
 					new RegExp(`^${leftPatternRaw}$`, "i"),
 					rightPattern,
 				]);
+
 				continue;
 			}
 
 			const leftPattern = forceForwardSlashes(leftPatternRaw);
+
 			const entryStr = `"${leftPattern}": "${rightPattern}"`;
+
 			const capturedGroups =
 				occurencesInString(capturingGroupRe, leftPattern) -
 				occurencesInString(nonCapturingGroupRe, leftPattern);
@@ -76,6 +84,7 @@ export class SourceMapOverrides {
 					LogTag.RuntimeSourceMap,
 					`Warning: only one asterisk allowed in a sourceMapPathOverrides entry - ${entryStr}`,
 				);
+
 				continue;
 			}
 
@@ -87,10 +96,12 @@ export class SourceMapOverrides {
 					LogTag.RuntimeSourceMap,
 					`The right side of a sourceMapPathOverrides entry must have 0 or 1 asterisks - ${entryStr}}`,
 				);
+
 				continue;
 			}
 
 			let reSource = "^";
+
 			let leftIndex = 0;
 			anyGroupRe.lastIndex = 0;
 
@@ -132,11 +143,13 @@ export class SourceMapOverrides {
 	 */
 	public apply(sourcePath: string): string {
 		const sourcePathWithForwardSlashes = forceForwardSlashes(sourcePath);
+
 		for (const [re, replacement] of this.replacers) {
 			const mappedPath = sourcePathWithForwardSlashes.replace(
 				re,
 				replacement,
 			);
+
 			if (mappedPath !== sourcePathWithForwardSlashes) {
 				this.logger.verbose(
 					LogTag.RuntimeSourceMap,

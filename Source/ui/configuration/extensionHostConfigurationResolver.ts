@@ -37,7 +37,9 @@ export class ExtensionHostConfigurationResolver
     config: ResolvingExtensionHostConfiguration,
   ): Promise<IExtensionHostLaunchConfiguration | undefined> {
     const args = new ProcessArgs(config.args);
+
     const pkgJson = await readExtensionPackageJson(folder, config, args);
+
     if (config.debugWebWorkerHost === undefined) {
       const extensionKind = pkgJson?.value.extensionKind ?? defaultExtensionKind;
       config = {
@@ -77,6 +79,7 @@ export class ExtensionHostConfigurationResolver
     debugConfiguration: vscode.DebugConfiguration,
   ): Promise<vscode.DebugConfiguration | undefined> {
     const config = debugConfiguration as ResolvingExtensionHostConfiguration;
+
     try {
       const testCfg = await resolveTestConfiguration(config);
       if (testCfg) {
@@ -146,7 +149,9 @@ const readExtensionPackageJson = async (
 
   try {
     const pkgPath = path.join(resolvedFolder, 'package.json');
+
     const json = await fs.readFile(pkgPath, 'utf-8');
+
     return { value: JSON.parse(json), path: pkgPath };
   } catch {
     return undefined;
@@ -163,6 +168,7 @@ const resolveTestConfiguration = async (config: ResolvingExtensionHostConfigurat
   const suffix = path.join('node_modules', '@vscode', 'test-cli', 'out', 'bin.mjs');
   const dirWithModules = await nearestDirectoryWhere(testConfiguration, async dir => {
     const binary = path.join(dir, suffix);
+
     return (await canAccess(fs, binary)) ? dir : undefined;
   });
 
@@ -202,6 +208,7 @@ const resolveTestConfiguration = async (config: ResolvingExtensionHostConfigurat
         title: l10n.t('Select test configuration to run'),
       },
     );
+
     if (!testConfigurationLabel) {
       throw new TaskCancelledError('cancelled');
     }

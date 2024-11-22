@@ -69,6 +69,7 @@ export class PackageJsonProvider implements IPackageJsonProvider {
 			this.config.cwd,
 			"package.json",
 		);
+
 		return dir ? join(dir, "package.json") : undefined;
 	});
 
@@ -77,12 +78,14 @@ export class PackageJsonProvider implements IPackageJsonProvider {
 	 */
 	public readonly getContents = once(async () => {
 		const path = await this.getPath();
+
 		if (!path) {
 			return;
 		}
 
 		try {
 			const contents = await this.fs.readFile(path);
+
 			return JSON.parse(contents.toString()) as IPackageJson;
 		} catch {
 			return;

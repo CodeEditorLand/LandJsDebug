@@ -21,6 +21,7 @@ export function killTree(
 
 	if (process.platform === "win32") {
 		const windir = process.env["WINDIR"] || "C:\\Windows";
+
 		const TASK_KILL = join(windir, "System32", "taskkill.exe");
 
 		// when killing a process in Windows its child processes are *not* killed but become root processes.
@@ -30,6 +31,7 @@ export function killTree(
 				`${TASK_KILL} ${behavior === KillBehavior.Forceful ? "/F" : ""} /T /PID ${processId}`,
 				{ stdio: "pipe" },
 			);
+
 			return true;
 		} catch (err) {
 			logger.error(
@@ -37,12 +39,14 @@ export function killTree(
 				"Error running taskkill.exe",
 				err,
 			);
+
 			return false;
 		}
 	} else {
 		// on linux and OS X we kill all direct and indirect child processes as well
 		try {
 			const cmd = join(__dirname, "./targets/node/terminateProcess.sh");
+
 			const r = spawnSync("sh", [
 				cmd,
 				processId.toString(),
@@ -55,6 +59,7 @@ export function killTree(
 					"Error running terminateProcess",
 					r,
 				);
+
 				return false;
 			}
 
@@ -65,6 +70,7 @@ export function killTree(
 				"Error running terminateProcess",
 				err,
 			);
+
 			return false;
 		}
 	}

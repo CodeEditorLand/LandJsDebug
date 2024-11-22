@@ -85,6 +85,7 @@ export class SourcePathResolverFactory implements ISourcePathResolverFactory {
 			);
 		} else {
 			const isBlazor = !!c.inspectUri;
+
 			return new (
 				isBlazor ? BlazorSourcePathResolver : BrowserSourcePathResolver
 			)(

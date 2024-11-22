@@ -50,11 +50,13 @@ export class PrettyPrintUI implements IExtensionContribution {
 	 */
 	public async prettifyActive() {
 		const editor = vscode.window.activeTextEditor;
+
 		if (!editor || !this.canPrettyPrint(editor)) {
 			return;
 		}
 
 		const { sessionId, source } = sourceForUri(editor.document.uri);
+
 		const session = sessionId && this.tracker.getById(sessionId);
 
 		// For ephemeral files, they're attached to a single session, so go ahead
@@ -80,11 +82,13 @@ export class PrettyPrintUI implements IExtensionContribution {
 	private updateEditorState(editor: vscode.TextEditor | undefined) {
 		if (!this.tracker.isDebugging) {
 			this.canPrettyPrintKey.value = undefined;
+
 			return;
 		}
 
 		if (editor && this.canPrettyPrint(editor)) {
 			const value = editor.document.uri.toString();
+
 			if (value !== this.canPrettyPrintKey.value?.[0]) {
 				this.canPrettyPrintKey.value = [editor.document.uri.toString()];
 			}
@@ -108,7 +112,9 @@ const sendPrintCommand = (
  */
 const sourceForUri = (uri: vscode.Uri) => {
 	const query = qs.parse(uri.query);
+
 	const sessionId: string | undefined = query["session"] as string;
+
 	const source = {
 		path: uri.fsPath,
 		sourceReference: Number(query["ref"]) || 0,

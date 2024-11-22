@@ -18,6 +18,7 @@ export type StubCdpApi = {
 
 export const stubbedCdpApi = (): StubCdpApi => {
 	const stubs = new Map<string, SinonStub>();
+
 	const proxy = new Proxy(
 		{},
 		{
@@ -31,6 +32,7 @@ export const stubbedCdpApi = (): StubCdpApi => {
 					{
 						get: (_target, method: string) => {
 							let s = stubs.get(`${domain}.${method}`);
+
 							if (!s) {
 								s = stub();
 								stubs.set(`${domain}.${method}`, s);

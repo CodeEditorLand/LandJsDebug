@@ -126,11 +126,13 @@ export class ExtensionHostAttacher extends NodeAttacherBase<IExtensionHostAttach
 		target: Cdp.Target.TargetInfo,
 	) {
 		this.setEnvironmentVariables(cdp, run, target.targetId);
+
 		const telemetry = await this.gatherTelemetryFromCdp(cdp, run);
 
 		// Monitor the process ID we read from the telemetry. Once the VS Code
 		// process stops, stop our Watchdog, and vise versa.
 		const watchdog = this.program;
+
 		if (telemetry && watchdog) {
 			const code = new TerminalProcess(
 				{ processId: telemetry.processId },

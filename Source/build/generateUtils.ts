@@ -7,6 +7,7 @@ import * as path from "path";
 
 export function writeCodeToFile(code: string, relativeFilePath: string) {
 	const fileName = path.join(__dirname, "..", "..", relativeFilePath);
+
 	return fs.writeFile(fileName, code, { encoding: "utf-8" });
 }
 

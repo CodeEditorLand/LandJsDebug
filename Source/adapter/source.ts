@@ -162,6 +162,7 @@ export class Source {
 
 	public async equalsDap(s: Dap.Source) {
 		const existingAbsolutePath = await this._existingAbsolutePath;
+
 		return existingAbsolutePath
 			? !s.sourceReference && existingAbsolutePath === s.path
 			: s.sourceReference === this.sourceReference;
@@ -170,6 +171,7 @@ export class Source {
 	private setSourceMapUrl(sourceMapMetadata?: ISourceMapMetadata) {
 		if (!sourceMapMetadata) {
 			this.sourceMap = undefined;
+
 			return;
 		}
 
@@ -257,6 +259,7 @@ export class Source {
 		}
 
 		const content = await this.content();
+
 		if (!content) {
 			return undefined;
 		}
@@ -264,15 +267,20 @@ export class Source {
 		// Eval'd scripts have empty urls, give them a temporary one for the purpose
 		// of the sourcemap. See #929
 		const baseUrl = this.url || `eval://${this.sourceReference}.js`;
+
 		const sourceMapUrl = baseUrl + "-pretty.map";
+
 		const basename = baseUrl.split(/[\/\\]/).pop() as string;
+
 		const fileName = basename + "-pretty.js";
+
 		const map = await prettyPrintAsSourceMap(
 			fileName,
 			content,
 			baseUrl,
 			sourceMapUrl,
 		);
+
 		if (!map) {
 			return undefined;
 		}
@@ -299,6 +307,7 @@ export class Source {
 	 */
 	public async toDap(): Promise<Dap.Source> {
 		const existingAbsolutePath = await this._existingAbsolutePath;
+
 		const dap: Dap.Source = {
 			name: this._name,
 			path: this._fqname,
@@ -328,7 +337,9 @@ export class Source {
 
 	async prettyName(): Promise<string> {
 		const path = await this._existingAbsolutePath;
+
 		if (path) return path;
+
 		return this._fqname;
 	}
 
@@ -378,14 +389,18 @@ export class Source {
 		}
 
 		const parsedAbsolute = utils.fileUrlToAbsolutePath(this.url);
+
 		if (parsedAbsolute) {
 			return parsedAbsolute;
 		}
 
 		let fqname = this.url;
+
 		try {
 			const tokens: string[] = [];
+
 			const url = new URL(this.url);
+
 			if (url.protocol === "data:") {
 				return "<eval>/VM" + this.sourceReference;
 			}
@@ -407,6 +422,7 @@ export class Source {
 			}
 
 			const searchParams = url.searchParams?.toString();
+
 			if (searchParams) {
 				tokens.push("?" + searchParams);
 			}
@@ -494,6 +510,7 @@ export namespace SourceLocationProvider {
 	/** Waits for the location to be available before returning {@link ISourceLocationProvider.sourceByUrl} */
 	export async function waitForSources(p: SourceLocationProvider) {
 		await waitForValue(p);
+
 		return p.sourceByUrl;
 	}
 }
@@ -602,8 +619,10 @@ export function uiToRawOffset<T extends LineColumn>(
 	}
 
 	let { lineNumber, columnNumber } = lc;
+
 	if (offset) {
 		lineNumber += offset.lineOffset;
+
 		if (lineNumber <= 1) columnNumber += offset.columnOffset;
 	}
 
@@ -619,8 +638,10 @@ export function rawToUiOffset<T extends LineColumn>(
 	}
 
 	let { lineNumber, columnNumber } = lc;
+
 	if (offset) {
 		lineNumber = Math.max(1, lineNumber - offset.lineOffset);
+
 		if (lineNumber <= 1)
 			columnNumber = Math.max(1, columnNumber - offset.columnOffset);
 	}

@@ -69,6 +69,7 @@ const enum Tag {
 export type DescribedAttribute<T> = JSONSchema6 &
 	Described & {
 		default: T;
+
 		docDefault?: string;
 		enum?: Array<T>;
 		enumDescriptions?: MappedReferenceString[];
@@ -135,6 +136,7 @@ interface IDebugger<T extends AnyLaunchConfiguration> {
 	program?: string;
 	runtime?: string;
 	languages: string[];
+
 	variables?: { [key: string]: Commands };
 	required?: (keyof T)[];
 	configurationSnippets: ({
@@ -142,6 +144,7 @@ interface IDebugger<T extends AnyLaunchConfiguration> {
 		body: ResolvingConfiguration<T & { preLaunchTask?: string }>;
 	} & Described)[];
 	configurationAttributes: ConfigurationAttributes<T>;
+
 	defaults: T;
 	strings?: { unverifiedBreakpoints?: string };
 }
@@ -152,6 +155,7 @@ const commonLanguages = [
 	"javascriptreact",
 	"typescriptreact",
 ];
+
 const browserLanguages = [
 	...commonLanguages,
 	"html",
@@ -1179,8 +1183,10 @@ export const debuggers = [
 function buildDebuggers() {
 	// eslint-disable-next-line
 	const output: any[] = [];
+
 	const ensureEntryForType = (type: string, d: (typeof debuggers)[0]) => {
 		let entry = output.find((o) => o.type === type);
+
 		if (entry) {
 			return entry;
 		}
@@ -1204,13 +1210,17 @@ function buildDebuggers() {
 			},
 		};
 		output.push(entry);
+
 		return entry;
 	};
 
 	for (const d of debuggers) {
 		const preferred = preferredDebugTypes.get(d.type);
+
 		const primary = ensureEntryForType(d.type, d);
+
 		const entries = [primary];
+
 		if (preferred) {
 			const entry = ensureEntryForType(preferred, d);
 			delete entry.languages;

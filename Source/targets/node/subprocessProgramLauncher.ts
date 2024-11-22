@@ -87,6 +87,7 @@ export class SubprocessProgramLauncher implements IProgramLauncher {
 		// Catch any errors written before the debugger attaches, otherwise things
 		// like module not found errors will never be written.
 		let preLaunchBuffer: Buffer[] | undefined = [];
+
 		const dumpFilter = () => {
 			if (preLaunchBuffer) {
 				dap.output({
@@ -97,6 +98,7 @@ export class SubprocessProgramLauncher implements IProgramLauncher {
 		};
 
 		const delimiter = Buffer.from("Debugger attached.");
+
 		const errLineReader = (data: Buffer) => {
 			if (data.includes(delimiter)) {
 				preLaunchBuffer = undefined;
@@ -162,6 +164,7 @@ export class EtxSplitter extends StreamSplitter {
 
 		if (!this.etxSpotted) {
 			this.push(chunk);
+
 			return callback();
 		}
 

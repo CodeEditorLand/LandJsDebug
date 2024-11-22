@@ -19,6 +19,7 @@ import {
 } from "./portLeaseTracker";
 
 const jsDebugDomain = "JsDebug";
+
 const eventWildcard = "*";
 
 /**
@@ -84,6 +85,7 @@ class DomainReplays {
 	 */
 	public addReplay(domain: keyof Cdp.Api, event: string, params: unknown) {
 		let ll = this.replays.get(domain);
+
 		if (!ll) {
 			ll = new LinkedList();
 			this.replays.set(domain, ll);
@@ -135,6 +137,7 @@ class DomainReplays {
 		filterFn: (r: ReplayMethod) => boolean,
 	) {
 		const ll = this.replays.get(domain);
+
 		if (!ll) {
 			return;
 		}
@@ -252,12 +255,15 @@ export class CdpProxyProvider implements ICdpProxyProvider {
 		}
 
 		const { server, path } = await this.server;
+
 		const addr = server.address() as WebSocket.AddressInfo;
+
 		return { host: addr.address, port: addr.port, path };
 	}
 
 	private async createServer() {
 		const path = `/${randomBytes(20).toString("hex")}`;
+
 		const server = await acquireTrackedWebSocketServer(this.portTracker, {
 			perMessageDeflate: true,
 			path,
@@ -288,6 +294,7 @@ export class CdpProxyProvider implements ICdpProxyProvider {
 
 			client.on("message", async (d) => {
 				let message: CdpProtocol.ICommand;
+
 				try {
 					message = JSON.parse(d.toString());
 				} catch (e) {
@@ -307,7 +314,9 @@ export class CdpProxyProvider implements ICdpProxyProvider {
 				);
 
 				const { method, params, id = 0 } = message;
+
 				const [domain, fn] = method.split(".");
+
 				try {
 					const result =
 						domain === jsDebugDomain
@@ -355,15 +364,19 @@ export class CdpProxyProvider implements ICdpProxyProvider {
 			`${domain}.${method}`,
 			params,
 		);
+
 		switch (method) {
 			case "enable":
 				for (const m of this.replay.read(domain as keyof Cdp.Api)) {
 					client.send({ method: m.event, params: m.params });
 				}
 				break;
+
 			case "disable":
 				this.replay.clearDomain(domain as keyof Cdp.Api);
+
 				break;
+
 			default:
 			// no-op
 		}
@@ -391,6 +404,7 @@ export class CdpProxyProvider implements ICdpProxyProvider {
 				arg: unknown,
 			) => Promise<object>;
 		};
+
 		return (this.jsDebugApi as unknown as MethodMap)[method](
 			handle,
 			params,

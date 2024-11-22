@@ -19,11 +19,13 @@ export class BrowserPerformanceProvider implements IPerformanceProvider {
 		}
 
 		const metrics = await cdp.Performance.getMetrics({});
+
 		if (!metrics) {
 			return { error: "Error in CDP" };
 		}
 
 		const obj: Record<string, number> = {};
+
 		for (const metric of metrics.metrics) {
 			obj[metric.name] = metric.value;
 		}

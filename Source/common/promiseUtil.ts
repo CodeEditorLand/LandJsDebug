@@ -14,6 +14,7 @@ export const disposableTimeout = (
 	delay?: number,
 ): IDisposable => {
 	const timeout = setTimeout(fn, delay);
+
 	return { dispose: () => clearTimeout(timeout) };
 };
 
@@ -21,6 +22,7 @@ export interface IDeferred<T> {
 	resolve: (result: T) => void;
 	reject: (err: Error) => void;
 	hasSettled(): boolean;
+
 	settledValue: T | undefined;
 	promise: Promise<T>;
 }
@@ -34,6 +36,7 @@ export function some<T>(
 ): Promise<T | undefined> {
 	return new Promise<T | undefined>((resolve, reject) => {
 		let remaining = promises.length;
+
 		for (const prom of promises) {
 			prom.then((p) => {
 				if (p) {
@@ -68,12 +71,14 @@ export function getDeferred<T>(): IDeferred<T> {
 	let reject: IDeferred<T>["reject"] = null!;
 
 	let settled = false;
+
 	let settledValue: T | undefined;
 
 	// Promise constructor is called synchronously
 	const promise = new Promise<T>((_resolve, _reject) => {
 		resolve = (value: T) => {
 			settled = true;
+
 			settledValue = value;
 			_resolve(value);
 		};

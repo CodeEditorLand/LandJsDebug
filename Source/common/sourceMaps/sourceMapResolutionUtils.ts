@@ -44,6 +44,7 @@ export async function getComputedSourceRoot(
 	generatedPath = utils.fileUrlToAbsolutePath(generatedPath) || generatedPath;
 
 	let absSourceRoot: string;
+
 	if (sourceRoot) {
 		if (utils.isFileUrl(sourceRoot)) {
 			// sourceRoot points to a local path like "file:///c:/project/src", make it an absolute path
@@ -63,11 +64,13 @@ export async function getComputedSourceRoot(
 		} else {
 			// generatedPath is a URL so runtime script is not on disk, resolve the sourceRoot location on disk.
 			const generatedUrlPath = utils.getPathName(generatedPath) || "/";
+
 			const mappedPath = await resolver(
 				generatedUrlPath,
 				pathMapping,
 				logger,
 			);
+
 			const mappedDirname = path.dirname(mappedPath);
 			absSourceRoot = properJoin(mappedDirname, sourceRoot);
 		}
@@ -90,6 +93,7 @@ export async function getComputedSourceRoot(
 		const urlPathname =
 			utils.getPathName(generatedPath) || "/placeholder.js"; // could be debugadapter://123, no other info.
 		const mappedPath = await resolver(urlPathname, pathMapping, logger);
+
 		const scriptPathDirname = mappedPath ? path.dirname(mappedPath) : "";
 		absSourceRoot = scriptPathDirname;
 		logger.verbose(
@@ -134,6 +138,7 @@ export const defaultPathMappingResolver: PathMappingResolver = async (
 	const mappingKeys = Object.keys(pathMapping).sort(
 		(a, b) => b.length - a.length,
 	);
+
 	for (let pattern of mappingKeys) {
 		// empty pattern match nothing use / to match root
 		if (!pattern) {
@@ -141,6 +146,7 @@ export const defaultPathMappingResolver: PathMappingResolver = async (
 		}
 
 		const mappingRHS = pathMapping[pattern];
+
 		if (pattern[0] !== "/") {
 			logger.verbose(
 				LogTag.SourceMapParsing,
@@ -196,6 +202,7 @@ export const moduleAwarePathMappingResolver =
 			const possibleStat = await fs
 				.stat(sourceRoot)
 				.catch(() => undefined);
+
 			if (possibleStat?.isDirectory()) {
 				return sourceRoot;
 			}
@@ -228,6 +235,7 @@ function toClientPath(
 	scriptPath: string,
 ): string {
 	const rest = decodeURIComponent(scriptPath.substring(pattern.length));
+
 	const mappedResult = rest ? properJoin(mappingRHS, rest) : mappingRHS;
 
 	return mappedResult;

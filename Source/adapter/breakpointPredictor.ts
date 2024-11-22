@@ -79,6 +79,7 @@ export class BreakpointPredictorCachedState<T> {
 
 	public async store(value: T) {
 		this.value = value;
+
 		if (this.path) {
 			await fs.mkdir(path.dirname(this.path), { recursive: true });
 			await fs.writeFile(this.path, JSON.stringify(value));
@@ -117,6 +118,7 @@ export abstract class BreakpointSearch {
 		}
 
 		const sourcePathToCompiled: MetadataMap = urlUtils.caseNormalizedMap();
+
 		const cachedState = await this.state.load();
 
 		try {
@@ -127,7 +129,9 @@ export abstract class BreakpointSearch {
 				files: this.outFiles,
 				processMap: async (metadata) => {
 					const discovered: DiscoveredMetadata[] = [];
+
 					const map = await this.sourceMapFactory.load(metadata);
+
 					for (const url of map.sources) {
 						if (url === null) {
 							continue;
@@ -171,6 +175,7 @@ export abstract class BreakpointSearch {
 						let set = sourcePathToCompiled.get(
 							discovery.resolvedPath,
 						);
+
 						if (!set) {
 							set = new Set();
 							sourcePathToCompiled.set(
@@ -223,6 +228,7 @@ export class GlobalBreakpointSearch extends BreakpointSearch {
 		}
 
 		const sourcePathToCompiled = await this.sourcePathToCompiled;
+
 		return sourcePaths.map((p) => sourcePathToCompiled.get(p));
 	}
 
@@ -252,6 +258,7 @@ export class TargetedBreakpointSearch extends BreakpointSearch {
 		const existing = sourcePaths.map((sp) =>
 			this.sourcePathToCompiled.get(sp),
 		);
+
 		const toFind = sourcePaths.map((_, i) => i).filter((i) => !existing[i]);
 
 		// if some paths have not been found yet, do one operation to find all of them
@@ -259,11 +266,13 @@ export class TargetedBreakpointSearch extends BreakpointSearch {
 			const spSet = new Set(
 				toFind.map((i) => fixDriveLetterAndSlashes(sourcePaths[i])),
 			);
+
 			const entry = this.createMapping({
 				filter: (_, meta) =>
 					!meta ||
 					meta.discovered.some((d) => spSet.has(d.resolvedPath)),
 			});
+
 			for (const i of toFind) {
 				this.sourcePathToCompiled.set(sourcePaths[i], entry);
 				existing[i] = entry;
@@ -274,6 +283,7 @@ export class TargetedBreakpointSearch extends BreakpointSearch {
 			existing.map(async (entry, i) => {
 				// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 				const map: MetadataMap = await entry!;
+
 				return map.get(sourcePaths[i]);
 			}),
 		);
@@ -356,6 +366,7 @@ export class BreakpointsPredictor implements IBreakpointsPredictor {
 		const topLevel = await this.getMetadataForPaths([
 			params.source.path,
 		]).then((m) => m[0]);
+
 		if (!topLevel) {
 			return;
 		}
@@ -382,6 +393,7 @@ export class BreakpointsPredictor implements IBreakpointsPredictor {
 				...metadata,
 				sourceMapUrl,
 			});
+
 			const entry = this.sourceMapFactory.guardSourceMapFn(
 				map,
 				() =>
@@ -403,6 +415,7 @@ export class BreakpointsPredictor implements IBreakpointsPredictor {
 			const nested = await this.getMetadataForPaths([
 				metadata.compiledPath,
 			]).then((m) => m[0]);
+
 			if (nested) {
 				const n = await Promise.all(
 					// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -410,6 +423,7 @@ export class BreakpointsPredictor implements IBreakpointsPredictor {
 						addSourceMapLocations(entry.line!, entry.column!, n),
 					),
 				);
+
 				return n.flat();
 			}
 
@@ -424,6 +438,7 @@ export class BreakpointsPredictor implements IBreakpointsPredictor {
 
 		for (const b of params.breakpoints ?? []) {
 			const key = `${params.source.path}:${b.line}:${b.column || 1}`;
+
 			if (this.predictedLocations.has(key)) {
 				return;
 			}
@@ -477,6 +492,7 @@ export class BreakpointsPredictor implements IBreakpointsPredictor {
 		location: IWorkspaceLocation,
 	): IWorkspaceLocation[] {
 		const key = `${location.absolutePath}:${location.lineNumber}:${location.columnNumber || 1}`;
+
 		return this.predictedLocations.get(key) ?? [];
 	}
 }

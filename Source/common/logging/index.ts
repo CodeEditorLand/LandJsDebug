@@ -164,6 +164,7 @@ export function resolveLoggerOptions(
 	config: boolean | Partial<ILoggingConfiguration>,
 ): ILoggerSetupOptions {
 	const fulfilled = fulfillLoggerOptions(config);
+
 	const options = {
 		sinks: [] as ILogSink[],
 	};

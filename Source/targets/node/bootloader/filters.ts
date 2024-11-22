@@ -15,6 +15,7 @@ export const checkIsDebugMode = (env: IBootloaderInfo) => {
 			LogTag.RuntimeLaunch,
 			"Disabling due to lack of IPC server",
 		);
+
 		return false;
 	}
 
@@ -23,11 +24,13 @@ export const checkIsDebugMode = (env: IBootloaderInfo) => {
 
 export const checkLeaseFile = (env: IBootloaderInfo) => {
 	const leaseFile = env.requireLease;
+
 	if (leaseFile && !LeaseFile.isValid(leaseFile)) {
 		bootloaderLogger.info(
 			LogTag.RuntimeLaunch,
 			"Disabling due to invalid lease file",
 		);
+
 		return false;
 	}
 
@@ -41,6 +44,7 @@ export const checkNotElectron = () => {
 			LogTag.RuntimeLaunch,
 			"Disabling in Electron (window is set)",
 		);
+
 		return false;
 	}
 
@@ -49,6 +53,7 @@ export const checkNotElectron = () => {
 
 export const checkProcessFilter = (env: IBootloaderInfo) => {
 	let scriptName = "";
+
 	try {
 		scriptName = require.resolve(process.argv[1]);
 	} catch (e) {
@@ -56,6 +61,7 @@ export const checkProcessFilter = (env: IBootloaderInfo) => {
 	}
 
 	let waitForDebugger: boolean;
+
 	try {
 		waitForDebugger = new RegExp(env.waitForDebugger || "").test(
 			scriptName,
@@ -86,6 +92,7 @@ export const checkProcessFilter = (env: IBootloaderInfo) => {
  */
 const checkNotNpmPrefixCheckOnWindows = () => {
 	const argv = process.argv;
+
 	return !(
 		argv.length === 4 &&
 		basename(argv[1]) === "npm-cli.js" &&
@@ -100,6 +107,7 @@ const checkNotNpmPrefixCheckOnWindows = () => {
  */
 const checkNotNpmPrefixCheckOnWindows2 = () => {
 	const argv = process.argv;
+
 	return !(argv.length === 2 && basename(argv[1]) === "npm-prefix.js");
 };
 

@@ -41,6 +41,7 @@ export class TurboSearchStrategy implements ISearchStrategy {
 
 		// Type annotation is necessary for https://github.com/microsoft/TypeScript/issues/47144
 		const results: (T | void)[] = await Promise.all(todo);
+
 		return results.filter((t): t is T => t !== undefined);
 	}
 
@@ -54,10 +55,12 @@ export class TurboSearchStrategy implements ISearchStrategy {
 
 		const prevState =
 			(opts.lastState as Record<string, CachedType<T>>) || {};
+
 		const nextState: Record<string, CachedType<T>> = {};
 		await Promise.all(
 			[...opts.files.explode()].map(async (glob) => {
 				const key = JSON.stringify(glob);
+
 				const searchState = prevState[key] || CacheTree.root();
 				await this._streamChildrenWithSourcemaps(
 					searchState,
@@ -67,6 +70,7 @@ export class TurboSearchStrategy implements ISearchStrategy {
 				);
 
 				const pruned = CacheTree.prune(searchState);
+
 				if (pruned) {
 					nextState[key] = pruned;
 				}
@@ -79,6 +83,7 @@ export class TurboSearchStrategy implements ISearchStrategy {
 		);
 
 		const done = await Promise.all(todo);
+
 		return { values: done.filter(truthy), state: nextState };
 	}
 

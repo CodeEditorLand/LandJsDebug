@@ -86,6 +86,7 @@ const enum SortOrder {
 const customStringReprMaxLength = 1024;
 
 const identifierRe = /^[$a-z_][0-9a-z_$]*$/i;
+
 const privatePropertyRe = /^#[0-9a-z_$]+$/i;
 
 type AnyPropertyDescriptor = Cdp.Runtime.PropertyDescriptor | Cdp.Runtime.PrivatePropertyDescriptor;
@@ -370,14 +371,18 @@ class VariableContext {
         .then(r => r?.result.value || {})
         .catch(() => ({} as Record<string, string>)),
     ]);
+
     if (!accessorsProperties || !ownProperties) return [];
 
     // Merge own properties and all accessors.
     const propertiesMap = new Map<string, AnyPropertyDescriptor>();
+
     const propertySymbols: AnyPropertyDescriptor[] = [];
+
     for (const property of accessorsProperties.result) {
       if (property.symbol) {
         propertySymbols.push(property);
+
         continue;
       }
 
@@ -468,7 +473,9 @@ class VariableContext {
     contextInit?: Partial<IContextInit>,
   ): Promise<Variable[]> {
     const result: Variable[] = [];
+
     const hasGetter = p.get && p.get.type !== 'undefined';
+
     const hasSetter = p.set && p.set.type !== 'undefined';
 
     const ctx: Required<IContextInit> = {
@@ -565,6 +572,7 @@ class Variable implements IVariable {
    */
   public get accessor(): string {
     const { parent, name } = this.context;
+
     if (parent instanceof AccessorVariable) {
       return parent.accessor;
     }
@@ -575,6 +583,7 @@ class Variable implements IVariable {
 
     // Maps and sets:
     const grandparent = parent.context.parent;
+
     if (grandparent instanceof Variable) {
       if ((this.remoteObject.subtype as string) === 'internal#entry') {
         return `[...${grandparent.accessor}.entries()][${+name}]`;
@@ -608,6 +617,7 @@ class Variable implements IVariable {
     valueFormat?: Dap.ValueFormat,
   ): Promise<Dap.Variable> {
     let name = this.context.name;
+
     if (this.context.parent instanceof Scope) {
       name = await this.context.parent.getRename(name);
     }
@@ -679,7 +689,9 @@ class OutputVariable extends Variable {
 
   public override getChildren(_params: Dap.VariablesParams): Promise<Variable[]> {
     const vars: Variable[] = [];
+
     const { args, stackTrace } = this;
+
     for (let i = 0; i < args.length; ++i) {
       if (objectPreview.previewAsObject(args[i])) {
         vars.push(this.context.createVariableByType({ name: `arg${i}`, sortOrder: i }, args[i]));
@@ -814,6 +826,7 @@ class ObjectVariable extends Variable implements IMemoryReadable {
           objectId: this.remoteObject.objectId,
           returnByValue: true,
         });
+
         if (ret?.result.value) {
           return (this.customStringRepr = localizeIndescribable(ret.result.value));
         }
@@ -882,7 +895,9 @@ class NodeVariable extends Variable {
     valueFormat?: Dap.ValueFormat,
   ): Promise<Dap.Variable> {
     const description = await this.description();
+
     const length = description?.node?.childNodeCount || 0;
+
     return {
       ...await super.toDap(previewContext, valueFormat),
       value: await this.getValuePreview(previewContext),
@@ -918,6 +933,7 @@ class NodeVariable extends Variable {
 
   private async getNodeChildren(start = -1, count = -1) {
     let slotsObject: Cdp.Runtime.RemoteObject;
+
     try {
       slotsObject = await getNodeChildren({
         cdp: this.context.cdp,
@@ -930,6 +946,7 @@ class NodeVariable extends Variable {
     }
 
     const result = await this.context.createObjectPropertyVars(slotsObject);
+
     if (slotsObject.objectId) {
       await this.context.cdp.Runtime.releaseObject({ objectId: slotsObject.objectId });
     }
@@ -945,22 +962,28 @@ class NodeVariable extends Variable {
 
   private async getValuePreview(_previewContext: PreviewContextType) {
     const description = await this.description();
+
     if (!description?.node) {
       return '';
     }
 
     const { localName, attributes, childNodeCount } = description.node;
+
     const styleCheck = this.context.clientCapabilities.value?.supportsANSIStyling ? true : '';
+
     let str = (styleCheck && AnsiStyles.Blue) + `<${localName}`;
+
     if (attributes) {
       for (let i = 0; i < attributes.length; i += 2) {
         const key = attributes[i];
+
         const value = attributes[i + 1];
         str += ` ${(styleCheck && AnsiStyles.BrightBlue)}${key}${(styleCheck
           && AnsiStyles.Dim)}=${(styleCheck && AnsiStyles.Yellow)}${JSON.stringify(value)}`;
       }
     }
     str += (styleCheck && AnsiStyles.Blue) + '>';
+
     if (childNodeCount) {
       str += `${(styleCheck && AnsiStyles.Dim)}...${(styleCheck && AnsiStyles.Blue)}`;
     }
@@ -982,6 +1005,7 @@ class FunctionVariable extends ObjectVariable {
     ]);
 
     const location = props?.internalProperties?.find(isFunctionLocation);
+
     if (location) {
       dap.valueLocationReference = this.context.createFunctionLocationVariable(location).id;
     }
@@ -1000,12 +1024,14 @@ class SetOrMapVariable extends ObjectVariable {
   constructor(context: VariableContext, remoteObject: Cdp.Runtime.RemoteObject) {
     super(context, remoteObject, NoCustomStringRepr);
     this.isMap = remoteObject.subtype === 'map';
+
     const cast = remoteObject.preview as MapPreview | SetPreview | undefined;
     this.size = Number(cast?.properties.find(p => p.name === 'size')?.value) ?? undefined;
   }
 
   public override async toDap(previewContext: PreviewContextType): Promise<Dap.Variable> {
     const dap = await super.toDap(previewContext);
+
     if (this.size && this.size > 100) {
       dap.indexedVariables = this.size;
     }
@@ -1015,6 +1041,7 @@ class SetOrMapVariable extends ObjectVariable {
 
   public override async getChildren(params: Dap.VariablesParams): Promise<Variable[]> {
     const baseChildren = await this.baseChildren();
+
     const entryChildren = await baseChildren
       .find(c => c.name === entriesVariableName)
       ?.getChildren(params);
@@ -1032,6 +1059,7 @@ class ArrayVariable extends ObjectVariable {
 
   constructor(context: VariableContext, remoteObject: Cdp.Runtime.RemoteObject) {
     super(context, remoteObject, NoCustomStringRepr);
+
     const match = String(remoteObject.description).match(/\(([0-9]+)\)/);
     this.length = match ? +match[1] : 0;
   }
@@ -1072,8 +1100,11 @@ class ArrayVariable extends ObjectVariable {
 
   private async getArraySlots(params?: Dap.VariablesParams): Promise<Variable[]> {
     const start = params && typeof params.start !== 'undefined' ? params.start : -1;
+
     const count = params && typeof params.count !== 'undefined' ? params.count : -1;
+
     let slotsObject: Cdp.Runtime.RemoteObject;
+
     try {
       slotsObject = await getArraySlots({
         cdp: this.context.cdp,
@@ -1086,6 +1117,7 @@ class ArrayVariable extends ObjectVariable {
     }
 
     const result = await this.context.createObjectPropertyVars(slotsObject);
+
     if (slotsObject.objectId) {
       await this.context.cdp.Runtime.releaseObject({ objectId: slotsObject.objectId });
     }
@@ -1146,6 +1178,7 @@ class GetterVariable extends AccessorVariable {
     const dap = await super.toDap(previewContext, valueFormat);
     dap.variablesReference = this.id;
     dap.presentationHint = { ...dap.presentationHint, lazy: true };
+
     return dap;
   }
 
@@ -1204,6 +1237,7 @@ class WasmVariable implements IVariable, IMemoryReadable {
 
   public async getChildren(): Promise<IVariable[]> {
     const children = (await this.variable.getChildren?.()) || [];
+
     return children.map(c =>
       this.context.createVariable(
         WasmVariable,
@@ -1217,6 +1251,7 @@ class WasmVariable implements IVariable, IMemoryReadable {
   /** @inheritdoc */
   public async readMemory(offset: number, count: number): Promise<Buffer | undefined> {
     const addr = this.variable.linearMemoryAddress;
+
     if (addr === undefined) {
       return undefined;
     }
@@ -1244,6 +1279,7 @@ class WasmVariable implements IVariable, IMemoryReadable {
   /** @inheritdoc */
   public async writeMemory(offset: number, memory: Buffer): Promise<number> {
     const addr = this.variable.linearMemoryAddress;
+
     if (addr === undefined) {
       return 0;
     }
@@ -1286,6 +1322,7 @@ class WasmScopeVariable implements IVariable {
     return Promise.all(
       this.variables.map(async v => {
         const evaluated = await v.evaluate();
+
         return this.context.createVariable(
           WasmVariable,
           {
@@ -1314,7 +1351,9 @@ class Scope implements IVariableContainer {
 
   public async getChildren(_params: Dap.VariablesParams): Promise<IVariable[]> {
     const variables = await this.context.createObjectPropertyVars(this.remoteObject);
+
     const existing = new Set(variables.map(v => v.name));
+
     for (const extraProperty of this.extraProperties) {
       if (!existing.has(extraProperty.name)) {
         variables.push(
@@ -1329,6 +1368,7 @@ class Scope implements IVariableContainer {
   /** Maps any rename for the identifier in the current scope. */
   public async getRename(forIdentifier: string) {
     const renames = await this.renameProvider.provideOnStackframe(this.ref.stackFrame);
+
     return renames.getOriginalName(forIdentifier, this.ref.stackFrame.rawPosition)
       || forIdentifier;
   }
@@ -1339,6 +1379,7 @@ class Scope implements IVariableContainer {
       expression: `${expression} ${getSourceSuffix()}`,
       callFrameId: this.ref.callFrameId,
     });
+
     if (!evaluated) {
       throw new ProtocolError(errors.createUserError(l10n.t('Invalid expression')));
     }
@@ -1429,6 +1470,7 @@ export class VariableStore {
   /** Creates a variable not attached to any specific scope. */
   public createFloatingVariable(expression: string, value: Cdp.Runtime.RemoteObject): IVariable {
     const ctx = this.createFloatingContext();
+
     return ctx.createVariableByType({ name: expression }, value);
   }
 
@@ -1442,11 +1484,13 @@ export class VariableStore {
     outputType?: Cdp.Runtime.ConsoleAPICalledEvent['type'],
   ): IVariableContainer {
     const ctx = this.createFloatingContext();
+
     const output = args.length === 1 && outputType === 'table'
       ? ctx.createVariable(OutputTableVariable, { name: '' }, args[0])
       : args.length === 1 && objectPreview.previewAsObject(args[0]) && !stackTrace
       ? ctx.createVariableByType({ name: '' }, args[0])
       : ctx.createVariable(OutputVariable, { name: '' }, text, args, stackTrace);
+
     const container = new OutputVariableContainer(output);
     this.vars.add(container);
 
@@ -1521,13 +1565,16 @@ export class VariableStore {
   /** Writes memory from the reference at the offset and count */
   public async readMemory(memoryReference: string, offset: number, count: number) {
     const variable = this.vars.get(Number(memoryReference));
+
     return isMemoryReadable(variable) ? variable.readMemory(offset, count) : undefined;
   }
 
   /** Reads memory from the reference at the offset and count */
   public async writeMemory(memoryReference: string, offset: number, memory: Buffer) {
     const variable = this.vars.get(Number(memoryReference));
+
     const written = isMemoryReadable(variable) ? await variable.writeMemory(offset, memory) : 0;
+
     if (written > 0) {
       this.dap.invalidated({ areas: ['variables'] });
     }
@@ -1543,22 +1590,26 @@ export class VariableStore {
     params: Dap.VariablesParams,
   ): Promise<{ name: string; remoteObject: Cdp.Runtime.RemoteObject }[]> {
     const container = this.vars.get(params.variablesReference);
+
     if (!container) {
       return [];
     }
 
     const children = await container.getChildren(params);
+
     return children.filter(isInstanceOf(Variable));
   }
 
   /** Gets variables from a known {@link IVariableContainer} */
   public async getVariables(params: Dap.VariablesParams): Promise<Dap.Variable[]> {
     const container = this.vars.get(params.variablesReference);
+
     if (!container) {
       return [];
     }
 
     const children = await container.getChildren(params);
+
     const daps = await Promise.all(
       children.map(v =>
         v
@@ -1584,6 +1635,7 @@ export class VariableStore {
 
   public async getLocations(variablesReference: number): Promise<Cdp.Debugger.Location> {
     const locationVar = this.vars.get(variablesReference);
+
     if (!locationVar || !(locationVar instanceof FunctionLocationVariable)) {
       throw errors.locationNotFound();
     }

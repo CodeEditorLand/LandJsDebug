@@ -50,6 +50,7 @@ export class ExceptionMessage extends TextualMessage<Cdp.Runtime.ExceptionDetail
 			: { title: "" };
 
 		let message = preview.title;
+
 		if (!message.startsWith("Uncaught")) {
 			message =
 				`Uncaught ${this.event.exception?.className ?? "Error"} ` +
@@ -57,6 +58,7 @@ export class ExceptionMessage extends TextualMessage<Cdp.Runtime.ExceptionDetail
 		}
 
 		const stackTrace = this.stackTrace(thread);
+
 		const args =
 			this.event.exception && !preview.stackTrace
 				? [this.event.exception]

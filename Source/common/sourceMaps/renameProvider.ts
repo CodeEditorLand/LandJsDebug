@@ -66,6 +66,7 @@ export class RenameProvider implements IRenameProvider {
 		}
 
 		const location = frame.uiLocation();
+
 		if (location === undefined) {
 			return RenameMapping.None;
 		} else if ("then" in location) {
@@ -88,6 +89,7 @@ export class RenameProvider implements IRenameProvider {
 		}
 
 		const original = iteratorFirst(source.compiledToSourceUrl.keys());
+
 		if (!original) {
 			throw new Error("unreachable");
 		}
@@ -97,6 +99,7 @@ export class RenameProvider implements IRenameProvider {
 		}
 
 		const cached = this.renames.get(original.url);
+
 		if (cached) {
 			return cached;
 		}
@@ -109,6 +112,7 @@ export class RenameProvider implements IRenameProvider {
 				}
 
 				const content = await original.content();
+
 				return content
 					? await this.createFromSourceMap(sm, content)
 					: RenameMapping.None;
@@ -116,6 +120,7 @@ export class RenameProvider implements IRenameProvider {
 			.catch(() => RenameMapping.None);
 
 		this.renames.set(original.url, promise);
+
 		return promise;
 	}
 
@@ -123,6 +128,7 @@ export class RenameProvider implements IRenameProvider {
 		const start = Date.now();
 
 		let scopeTree: ScopeNode<IRename[]>;
+
 		try {
 			scopeTree = await extractScopeRenames(content, sourceMap);
 		} catch (e) {
@@ -133,6 +139,7 @@ export class RenameProvider implements IRenameProvider {
 					url: sourceMap.metadata.compiledPath,
 				},
 			);
+
 			return RenameMapping.None;
 		}
 

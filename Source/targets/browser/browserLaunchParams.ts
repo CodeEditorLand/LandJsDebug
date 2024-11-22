@@ -18,7 +18,9 @@ export function baseURL(params: AnyChromiumConfiguration): string | undefined {
 			baseUrl.pathname = "/";
 			baseUrl.search = "";
 			baseUrl.hash = "";
+
 			if (baseUrl.protocol === "data:") return undefined;
+
 			return baseUrl.href;
 		} catch (e) {}
 	}

@@ -148,10 +148,13 @@ export class DebugSessionTracker implements vscode.Disposable {
 				if (event.event === "revealLocationRequested") {
 					const params =
 						event.body as Dap.RevealLocationRequestedEventParams;
+
 					const uri = vscode.debug.asDebugSourceUri(
 						event.body.source,
 					);
+
 					const options: vscode.TextDocumentShowOptions = {};
+
 					if (params.line) {
 						const position = new vscode.Position(
 							(params.line || 1) - 1,

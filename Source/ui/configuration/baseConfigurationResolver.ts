@@ -71,6 +71,7 @@ export abstract class BaseConfigurationResolver<
 				castConfig,
 				token,
 			);
+
 			return resolved && this.commonResolution(resolved, folder);
 		} catch (err) {
 			vscode.window.showErrorMessage(err.message, { modal: true });
@@ -92,7 +93,9 @@ export abstract class BaseConfigurationResolver<
 			vscode.workspace,
 			Configuration.DefaultRuntimeExecutables,
 		);
+
 		const defaultValue = allDefaults ? allDefaults[cfg.type] : undefined;
+
 		if (defaultValue) {
 			cfg.runtimeExecutable = defaultValue;
 		}

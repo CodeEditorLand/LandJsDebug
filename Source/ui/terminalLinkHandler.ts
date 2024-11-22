@@ -81,8 +81,10 @@ export class TerminalLinkHandler
 		switch (this.baseConfiguration.enabled) {
 			case "off":
 				return [];
+
 			case "always":
 				break;
+
 			case "on":
 			default:
 				if (!this.enabledTerminals.has(context.terminal)) {
@@ -91,6 +93,7 @@ export class TerminalLinkHandler
 		}
 
 		const links: ITerminalLink[] = [];
+
 		const getCwd = once(() => {
 			// Do our best to resolve the right workspace folder to launch in, and debug
 			if (
@@ -113,10 +116,12 @@ export class TerminalLinkHandler
 
 		for (const link of findLink(context.line, "url")) {
 			let start = -1;
+
 			while (
 				(start = context.line.indexOf(link.value, start + 1)) !== -1
 			) {
 				let uri: URL;
+
 				try {
 					uri = new URL(link.href);
 				} catch {
@@ -187,6 +192,7 @@ export class TerminalLinkHandler
 			);
 
 			this.notifiedCantOpenOnWeb = true;
+
 			return false;
 		}
 
@@ -195,6 +201,7 @@ export class TerminalLinkHandler
 		}
 
 		let debugType: DebugType.Chrome | DebugType.Edge = DebugType.Chrome;
+
 		try {
 			if ((await this.defaultBrowser.lookup()) === DefaultBrowser.Edge) {
 				debugType = DebugType.Edge;

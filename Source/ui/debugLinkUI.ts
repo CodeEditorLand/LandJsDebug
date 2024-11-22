@@ -37,6 +37,7 @@ async function getPossibleUrl(
 	// if the link is already valid, all good
 	try {
 		const url = new URL(link);
+
 		if (url.hostname) {
 			await assertResolves(url.hostname); // ensure it can be resolved
 			return link;
@@ -48,8 +49,10 @@ async function getPossibleUrl(
 	// if it's in the format `<hostname>:<port>` then assume it's a url
 	try {
 		const prefixed = `http://${link}`;
+
 		const url = new URL(prefixed);
 		await assertResolves(url.hostname);
+
 		if (!requirePort || url.port) {
 			return prefixed;
 		}
@@ -87,11 +90,13 @@ export class DebugLinkUi implements IExtensionContribution {
 			link ??
 			(await this.getLinkFromTextEditor()) ??
 			(await this.getLinkFromQuickInput());
+
 		if (!link) {
 			return;
 		}
 
 		let debugType: DebugType.Chrome | DebugType.Edge = DebugType.Chrome;
+
 		try {
 			if ((await this.defaultBrowser.lookup()) === DefaultBrowser.Edge) {
 				debugType = DebugType.Edge;
@@ -103,6 +108,7 @@ export class DebugLinkUi implements IExtensionContribution {
 		const baseConfig =
 			readConfig(vscode.workspace, Configuration.DebugByLinkOptions) ??
 			{};
+
 		const config = {
 			...(typeof baseConfig === "string" ? {} : baseConfig),
 			type: getPreferredOrDebugType(debugType),
@@ -120,6 +126,7 @@ export class DebugLinkUi implements IExtensionContribution {
 
 	private getLinkFromTextEditor() {
 		const editor = vscode.window.activeTextEditor;
+
 		if (!editor) {
 			return;
 		}
@@ -129,6 +136,7 @@ export class DebugLinkUi implements IExtensionContribution {
 
 	private async getLinkFromQuickInput() {
 		const clipboard = await vscode.env.clipboard.readText();
+
 		const link = await vscode.window.showInputBox({
 			value:
 				(await getPossibleUrl(clipboard, false)) || this.mostRecentLink,
@@ -145,6 +153,7 @@ export class DebugLinkUi implements IExtensionContribution {
 		}
 
 		this.mostRecentLink = link;
+
 		return link;
 	}
 
@@ -154,15 +163,19 @@ export class DebugLinkUi implements IExtensionContribution {
 		}
 
 		const launchJson = vscode.workspace.getConfiguration("launch");
+
 		const configs = (launchJson.get("configurations") ?? []) as {
 			url?: string;
 		}[];
+
 		if (configs.some((c) => c.url === config.url)) {
 			return;
 		}
 
 		const yes = l10n.t("Yes");
+
 		const never = l10n.t("Never");
+
 		const r = await vscode.window.showInformationMessage(
 			l10n.t(
 				"Would you like to save a configuration in your launch.json for easy access later?",

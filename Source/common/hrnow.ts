@@ -31,7 +31,9 @@ export class HrTime {
 	 */
 	public subtract(other: HrTime) {
 		let ns = this.value[1] - other.value[1];
+
 		let s = this.value[0] - other.value[0];
+
 		if (ns < 0) {
 			ns += nsPerSecond;
 			s--;

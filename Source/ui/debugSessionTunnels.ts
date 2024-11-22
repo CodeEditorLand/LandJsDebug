@@ -34,6 +34,7 @@ export class DebugSessionTunnels implements IDisposable {
 	 */
 	public destroySession(sessionId: string) {
 		const tunnel = this.tunnels.get(sessionId);
+
 		if (tunnel) {
 			tunnel.dispose();
 			this.tunnels.delete(sessionId);
@@ -53,6 +54,7 @@ export class DebugSessionTunnels implements IDisposable {
 		},
 	) {
 		let tunnel = this.tunnels.get(sessionId);
+
 		if (!tunnel) {
 			tunnel = await vscode.workspace.openTunnel({
 				remoteAddress: { port: opts.remotePort, host: "localhost" },
@@ -63,6 +65,7 @@ export class DebugSessionTunnels implements IDisposable {
 		}
 
 		let localAddress: { host: string; port: number };
+
 		if (typeof tunnel.localAddress === "string") {
 			const [host, port] = tunnel.localAddress.split(":");
 			localAddress = { host, port: Number(port) };

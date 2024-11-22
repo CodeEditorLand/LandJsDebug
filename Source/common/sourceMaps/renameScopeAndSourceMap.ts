@@ -26,7 +26,9 @@ export const extractScopeRenames = async (
 	 * not valid or was already included in a scope.
 	 */
 	const usedMappings = new Set<number>();
+
 	const decodedMappings = sourceMap.decodedMappings();
+
 	const decodedNames = sourceMap.names();
 
 	const getNameFromMapping = (
@@ -38,6 +40,7 @@ export const extractScopeRenames = async (
 		// column in lower 32 bits.
 		const cacheKey =
 			(generatedLineBase0 * 0x7fffffff) | generatedColumnBase0;
+
 		if (usedMappings.has(cacheKey)) {
 			return undefined;
 		}
@@ -49,14 +52,18 @@ export const extractScopeRenames = async (
 			generatedLineBase0,
 			generatedColumnBase0,
 		);
+
 		const start = toOffset.convert(position);
 		identifierRe.lastIndex = start;
+
 		const match = identifierRe.exec(source);
+
 		if (!match) {
 			return;
 		}
 
 		const compiled = match[0];
+
 		if (compiled === originalName) {
 			return; // it happens sometimes 🤷
 		}
@@ -66,22 +73,28 @@ export const extractScopeRenames = async (
 
 	const extract = (node: ScopeNode<IRename[]>): IRename[] | undefined => {
 		const start = node.range.begin.base0;
+
 		const end = node.range.end.base0;
+
 		let renames: IRename[] | undefined;
 		// Reference: https://github.com/jridgewell/trace-mapping/blob/5a658b10d9b6dea9c614ff545ca9c4df895fee9e/src/trace-mapping.ts#L258-L290
 		for (let i = start.lineNumber; i <= end.lineNumber; i++) {
 			const mappings = decodedMappings[i];
+
 			if (!mappings) {
 				continue;
 			}
 			for (let k = 0; k < mappings.length; k++) {
 				const mapping: number[] = mappings[k];
+
 				if (mapping.length <= Constant.SourceMapNameIndex) {
 					continue;
 				}
 
 				const generatedLineBase0 = i;
+
 				const generatedColumnBase0 = mapping[0];
+
 				if (
 					generatedLineBase0 === node.range.begin.base0.lineNumber &&
 					node.range.begin.base0.columnNumber > generatedColumnBase0
@@ -96,11 +109,13 @@ export const extractScopeRenames = async (
 				}
 
 				const originalName = decodedNames[mapping[4]];
+
 				const compiledName = getNameFromMapping(
 					generatedLineBase0,
 					generatedColumnBase0,
 					originalName,
 				);
+
 				if (!compiledName) {
 					continue;
 				}

@@ -34,6 +34,7 @@ export class ProtocolError extends Error {
 		this.cause = { code, message };
 		this.message = `CDP error ${code} calling method ${this.method}: ${message}`;
 		this.stack = this.stack?.replace("<<message>>", this.message);
+
 		return this;
 	}
 }
@@ -76,19 +77,24 @@ export default class Connection {
 		sessionId: string,
 	): number {
 		const id = ++this._lastId;
+
 		const message: CdpProtocol.ICommand = { id, method, params };
+
 		if (sessionId) message.sessionId = sessionId;
+
 		const messageString = JSON.stringify(message);
 		this.logger.verbose(LogTag.CdpSend, undefined, {
 			connectionId: this._connectionId,
 			message,
 		});
 		this._transport.send(messageString);
+
 		return id;
 	}
 
 	private _onMessage(message: string, receivedTime: HrTime) {
 		const object = JSON.parse(message);
+
 		let objectToLog = object;
 
 		// Don't print source code of getScriptSource responses
@@ -117,8 +123,10 @@ export default class Connection {
 		});
 
 		const session = this._sessions.get(object.sessionId || "");
+
 		if (!session) {
 			const disposedDate = this._disposedSessions.get(object.sessionId);
+
 			if (!disposedDate) {
 				throw new Error(
 					`Unknown session id: ${object.sessionId} while processing: ${object.method}`,
@@ -131,12 +139,15 @@ export default class Connection {
 					`Got message for a session disposed ${secondsAgo} seconds ago`,
 					{ sessionId: object.sessionId, disposeOn: disposedDate },
 				);
+
 				return; // We just ignore messages for disposed sessions
 			}
 		}
 
 		const eventName = object.method;
+
 		let error: Error | undefined;
+
 		try {
 			session._onMessage(object);
 		} catch (e) {
@@ -161,6 +172,7 @@ export default class Connection {
 		this.logger.info(LogTag.CdpReceive, "Connection closed", {
 			connectionId: this._connectionId,
 		});
+
 		for (const session of this._sessions.values()) session._onClose();
 		this._sessions.clear();
 		this._onDisconnectedEmitter.fire();
@@ -177,11 +189,13 @@ export default class Connection {
 	public createSession(sessionId: Cdp.Target.SessionID): Cdp.Api {
 		const session = new CDPSession(this, sessionId, this.logger);
 		this._sessions.set(sessionId, session);
+
 		return session.cdp();
 	}
 
 	public disposeSession(sessionId: Cdp.Target.SessionID) {
 		const session = this._sessions.get(sessionId);
+
 		if (!session) return;
 		session._onClose();
 		this._disposedSessions.set(session.sessionId(), new Date());
@@ -224,11 +238,13 @@ export class CDPSession {
 		}
 
 		this.paused = false;
+
 		const toSend = this._queue;
 		this._queue = [];
 		this.logger.verbose(LogTag.CdpReceive, "Dequeue messages", {
 			message: toSend,
 		});
+
 		for (const item of toSend) {
 			this._processResponse(item);
 		}
@@ -248,7 +264,9 @@ export class CDPSession {
 			{
 				get: (_target, agentName: string) => {
 					if (agentName === "pause") return () => this.pause();
+
 					if (agentName === "resume") return () => this.resume();
+
 					if (agentName === "session") return this;
 
 					return new Proxy(
@@ -256,6 +274,7 @@ export class CDPSession {
 						{
 							get: (_target, methodName: string) => {
 								if (methodName === "then") return;
+
 								if (methodName === "on") {
 									return (
 										eventName: string,
@@ -321,6 +340,7 @@ export class CDPSession {
 		}
 
 		const id = this._connection._send(method, params, this._sessionId);
+
 		return new Promise<object>((resolve, reject) => {
 			this._callbacks.set(id, {
 				resolve,
@@ -338,23 +358,27 @@ export class CDPSession {
 		// If we're paused, queue events but still process responses to avoid hanging.
 		if (this.paused && object.id) {
 			this._processResponse(object);
+
 			return;
 		}
 
 		// either replaying a paused queue, or needs reordering, if there's a queue
 		if (this._queue.length > 0) {
 			this._queue.push(object);
+
 			return;
 		}
 
 		// otherwise, if we don't need reordering and aren't paused, process it now
 		if (!needsReordering && !this.paused) {
 			this._processResponse(object);
+
 			return;
 		}
 
 		// we know now that we have no existing queue but need to queue an item. Do so.
 		this._queue.push(object);
+
 		if (!this.paused) {
 			this._processQueue();
 		}
@@ -367,11 +391,13 @@ export class CDPSession {
 			}
 
 			const object = this._queue.shift();
+
 			if (!object) {
 				return;
 			}
 
 			this._processResponse(object);
+
 			if (this._queue.length) {
 				this._processQueue();
 			}
@@ -397,11 +423,13 @@ export class CDPSession {
 		}
 
 		const callback = this._callbacks.get(object.id);
+
 		if (!callback) {
 			return;
 		}
 
 		this._callbacks.delete(object.id);
+
 		if ("error" in object) {
 			callback.reject(
 				callback.from.setCause(object.error.code, object.error.message),
@@ -451,11 +479,15 @@ function makeWaitForNextTask() {
 	// in the following task.
 
 	let spinning = false;
+
 	const callbacks: (() => void)[] = [];
+
 	const loop = () => {
 		const callback = callbacks.shift();
+
 		if (!callback) {
 			spinning = false;
+
 			return;
 		}
 		setImmediate(loop);
@@ -466,8 +498,10 @@ function makeWaitForNextTask() {
 
 	return (callback: () => void) => {
 		callbacks.push(callback);
+
 		if (!spinning) {
 			spinning = true;
+
 			setImmediate(loop);
 		}
 	};

@@ -22,6 +22,7 @@ export interface IPendingDapApi extends Dap.Api {
 
 export const createPendingDapApi = (): IPendingDapApi => {
 	let underlying: Dap.Api | undefined;
+
 	let queue = getDeferred<Dap.Api>();
 
 	const get = <K extends keyof Dap.Api>(_target: {}, method: K) => {
@@ -41,6 +42,7 @@ export const createPendingDapApi = (): IPendingDapApi => {
 
 		return async (...args: unknown[]) => {
 			const api = underlying || (await queue.promise);
+
 			return (api[method] as Function)(...args);
 		};
 	};

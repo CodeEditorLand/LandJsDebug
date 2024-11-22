@@ -58,6 +58,7 @@ export interface IDiagnosticBreakpoint {
 
 export interface IDiagnosticDump {
 	sources: IDiagnosticSource[];
+
 	breakpoints: IDiagnosticBreakpoint[];
 	config: AnyLaunchConfiguration;
 }
@@ -114,6 +115,7 @@ export class Diagnostics {
 
 	private dumpBreakpoints() {
 		const output: IDiagnosticBreakpoint[] = [];
+
 		for (const list of [
 			this.breakpoints.appliedByPath,
 			this.breakpoints.appliedByRef,
@@ -144,7 +146,9 @@ export class Diagnostics {
 
 	private dumpSources() {
 		const output: Promise<IDiagnosticSource>[] = [];
+
 		let idCounter = 0;
+
 		for (const source of this.sources.sources) {
 			output.push(
 				(async () => ({

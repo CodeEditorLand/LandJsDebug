@@ -51,6 +51,7 @@ export async function getWSEndpoint(
       url: jsonVersion.body.webSocketDebuggerUrl,
       fixed,
     });
+
     return fixed;
   }
 
@@ -64,6 +65,7 @@ export async function getWSEndpoint(
       url: jsonList.body[0].webSocketDebuggerUrl,
       fixed,
     });
+
     return fixed;
   }
 
@@ -96,9 +98,11 @@ async function fetchJsonWithLocalhostFallback<T>(
   const cts = new CancellationTokenSource(cancellationToken);
   try {
     let lastResponse: Response<T>;
+
     const goodResponse = await some(
       [urlA, urlB].map(async url => {
         lastResponse = await provider.fetchJson<T>(url, cts.token);
+
         return lastResponse.ok && lastResponse;
       }),
     );

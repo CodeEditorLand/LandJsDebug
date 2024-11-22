@@ -75,6 +75,7 @@ export class FileLogSink implements ILogSink {
 	public write(item: ILogItem<unknown>): void {
 		if (this.stream) {
 			this.stream.write(JSON.stringify(item, replacer) + "\n");
+
 			if (
 				"flush" in this.stream &&
 				typeof this.stream.flush === "function"

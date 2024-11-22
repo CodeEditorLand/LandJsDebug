@@ -44,6 +44,7 @@ export class BasicResourceProvider implements IResourceProvider {
 	): Promise<Response<string>> {
 		try {
 			const r = dataUriToBuffer(url);
+
 			return {
 				ok: true,
 				url,
@@ -55,6 +56,7 @@ export class BasicResourceProvider implements IResourceProvider {
 		}
 
 		const absolutePath = isAbsolute(url) ? url : fileUrlToAbsolutePath(url);
+
 		if (absolutePath) {
 			try {
 				return {
@@ -82,6 +84,7 @@ export class BasicResourceProvider implements IResourceProvider {
 			Accept: "application/json",
 			...headers,
 		});
+
 		if (!res.ok) {
 			return res;
 		}
@@ -101,11 +104,14 @@ export class BasicResourceProvider implements IResourceProvider {
 		const parsed = new URL(url);
 
 		const isSecure = parsed.protocol !== "http:";
+
 		const port = Number(parsed.port) ?? (isSecure ? 443 : 80);
+
 		const options: OptionsOfTextResponseBody = {
 			headers,
 			followRedirect: true,
 		};
+
 		if (isSecure && (await isLoopback(url))) {
 			options.rejectUnauthorized = false; // CodeQL [SM03616] Intentional for local development.
 		}
@@ -113,18 +119,22 @@ export class BasicResourceProvider implements IResourceProvider {
 		this.options?.provideOptions(options, url);
 
 		const isLocalhost = parsed.hostname === "localhost";
+
 		const fallback = isLocalhost && this.autoLocalhostPortFallbacks[port];
+
 		if (fallback) {
 			const response = await this.requestHttp(
 				parsed.toString(),
 				options,
 				cancellationToken,
 			);
+
 			if (response.statusCode !== 503) {
 				return response;
 			}
 
 			delete this.autoLocalhostPortFallbacks[port];
+
 			return this.requestHttp(url, options, cancellationToken);
 		}
 
@@ -135,6 +145,7 @@ export class BasicResourceProvider implements IResourceProvider {
 		// and later https://github.com/microsoft/vscode/issues/167353
 		if (response.statusCode === 503 && isLocalhost) {
 			let resolved: LookupAddress;
+
 			try {
 				resolved = await dns.lookup(parsed.hostname);
 			} catch {
@@ -147,6 +158,7 @@ export class BasicResourceProvider implements IResourceProvider {
 				options,
 				cancellationToken,
 			);
+
 			if (response.statusCode !== 503) {
 				this.autoLocalhostPortFallbacks[port] = parsed.hostname;
 			}
@@ -173,6 +185,7 @@ export class BasicResourceProvider implements IResourceProvider {
 			);
 
 			const response = await request;
+
 			return {
 				ok: true,
 				url,
@@ -187,7 +200,9 @@ export class BasicResourceProvider implements IResourceProvider {
 			const body = error.response
 				? String(error.response?.body)
 				: error.message;
+
 			const statusCode = error.response?.statusCode ?? 503;
+
 			return {
 				ok: false,
 				body,

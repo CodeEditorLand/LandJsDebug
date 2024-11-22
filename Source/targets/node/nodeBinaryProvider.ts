@@ -79,6 +79,7 @@ export const getRunScript = (
 };
 
 const assumedVersion = new Semver(12, 0, 0);
+
 const minimumVersion = new Semver(8, 0, 0);
 
 export interface IWarningMessage {
@@ -315,6 +316,7 @@ export class NodeBinaryProvider implements INodeBinaryProvider {
 		cwd: string | undefined,
 	): Promise<NodeBinary> {
 		let location = await this.resolveBinaryLocation(executable, env);
+
 		if (!location) {
 			location = await this.resolveNodeModulesLocation(
 				env,
@@ -327,6 +329,7 @@ export class NodeBinaryProvider implements INodeBinaryProvider {
 			location,
 			executable,
 		});
+
 		if (!location) {
 			throw new ProtocolError(
 				cannotFindNodeBinary(executable, l10n.t("path does not exist")),
@@ -341,9 +344,11 @@ export class NodeBinaryProvider implements INodeBinaryProvider {
 		// script that boots Node by itself, for instance) try to find Node itself
 		// on the path as a fallback.
 		const exeName = getNormalizedBinaryName(location);
+
 		if (!nodeOrElectronBinaries.includes(exeName)) {
 			if (isPackageManager(location)) {
 				const packageJson = await this.packageJson.getPath();
+
 				if (packageJson) {
 					env = env.addToPath(
 						resolve(dirname(packageJson), "node_modules/.bin"),
@@ -359,6 +364,7 @@ export class NodeBinaryProvider implements INodeBinaryProvider {
 					undefined,
 					cwd,
 				);
+
 				return new NodeBinary(location, realBinary.version);
 			} catch (e) {
 				// if we verified it's outdated, still throw the error. If it's not
@@ -378,6 +384,7 @@ export class NodeBinaryProvider implements INodeBinaryProvider {
 		}
 
 		const knownGood = this.knownGoodMappings.get(location);
+
 		if (knownGood) {
 			return knownGood;
 		}
@@ -398,11 +405,13 @@ export class NodeBinaryProvider implements INodeBinaryProvider {
 		const majorVersionMatch = /v([0-9]+)\.([0-9]+)\.([0-9]+)/.exec(
 			versionText,
 		);
+
 		if (!majorVersionMatch) {
 			throw new NodeBinaryOutOfDateError(versionText, location);
 		}
 
 		const [, major, minor, patch] = majorVersionMatch.map(Number);
+
 		let version = new Semver(major, minor, patch);
 
 		// remap the node version bundled if we're running electron
@@ -420,6 +429,7 @@ export class NodeBinaryProvider implements INodeBinaryProvider {
 
 		const entry = new NodeBinary(location, version);
 		this.knownGoodMappings.set(location, entry);
+
 		return entry;
 	}
 
@@ -438,6 +448,7 @@ export class NodeBinaryProvider implements INodeBinaryProvider {
 				env: EnvironmentVars.processEnv().defined(),
 				cwd,
 			});
+
 			return stdout.trim();
 		} catch (e) {
 			if (cwd && !(await existsInjected(this.fs, cwd))?.isDirectory()) {
@@ -472,6 +483,7 @@ export class InteractiveNodeBinaryProvider extends NodeBinaryProvider {
 		}
 
 		const yes = l10n.t("Yes");
+
 		const response = await this.vscode.window.showErrorMessage(
 			message,
 			yes,

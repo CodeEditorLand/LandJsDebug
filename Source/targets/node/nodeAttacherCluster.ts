@@ -33,17 +33,21 @@ export async function watchAllChildren(
 	cancellation: CancellationToken = NeverCancelled,
 ): Promise<WatchDog[]> {
 	const node = await getProcessTree(options.pid, logger);
+
 	if (!node) {
 		return [];
 	}
 
 	const todo: Promise<WatchDog | void>[] = [];
+
 	let queue = node.children.slice();
+
 	while (queue.length) {
 		const child = queue.pop() as IProcessTreeNode;
 		queue = queue.concat(child.children);
 
 		const { port } = analyseArguments(child.args);
+
 		if (!port) {
 			continue;
 		}
@@ -103,12 +107,15 @@ async function getProcessTree(
 		}, null);
 	} catch (err) {
 		logger.warn(LogTag.Internal, "Error getting child process tree", err);
+
 		return undefined;
 	}
 
 	const values = map.values();
+
 	for (const p of values) {
 		const parent = map.get(p.ppid);
+
 		if (parent && parent !== p) {
 			parent.children.push(p);
 		}

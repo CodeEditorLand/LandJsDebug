@@ -125,6 +125,7 @@ export abstract class BrowserLauncher<T extends AnyChromiumLaunchConfiguration>
 		// If we had a custom executable, don't resolve a data
 		// dir unless it's  explicitly requested.
 		let resolvedDataDir: string | undefined;
+
 		if (typeof userDataDir === "string") {
 			resolvedDataDir = path.resolve(userDataDir);
 		} else if (userDataDir) {
@@ -187,6 +188,7 @@ export abstract class BrowserLauncher<T extends AnyChromiumLaunchConfiguration>
 	 */
 	private async doLaunch(params: T, ctx: ILaunchContext): Promise<void> {
 		let launched: launcher.ILaunchResult;
+
 		try {
 			launched = await this.launchBrowser(
 				params,
@@ -209,6 +211,7 @@ export abstract class BrowserLauncher<T extends AnyChromiumLaunchConfiguration>
 		// Retry connections as long as the launch process is running,
 		// reconnections are allowed, and this debug session hasn't been terminated.
 		launched.process.onExit(() => this.fireTerminatedEvent());
+
 		const canRetry = () =>
 			launched.canReconnect && !launchCts.token.isCancellationRequested;
 
@@ -224,6 +227,7 @@ export abstract class BrowserLauncher<T extends AnyChromiumLaunchConfiguration>
 				// process' exit event happens, so add an extra delay to double check
 				// that a retry is appropriate to avoid extranous logs.
 				await delay(1000);
+
 				if (canRetry()) {
 					ctx.dap.output({
 						category: "stderr",
@@ -235,6 +239,7 @@ export abstract class BrowserLauncher<T extends AnyChromiumLaunchConfiguration>
 
 					try {
 						await delay(2000);
+
 						return await launchInner();
 					} catch {
 						// caught in here because twe could no longer retry. fall through.
@@ -265,6 +270,7 @@ export abstract class BrowserLauncher<T extends AnyChromiumLaunchConfiguration>
 					return onConnectionFailed(e);
 				} else {
 					launched.process.kill();
+
 					throw new ProtocolError(browserLaunchFailed(e));
 				}
 			}
@@ -299,6 +305,7 @@ export abstract class BrowserLauncher<T extends AnyChromiumLaunchConfiguration>
 			ctx.telemetryReporter,
 			ctx.targetOrigin,
 		);
+
 		if (!this._targetManager) {
 			throw new ProtocolError(browserAttachFailed());
 		}
@@ -321,6 +328,7 @@ export abstract class BrowserLauncher<T extends AnyChromiumLaunchConfiguration>
 		// Note: assuming first page is our main target breaks multiple debugging sessions
 		// sharing the browser instance. This can be fixed.
 		const filter = this.getFilterForTarget(params);
+
 		const mainTarget = await timeoutPromise(
 			this._targetManager.waitForMainTarget(filter),
 			ctx.cancellationToken,
@@ -347,6 +355,7 @@ export abstract class BrowserLauncher<T extends AnyChromiumLaunchConfiguration>
 		}
 
 		let url: string | null;
+
 		if (params.file) {
 			// Allow adding query strings or fragments onto `file` paths -- remove
 			// them if there's no file on disk that match the full `file`.
@@ -354,6 +363,7 @@ export abstract class BrowserLauncher<T extends AnyChromiumLaunchConfiguration>
 				params.webRoot || params.rootPath || "",
 				params.file,
 			);
+
 			const di = Math.min(
 				fullFile.includes("#") ? fullFile.indexOf("#") : Infinity,
 				fullFile.includes("?") ? fullFile.indexOf("?") : Infinity,
@@ -383,11 +393,13 @@ export abstract class BrowserLauncher<T extends AnyChromiumLaunchConfiguration>
 		context: ILaunchContext,
 	): Promise<ILaunchResult> {
 		const resolved = this.resolveParams(params);
+
 		if (!resolved) {
 			return { blockSessionTermination: false };
 		}
 
 		await this.doLaunch(resolved, context);
+
 		return { blockSessionTermination: true };
 	}
 
@@ -431,6 +443,7 @@ export abstract class BrowserLauncher<T extends AnyChromiumLaunchConfiguration>
 			const found =
 				(await finder.findWhere((r) => r.quality === "stable")) ||
 				(await finder.findAll())[0];
+
 			return found?.path;
 		} else if (isQuality(executablePath)) {
 			return (await finder.findWhere((r) => r.quality === executablePath))
@@ -442,6 +455,7 @@ export abstract class BrowserLauncher<T extends AnyChromiumLaunchConfiguration>
 
 	targetList(): ITarget[] {
 		const manager = this._targetManager;
+
 		return manager ? manager.targetList() : [];
 	}
 

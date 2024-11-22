@@ -75,6 +75,7 @@ export class NetworkTree
 								session.id,
 								new NetworkModel(session),
 							);
+
 							if (session === vscode.debug.activeDebugSession) {
 								this.listenToActiveSession();
 							}
@@ -182,10 +183,13 @@ export class NetworkTree
 
 	private listenToActiveSession() {
 		this.activeListeners.clear();
+
 		const model = (this.current =
 			vscode.debug.activeDebugSession &&
 			this.models.get(vscode.debug.activeDebugSession.id));
+
 		let hasRequests = !!model && model.hasRequests;
+
 		if (model) {
 			this.activeListeners.push(
 				model.onDidChange((ev) => {
@@ -195,6 +199,7 @@ export class NetworkTree
 
 					if (model.hasRequests && !hasRequests) {
 						hasRequests = true;
+
 						setContextKey(
 							vscode.commands,
 							ContextKey.NetworkAvailable,
@@ -230,13 +235,16 @@ class FilesystemProvider implements vscode.FileSystemProvider {
 	/** @inheritdoc */
 	watch(watchUri: vscode.Uri): vscode.Disposable {
 		const [sessionId, requestId] = watchUri.path.split("/").slice(1);
+
 		const model = this.models.get(sessionId);
+
 		if (!model) {
 			return noOpDisposable;
 		}
 
 		return model.onDidChange(({ request, isNew }) => {
 			const uri = watchUri.with({ path: `${sessionId}/${request.id}` });
+
 			if (isNew && !requestId) {
 				this.changeFileEmitter.fire([
 					{ type: vscode.FileChangeType.Created, uri },
@@ -252,7 +260,9 @@ class FilesystemProvider implements vscode.FileSystemProvider {
 	/** @inheritdoc */
 	async stat(uri: vscode.Uri): Promise<vscode.FileStat> {
 		const [sessionId, requestId] = uri.path.split("/").slice(1);
+
 		const model = this.models.get(sessionId);
+
 		if (!model) {
 			throw vscode.FileSystemError.FileNotFound(uri);
 		}
@@ -267,6 +277,7 @@ class FilesystemProvider implements vscode.FileSystemProvider {
 		}
 
 		const request = model.getRequest(requestId);
+
 		if (!request) {
 			throw vscode.FileSystemError.FileNotFound(uri);
 		}
@@ -294,7 +305,9 @@ class FilesystemProvider implements vscode.FileSystemProvider {
 	/** @inheritdoc */
 	async readFile(uri: vscode.Uri): Promise<Uint8Array> {
 		const [sessionId, requestId, aspect] = uri.path.split("/").slice(1);
+
 		const request = this.models.get(sessionId)?.getRequest(requestId);
+
 		if (!request) {
 			throw vscode.FileSystemError.FileNotFound(uri);
 		}
@@ -368,6 +381,7 @@ class NetworkModel {
 			key === "responseReceivedExtraInfo"
 		) {
 			const request = this.requests.get(event.requestId);
+
 			if (!request) {
 				return;
 			}
@@ -427,6 +441,7 @@ export class NetworkRequest {
 	/** Returns a tree-item representation of the request. */
 	public toTreeItem() {
 		let icon: vscode.ThemeIcon;
+
 		if (!this.isComplete) {
 			icon = new vscode.ThemeIcon(
 				"sync~spin",
@@ -447,6 +462,7 @@ export class NetworkRequest {
 		}
 
 		let label = "";
+
 		if (this.failed) {
 			label += `[${this.failed.errorText}] `;
 		} else if (this.response) {
@@ -454,7 +470,9 @@ export class NetworkRequest {
 		}
 
 		let host: string | undefined;
+
 		let path: string;
+
 		try {
 			const url = new URL(this.init.request.url);
 			host = url.host;
@@ -464,6 +482,7 @@ export class NetworkRequest {
 		}
 
 		label += `${this.init.request.method.toUpperCase()} ${path}`;
+
 		const treeItem = new vscode.TreeItem(
 			label,
 			vscode.TreeItemCollapsibleState.Collapsed,
@@ -473,12 +492,14 @@ export class NetworkRequest {
 		treeItem.tooltip = this.init.request.url;
 		treeItem.id = this.init.requestId;
 		treeItem.collapsibleState = vscode.TreeItemCollapsibleState.None;
+
 		return treeItem;
 	}
 
 	/** Converts the request to a curl-style command. */
 	public async toCurl(session: vscode.DebugSession | undefined) {
 		const command = this.toCurlCommand();
+
 		if (!this.response) {
 			return command;
 		}
@@ -487,6 +508,7 @@ export class NetworkRequest {
 		parts.push(
 			`< HTTP ${this.responseExtra?.statusCode || this.response.status || "UNKOWN"}`,
 		);
+
 		for (const header of Object.entries(
 			this.responseExtra?.headers || this.response.headers || {},
 		)) {
@@ -496,6 +518,7 @@ export class NetworkRequest {
 
 		if (this.failed) {
 			parts.push("", `${this.failed.errorText}`);
+
 			if (this.failed.blockedReason) {
 				parts.push(`Blocked: ${this.failed.blockedReason}`);
 			} else if (this.failed.corsErrorStatus) {
@@ -510,10 +533,12 @@ export class NetworkRequest {
 		}
 
 		const body = (await this.body()) || Buffer.from("");
+
 		if (!isUtf8(body)) {
 			parts.push(`[binary data as base64]: ${body.toString("base64")}`);
 		} else {
 			const str = body.toString();
+
 			try {
 				const parsed = JSON.parse(str);
 				parts.push(JSON.stringify(parsed, null, 2));
@@ -527,6 +552,7 @@ export class NetworkRequest {
 
 	private toCurlCommand() {
 		const args = ["curl", "-v"];
+
 		if (this.init.request.method !== "GET") {
 			args.push(`-X ${this.init.request.method}`);
 		}
@@ -542,6 +568,7 @@ export class NetworkRequest {
 			const parts = this.init.request.postDataEntries
 				.map((e) => e.bytes || "")
 				.join("");
+
 			const bytes = Buffer.from(parts, "base64");
 			args.push(
 				isUtf8(bytes)

@@ -9,7 +9,9 @@ import * as E from "./error";
 
 export namespace Dap {
 	export type Error = E.Error;
+
 	export type Message = E.Message;
+
 	export type integer = number;
 
 	export interface Api {

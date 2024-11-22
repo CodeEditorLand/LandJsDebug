@@ -104,6 +104,7 @@ export class LaunchJsonCompletions
 		}
 
 		const wf = vscode.workspace.getWorkspaceFolder(document.uri);
+
 		if (!wf) {
 			return false;
 		}
@@ -115,6 +116,7 @@ export class LaunchJsonCompletions
 				path.join(wf.uri.fsPath, "node_modules", ".bin"),
 			));
 		this.hasNodeModules.set(wf, hasNodeModules);
+
 		return hasNodeModules;
 	}
 }
@@ -124,21 +126,25 @@ class NodeToolInserter extends LaunchJsonUpdaterHelper {
 		folder: vscode.WorkspaceFolder | undefined,
 	): Promise<vscode.DebugConfiguration | undefined> {
 		type TItem = vscode.QuickPickItem & { relativeDir: string };
+
 		const pick = vscode.window.createQuickPick<TItem>();
 		pick.title = l10n.t("Select a tool to run");
 		pick.busy = true;
 		pick.show();
 
 		const options = await this.getOptions(folder);
+
 		if (options.length === 0) {
 			pick.dispose();
 			vscode.window.showWarningMessage(
 				l10n.t("No npm scripts found in the workspace folder."),
 			);
+
 			return;
 		}
 
 		let items: (vscode.QuickPickItem & { relativeDir: string })[] = [];
+
 		for (const { names, relativeDir } of options) {
 			if (relativeDir) {
 				items.push({
@@ -184,14 +190,18 @@ class NodeToolInserter extends LaunchJsonUpdaterHelper {
 		const packageJsons = await vscode.workspace.findFiles(
 			new vscode.RelativePattern(f, "**/package.json"),
 		);
+
 		const scripts = await Promise.all(
 			packageJsons.map(async (p) => {
 				try {
 					const absoluteDir = path.dirname(p.fsPath);
+
 					const bins = await fs.readdir(
 						path.join(absoluteDir, "node_modules", ".bin"),
 					);
+
 					const names = new Set<string>();
+
 					for (const bin of bins) {
 						const ext = path.extname(bin);
 						names.add(ext ? bin.slice(0, -ext.length) : bin);

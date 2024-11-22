@@ -18,6 +18,7 @@ export class SimpleCondition implements IBreakpointCondition {
 		public readonly breakCondition: string | undefined,
 	) {
 		const err = breakCondition && getSyntaxErrorIn(breakCondition);
+
 		if (err) {
 			throw new ProtocolError(
 				invalidBreakPointCondition(params, err.message),

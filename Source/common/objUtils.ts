@@ -23,6 +23,7 @@ export const isInstanceOf = <T extends Function>(cls: T) =>
  */
 export const assertNever = (value: never, message: string): never => {
 	debugger;
+
 	throw new Error(message.replace("{value}", JSON.stringify(value)));
 };
 
@@ -42,8 +43,10 @@ export function filterValues<V>(
 	predicate: (value: V, key: string) => boolean,
 ): { [key: string]: V } {
 	const next: { [key: string]: V } = {};
+
 	for (const key of Object.keys(obj)) {
 		const value = obj[key];
+
 		if (predicate(value, key)) {
 			next[key] = value;
 		}
@@ -60,6 +63,7 @@ export function mapValues<T, R>(
 	generator: (value: T, key: string) => R,
 ): { [key: string]: R } {
 	const next: { [key: string]: R } = {};
+
 	for (const key of Object.keys(obj)) {
 		const value = obj[key];
 		next[key] = generator(value, key);
@@ -76,8 +80,10 @@ export function mapKeys<T>(
 	generator: (key: string, value: T) => string | void,
 ): { [key: string]: T } {
 	const next: { [key: string]: T } = {};
+
 	for (const key of Object.keys(obj)) {
 		const newKey = generator(key, obj[key]);
+
 		if (newKey !== undefined) {
 			next[newKey] = obj[key];
 		}
@@ -94,6 +100,7 @@ export function filterObject<T>(
 	predicate: (key: string, value: T) => boolean,
 ): { [key: string]: T } {
 	const next: { [key: string]: T } = {};
+
 	for (const key of Object.keys(obj)) {
 		if (predicate(key, obj[key])) {
 			next[key] = obj[key];
@@ -115,6 +122,7 @@ export function sortKeys<T>(
 	}
 
 	const next: Partial<T> = {};
+
 	for (const key of Object.keys(obj).sort(sortFn)) {
 		next[key] = obj[key];
 	}
@@ -153,6 +161,7 @@ export function caseInsensitiveMerge<V>(
 	}
 
 	const out: { [key: string]: V } = {};
+
 	const caseMapping: { [key: string]: string } = Object.create(null); // prototype-free object
 	for (const obj of objs) {
 		if (!obj) {
@@ -161,6 +170,7 @@ export function caseInsensitiveMerge<V>(
 
 		for (const key of Object.keys(obj)) {
 			const normalized = key.toLowerCase();
+
 			if (caseMapping[normalized]) {
 				out[caseMapping[normalized]] = obj[key];
 			} else {
@@ -185,6 +195,7 @@ export function getCaseInsensitiveProperty<R>(
 	}
 
 	const normalized = prop.toLowerCase();
+
 	for (const key of Object.keys(obj)) {
 		if (key.toLowerCase() === normalized) {
 			return obj[key];
@@ -204,6 +215,7 @@ export function once<T, Args extends unknown[]>(
 	fn: (...args: Args) => T,
 ): ((...args: Args) => T) & { value?: T; forget(): void } {
 	let value: T | typeof unset = unset;
+
 	const onced = (...args: Args) => {
 		if (value === unset) {
 			onced.value = value = fn(...args);
@@ -229,6 +241,7 @@ export function memoize<T, R>(
 	fn: (arg: T) => R,
 ): ((arg: T) => R) & { clear(): void } {
 	const cached = new Map<T, R>();
+
 	const wrapper = (arg: T): R => {
 		if (cached.has(arg)) {
 			// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -237,6 +250,7 @@ export function memoize<T, R>(
 
 		const value = fn(arg);
 		cached.set(arg, value);
+
 		return value;
 	};
 
@@ -252,12 +266,14 @@ export function memoizeLast<T, R>(
 	fn: (arg: T) => R,
 ): ((arg: T) => R) & { clear(): void } {
 	let cached: { arg: T; val: R } | undefined;
+
 	const wrapper = (arg: T): R => {
 		if (cached?.arg === arg) {
 			return cached.val;
 		}
 
 		cached = { arg, val: fn(arg) };
+
 		return cached.val;
 	};
 
@@ -273,6 +289,7 @@ export function memoizeWeak<T extends object, R>(
 	fn: (arg: T) => R,
 ): (arg: T) => R {
 	const cached = new WeakMap<T, R>();
+
 	const wrapper = (arg: T): R => {
 		if (cached.has(arg)) {
 			// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -281,6 +298,7 @@ export function memoizeWeak<T extends object, R>(
 
 		const value = fn(arg);
 		cached.set(arg, value);
+
 		return value;
 	};
 
@@ -295,6 +313,7 @@ export function debounce(
 	fn: () => void,
 ): (() => void) & { clear: () => void } {
 	let timeout: NodeJS.Timeout | void;
+
 	const debounced = () => {
 		if (timeout !== undefined) {
 			clearTimeout(timeout);
@@ -325,6 +344,7 @@ export function trailingEdgeThrottle(
 	fn: () => void,
 ): (() => void) & { clear: () => void; queued: () => boolean } {
 	let timeout: NodeJS.Timeout | void;
+
 	const debounced = () => {
 		if (timeout !== undefined) {
 			return;
@@ -357,7 +377,9 @@ export async function bisectArrayAsync<T>(
 	predicate: (item: T) => Promise<boolean> | boolean,
 ): Promise<[T[], T[]]> {
 	const a: T[] = [];
+
 	const b: T[] = [];
+
 	for (const item of items) {
 		if (await predicate(item)) {
 			a.push(item);
@@ -374,6 +396,7 @@ export async function bisectArrayAsync<T>(
  */
 export function flatten<T>(items: ReadonlyArray<ReadonlyArray<T>>): T[] {
 	let out: T[] = [];
+
 	for (const list of items) {
 		out = out.concat(list);
 	}
@@ -386,6 +409,7 @@ export function flatten<T>(items: ReadonlyArray<ReadonlyArray<T>>): T[] {
  */
 export function pick<T>(obj: T, keys: ReadonlyArray<keyof T>): Partial<T> {
 	const partial: Partial<T> = {};
+
 	for (const key of keys) {
 		partial[key] = obj[key];
 	}
@@ -400,6 +424,7 @@ export const upcastPartial = <T>(v: Partial<T>): T => v as T;
  */
 export function invertMap<K, V>(map: ReadonlyMap<K, V>): Map<V, K> {
 	const result = new Map<V, K>();
+
 	for (const [key, value] of map) {
 		result.set(value, key);
 	}
@@ -414,5 +439,6 @@ const maxInt32 = 2 ** 31 - 1;
  */
 export const posInt32Counter = () => {
 	let last = 0;
+
 	return () => last++ & maxInt32;
 };

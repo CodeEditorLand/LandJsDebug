@@ -21,14 +21,17 @@ const qualifies = (session: vscode.DebugSession) => {
 	}
 
 	const type: BrowserTargetType = session.configuration.__browserTargetType;
+
 	return type === BrowserTargetType.IFrame || type === BrowserTargetType.Page;
 };
 
 const toolExtensionId = "ms-edgedevtools.vscode-edge-devtools";
+
 const commandId = "vscode-edge-devtools.attachToCurrentDebugTarget";
 
 function findRootSession(session: vscode.DebugSession): vscode.DebugSession {
 	let root = session;
+
 	while (root.parentSession) {
 		root = root.parentSession;
 	}

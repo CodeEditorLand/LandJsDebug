@@ -97,6 +97,7 @@ export class NodeSourcePathResolver extends SourcePathResolverBase<IOptions> {
 				"lib",
 				url.slice(localNodeInternalsPrefix.length),
 			);
+
 			if (!url.endsWith(".js")) {
 				url += ".js";
 			}
@@ -109,6 +110,7 @@ export class NodeSourcePathResolver extends SourcePathResolverBase<IOptions> {
 		}
 
 		const absolutePath = urlUtils.fileUrlToAbsolutePath(url);
+
 		if (absolutePath) {
 			return this.rebaseRemoteToLocal(absolutePath);
 		}
@@ -130,6 +132,7 @@ export class NodeSourcePathResolver extends SourcePathResolverBase<IOptions> {
 		}
 
 		const withBase = properResolve(this.options.basePath ?? "", url);
+
 		return this.rebaseRemoteToLocal(withBase);
 	}
 
@@ -146,6 +149,7 @@ export class NodeSourcePathResolver extends SourcePathResolverBase<IOptions> {
 		absolutePath: string,
 	): Promise<string | undefined> {
 		let realPath = absolutePath;
+
 		try {
 			realPath = await this.fsUtils.realPath(absolutePath);
 		} catch {
@@ -171,8 +175,10 @@ export class NodeSourcePathResolver extends SourcePathResolverBase<IOptions> {
 		}
 
 		const fullSourceEntry = getFullSourceEntry(map.sourceRoot, url);
+
 		const mappedFullSourceEntry =
 			this.sourceMapOverrides.apply(fullSourceEntry);
+
 		if (mappedFullSourceEntry !== fullSourceEntry) {
 			return fixDriveLetterAndSlashes(mappedFullSourceEntry);
 		}

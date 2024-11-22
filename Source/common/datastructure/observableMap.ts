@@ -58,6 +58,7 @@ export class ObservableMap<K, V> {
 	 */
 	public remove(key: K): boolean {
 		const previous = this.targetMap.get(key);
+
 		if (previous === undefined) {
 			return false;
 		}
@@ -65,6 +66,7 @@ export class ObservableMap<K, V> {
 		this.targetMap.delete(key);
 		this.removeEmitter.fire([key, previous]);
 		this.changeEmitter.fire();
+
 		return true;
 	}
 

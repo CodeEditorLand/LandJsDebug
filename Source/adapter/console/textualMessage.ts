@@ -40,17 +40,20 @@ export abstract class TextualMessage<
 	 */
 	protected readonly getUiLocation = once(async (thread: Thread) => {
 		const stackTrace = this.stackTrace(thread);
+
 		if (!stackTrace) {
 			return;
 		}
 
 		let firstExistingLocation: IUiLocation | undefined;
+
 		for (const frame of stackTrace.frames) {
 			if (!(frame instanceof StackFrame)) {
 				continue;
 			}
 
 			const uiLocation = await frame.uiLocation();
+
 			if (!uiLocation) {
 				continue;
 			}
@@ -92,6 +95,7 @@ export abstract class TextualMessage<
 		includeStackInVariables = false,
 	) {
 		const useMessageFormat = args.length > 1 && args[0].type === "string";
+
 		const formatResult = useMessageFormat
 			? formatMessage(
 					args[0].value,

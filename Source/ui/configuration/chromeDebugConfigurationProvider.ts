@@ -36,6 +36,7 @@ export class ChromeDebugConfigurationResolver
 		if (!config.name && !config.type && !config.request) {
 			const fromContext =
 				new ChromeDebugConfigurationProvider().createLaunchConfigFromContext();
+
 			if (!fromContext) {
 				// Return null so it will create a launch.json and fall back on
 				// provideDebugConfigurations - better to point the user towards

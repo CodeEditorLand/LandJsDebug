@@ -64,13 +64,16 @@ export class DarwinProcessTree extends BaseProcessTree {
 		// 3. The COMMAND is everything else, trimmed.
 
 		let commandOffset: number | void;
+
 		return (line) => {
 			if (!commandOffset) {
 				commandOffset = line.indexOf("COMMAND");
+
 				return;
 			}
 
 			const ids = /^\W*([0-9]+)\W*([0-9]+)\W*/.exec(line);
+
 			if (!ids) {
 				return;
 			}

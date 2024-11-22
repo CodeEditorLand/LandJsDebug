@@ -24,6 +24,7 @@ export type ArrayObj = Cdp.Runtime.RemoteObject &
 export type TFunction = {
 	type: "function";
 	subtype: undefined;
+
 	className: string;
 	// defined in V8, undefined in Hermes
 	description?: string;
@@ -49,6 +50,7 @@ export type NodeObj = TNode & { preview: NodePreview };
 export type TSet = {
 	type: "object";
 	subtype: "set";
+
 	className: string;
 	description: string;
 };
@@ -62,6 +64,7 @@ export type SetObj = TSet & { preview: SetPreview };
 export type TMap = {
 	type: "object";
 	subtype: "map";
+
 	className: string;
 	description: string;
 };
@@ -84,6 +87,7 @@ export type StringObj = TString;
 export type TObject = {
 	type: "object";
 	subtype: undefined;
+
 	className: string;
 	description: string;
 };
@@ -97,6 +101,7 @@ export type ObjectObj = TObject & { preview: ObjectPreview };
 export type TRegExp = {
 	type: "object";
 	subtype: "regexp";
+
 	className: "RegExp";
 	description: string;
 };
@@ -109,6 +114,7 @@ export type RegExpObj = TRegExp & { preview: RegExpPreview };
 export type TError = {
 	type: "object";
 	subtype: "error";
+
 	className: string;
 	description: string;
 };

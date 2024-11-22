@@ -47,6 +47,7 @@ export class RawPipeTransport implements ITransport {
 	};
 
 	constructor(logger: ILogger, socket: Duplex);
+
 	constructor(logger: ILogger, pipeWrite: Writable, pipeRead: Readable);
 
 	constructor(

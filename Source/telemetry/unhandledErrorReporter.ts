@@ -24,6 +24,7 @@ export function installUnhandledErrorReporter(
 		ErrorType.Exception,
 		isVsCode,
 	);
+
 	const rejectionListener = onUncaughtError(
 		logger,
 		telemetryReporter,

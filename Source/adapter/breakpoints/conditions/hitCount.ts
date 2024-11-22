@@ -38,11 +38,13 @@ export class HitCondition implements IBreakpointCondition {
 	 */
 	public static parse(expression: string): IBreakpointCondition {
 		const parts = hitConditionRe.exec(expression);
+
 		if (!parts) {
 			throw new ProtocolError(invalidHitCondition(expression));
 		}
 
 		const [, op = "=", valueStr] = parts;
+
 		return new HitCondition(makeTester(expression, op, Number(valueStr)));
 	}
 }
@@ -57,16 +59,22 @@ const makeTester = (
 		case "==":
 		case "===":
 			return (n) => n === value;
+
 		case ">":
 			return (n) => n > value;
+
 		case ">=":
 			return (n) => n >= value;
+
 		case "<":
 			return (n) => n < value;
+
 		case "<=":
 			return (n) => n <= value;
+
 		case "%":
 			return (n) => n % value === 0;
+
 		default:
 			throw new ProtocolError(invalidHitCondition(expression));
 	}

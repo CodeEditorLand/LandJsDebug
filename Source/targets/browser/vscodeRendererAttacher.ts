@@ -68,6 +68,7 @@ export class VSCodeRendererAttacher extends BrowserAttacher<IRendererAttachParam
 			VSCodeRendererAttacher.debugIdToRendererDebugPort.get(
 				params.__sessionId,
 			);
+
 		if (!rendererPort) {
 			return { blockSessionTermination: false };
 		}
@@ -109,6 +110,7 @@ export class VSCodeRendererAttacher extends BrowserAttacher<IRendererAttachParam
 		cancellationToken: vscodeType.CancellationToken,
 	) {
 		const disposable = new DisposableList();
+
 		const pipe = await new Promise<Socket>((resolve, reject) => {
 			const p: Socket = createConnection({ port: params.port }, () =>
 				resolve(p),

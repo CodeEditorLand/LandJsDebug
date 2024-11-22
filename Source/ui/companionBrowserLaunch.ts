@@ -19,11 +19,13 @@ const tunnelRemoteServerIfNecessary = async (
 	args: Dap.LaunchBrowserInCompanionEventParams,
 ) => {
 	const urlStr = (args.params as { url?: string }).url;
+
 	if (!urlStr) {
 		return;
 	}
 
 	let url: URL;
+
 	try {
 		url = new URL(urlStr);
 	} catch (e) {
@@ -35,7 +37,9 @@ const tunnelRemoteServerIfNecessary = async (
 	}
 
 	const port = Number(url.port) || 80;
+
 	const tunnels = await vscode.workspace.tunnels;
+
 	if (tunnels.some(isTunnelForPort(port))) {
 		return;
 	}
@@ -57,6 +61,7 @@ const launchCompanionBrowser = async (
 ) => {
 	if (vscode.env.uiKind === vscode.UIKind.Web) {
 		vscode.debug.stopDebugging(session);
+
 		return vscode.window.showErrorMessage(
 			l10n.t(
 				"We can't launch a browser in debug mode from here. Open this workspace in VS Code on your desktop to enable debugging.",
@@ -122,12 +127,14 @@ export function registerCompanionBrowserLaunch(
 						tunnels,
 						event.body,
 					);
+
 				case "killCompanionBrowser":
 					return killCompanionBrowser(
 						event.session,
 						tunnels,
 						event.body,
 					);
+
 				default:
 				// ignored
 			}

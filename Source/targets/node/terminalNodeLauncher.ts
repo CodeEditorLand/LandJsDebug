@@ -146,6 +146,7 @@ export class TerminalNodeLauncher extends NodeLauncherBase<ITerminalLaunchConfig
 		// Make sure that, if we can _find_ a in their path, it's the right
 		// version so that we don't mysteriously never connect fail.
 		let binary: NodeBinary | undefined;
+
 		try {
 			binary = await this.resolveNodePath(runData.params);
 		} catch (err) {
@@ -174,6 +175,7 @@ export class TerminalNodeLauncher extends NodeLauncherBase<ITerminalLaunchConfig
 		this.terminalCreatedEmitter.fire(terminal);
 
 		terminal.show();
+
 		const program = (this.program = new VSCodeTerminalProcess(terminal));
 
 		if (runData.params.command) {

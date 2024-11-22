@@ -17,6 +17,7 @@ export function findOpenPortSync({
 	const tester = makeTester();
 
 	let port = randomInRange(min, max);
+
 	for (let i = Math.min(attempts, max - min); i >= 0; i--) {
 		if (tester(port)) {
 			return port;

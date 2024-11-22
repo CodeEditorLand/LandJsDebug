@@ -14,6 +14,7 @@ export type StubDapApi = {
 
 export const stubbedDapApi = (): StubDapApi => {
 	const stubs = new Map<string, SinonStub>();
+
 	const proxy = new Proxy(
 		{},
 		{
@@ -23,6 +24,7 @@ export const stubbedDapApi = (): StubDapApi => {
 				}
 
 				let s = stubs.get(methodName);
+
 				if (!s) {
 					s = stub();
 					stubs.set(methodName, s);

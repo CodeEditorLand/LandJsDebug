@@ -63,15 +63,19 @@ export class UWPWebviewBrowserAttacher extends BrowserAttacher<IEdgeParamsWithWe
 		const { getAppContainerProcessTokens } = await import(
 			"@vscode/win32-app-container-tokens"
 		);
+
 		const pipeNames = getAppContainerProcessTokens(
 			params.useWebView.pipeName,
 		);
+
 		if (!pipeNames) {
 			throw new ProtocolError(uwpPipeNotAvailable());
 		}
 
 		const pipes = pipeNames.map((name) => connect(name));
+
 		let succeeded: Socket | undefined;
+
 		try {
 			succeeded = await timeoutPromise(
 				some(
@@ -99,6 +103,7 @@ export class UWPWebviewBrowserAttacher extends BrowserAttacher<IEdgeParamsWithWe
 		}
 
 		const transport = new RawPipeTransport(this.logger, succeeded);
+
 		return new Connection(
 			transport,
 			this.logger,

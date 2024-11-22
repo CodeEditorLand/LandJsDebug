@@ -227,6 +227,7 @@ export const createLoggers = (
 	sendEvent: (event: Dap.OutputEventParams) => void,
 ) => {
 	const globalMetrics: Partial<IGlobalMetrics> = {};
+
 	setJsDebugCommitId(globalMetrics);
 
 	/**

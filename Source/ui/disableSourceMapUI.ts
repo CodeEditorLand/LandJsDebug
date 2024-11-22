@@ -41,6 +41,7 @@ export class DisableSourceMapUI implements IExtensionContribution {
 			vscode.workspace,
 			Configuration.UnmapMissingSources,
 		);
+
 		if (autoUnmap || (await this.prompt())) {
 			await session.customRequest("disableSourcemap", { source });
 		}
@@ -48,7 +49,9 @@ export class DisableSourceMapUI implements IExtensionContribution {
 
 	private async prompt() {
 		const always = l10n.t("Always");
+
 		const alwayInWorkspace = l10n.t("Always in this Workspace");
+
 		const yes = l10n.t("Yes");
 
 		const result = await vscode.window.showInformationMessage(
@@ -69,7 +72,9 @@ export class DisableSourceMapUI implements IExtensionContribution {
 					true,
 					vscode.ConfigurationTarget.Global,
 				);
+
 				return true;
+
 			case alwayInWorkspace:
 				writeConfig(
 					vscode.workspace,
@@ -77,9 +82,12 @@ export class DisableSourceMapUI implements IExtensionContribution {
 					true,
 					vscode.ConfigurationTarget.Workspace,
 				);
+
 				return true;
+
 			case yes:
 				return true;
+
 			default:
 				return false;
 		}

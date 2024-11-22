@@ -65,6 +65,7 @@ const tryGetProgramFromArgs = async (
 		}
 
 		const candidate = resolve(config.cwd, arg);
+
 		if (await fsUtils.exists(candidate)) {
 			return candidate;
 		}
@@ -103,6 +104,7 @@ export class NodeLauncher extends NodeLauncherBase<INodeLaunchConfiguration> {
 		params: AnyLaunchConfiguration,
 	): INodeLaunchConfiguration | undefined {
 		let config: INodeLaunchConfiguration | undefined;
+
 		if (params.type === DebugType.Node && params.request === "launch") {
 			config = { ...params };
 		} else if (
@@ -118,6 +120,7 @@ export class NodeLauncher extends NodeLauncherBase<INodeLaunchConfiguration> {
 		}
 
 		fixInspectFlags(config);
+
 		return config;
 	}
 
@@ -136,6 +139,7 @@ export class NodeLauncher extends NodeLauncherBase<INodeLaunchConfiguration> {
 		this.attachSimplePort = await this.getSimpleAttachPortIfAny(
 			runData.params,
 		);
+
 		const doLaunch = async (restartPolicy: IRestartPolicy) => {
 			// Close any existing program. We intentionally don't wait for stop() to
 			// finish, since doing so will shut down the server.
@@ -149,6 +153,7 @@ export class NodeLauncher extends NodeLauncherBase<INodeLaunchConfiguration> {
 			);
 
 			const warning = binary.warning;
+
 			if (warning) {
 				runData.context.dap.output({
 					category: "stderr",
@@ -157,6 +162,7 @@ export class NodeLauncher extends NodeLauncherBase<INodeLaunchConfiguration> {
 			}
 
 			const callbackFile = new CallbackFile<IProcessTelemetry>();
+
 			let env = await this.resolveEnvironment(runData, binary, {
 				fileCallback: callbackFile.path,
 			});
@@ -178,7 +184,9 @@ export class NodeLauncher extends NodeLauncherBase<INodeLaunchConfiguration> {
 				...runData.params,
 				env: env.value,
 			};
+
 			const experimentalNetworkFlag = "--experimental-network-inspection";
+
 			if (runData.params.experimentalNetworking === "off") {
 				// no-op
 			} else if (
@@ -192,6 +200,7 @@ export class NodeLauncher extends NodeLauncherBase<INodeLaunchConfiguration> {
 			}
 
 			const launcher = this.launchers.find((l) => l.canLaunch(options));
+
 			if (!launcher) {
 				throw new Error(
 					"Cannot find an appropriate launcher for the given set of options",
@@ -241,16 +250,20 @@ export class NodeLauncher extends NodeLauncherBase<INodeLaunchConfiguration> {
 
 				if (result.killed || result.code === 0) {
 					this.onProgramTerminated(result);
+
 					return;
 				}
 
 				const nextRestart = restartPolicy.next();
+
 				if (!nextRestart) {
 					this.onProgramTerminated(result);
+
 					return;
 				}
 
 				await delay(nextRestart.delay);
+
 				if (this.program === program) {
 					doLaunch(nextRestart);
 				}
@@ -274,11 +287,13 @@ export class NodeLauncher extends NodeLauncherBase<INodeLaunchConfiguration> {
 			params.runtimeExecutable,
 			params.runtimeArgs,
 		);
+
 		if (!script) {
 			return;
 		}
 
 		const packageJson = await this.packageJson.getContents();
+
 		if (!packageJson?.scripts?.[script]?.includes("--inspect-brk")) {
 			return;
 		}
@@ -313,17 +328,22 @@ export class NodeLauncher extends NodeLauncherBase<INodeLaunchConfiguration> {
 					this.fsUtils,
 					run.params,
 				);
+
 				if (!program) {
 					this.logger.warn(
 						LogTag.Runtime,
 						"Could not resolve program entrypointfrom args",
 					);
+
 					return;
 				}
 
 				const breakpointId = "(?:entryBreakpoint){0}";
+
 				const breakpointPath = absolutePathToFileUrl(program);
+
 				const urlRegexp = urlToRegex(breakpointPath) + breakpointId;
+
 				const breakpoint = await cdp.Debugger.setBreakpointByUrl({
 					urlRegex: urlRegexp,
 					lineNumber: 0,
@@ -336,6 +356,7 @@ export class NodeLauncher extends NodeLauncherBase<INodeLaunchConfiguration> {
 			},
 			close: () => {
 				const processId = Number(targetId);
+
 				if (processId > 0) {
 					try {
 						process.kill(processId);
@@ -356,12 +377,14 @@ export class NodeLauncher extends NodeLauncherBase<INodeLaunchConfiguration> {
 		targetProgram = fixDriveLetterAndSlashes(targetProgram);
 
 		const ext = extname(targetProgram);
+
 		if (!ext || ext === ".js") {
 			return targetProgram;
 		}
 
 		const mapped =
 			await this.bpPredictor.getPredictionForSource(targetProgram);
+
 		if (!mapped || mapped.size === 0) {
 			return targetProgram;
 		}
@@ -369,6 +392,7 @@ export class NodeLauncher extends NodeLauncherBase<INodeLaunchConfiguration> {
 		// There can be more than one compile file per source file. Just pick
 		// whichever one in that case.
 		const entry = iteratorFirst(mapped.values());
+
 		if (!entry) {
 			return targetProgram;
 		}

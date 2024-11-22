@@ -35,6 +35,7 @@ export function customBreakpoints(): Map<string, ICustomBreakpoint> {
 		maybeTitle?: string,
 	): ICustomBreakpoint {
 		const title = maybeTitle || instrumentation;
+
 		return {
 			id: "instrumentation:" + instrumentation,
 			title,
@@ -45,6 +46,7 @@ export function customBreakpoints(): Map<string, ICustomBreakpoint> {
 					let errorName = data["webglErrorName"];
 					// If there is a hex code of the error, display only this.
 					errorName = errorName.replace(/^.*(0x[0-9a-f]+).*$/i, "$1");
+
 					return {
 						short: errorName,
 						long: l10n.t(
@@ -117,6 +119,7 @@ export function customBreakpoints(): Map<string, ICustomBreakpoint> {
 				: typeof target === "string"
 					? [target]
 					: target;
+
 		return {
 			id: "listener:" + eventName,
 			title: title || eventName,
@@ -125,6 +128,7 @@ export function customBreakpoints(): Map<string, ICustomBreakpoint> {
 				targetName?: string;
 			}): { short: string; long: string } => {
 				const eventTargetName = (data.targetName || "*").toLowerCase();
+
 				return {
 					short: eventTargetName + "." + eventName,
 					long: l10n.t(
@@ -136,6 +140,7 @@ export function customBreakpoints(): Map<string, ICustomBreakpoint> {
 			},
 			apply: async (cdp: Cdp.Api, enabled: boolean): Promise<boolean> => {
 				let result = true;
+
 				for (const eventTarget of eventTargets) {
 					if (enabled) {
 						result =
@@ -255,6 +260,7 @@ export function customBreakpoints(): Map<string, ICustomBreakpoint> {
 		e("finish"),
 		e("dispose"),
 	]);
+
 	const av = ["audio", "video"];
 	g(`Media`, [
 		e("play", av),
@@ -350,6 +356,7 @@ export function customBreakpoints(): Map<string, ICustomBreakpoint> {
 	]);
 	g(`Window`, [i("DOMWindow.close", `window.close`)]);
 	g(`Worker`, [e("message"), e("messageerror")]);
+
 	const xhr = ["xmlhttprequest", "xmlhttprequestupload"];
 	g(`XHR`, [
 		e("readystatechange", xhr),

@@ -100,6 +100,7 @@ export class WasmWorkerFactory implements IWasmWorkerFactory {
 		});
 
 		const worker = await this.worker;
+
 		if (!worker) {
 			return null;
 		}
@@ -112,6 +113,7 @@ export class WasmWorkerFactory implements IWasmWorkerFactory {
 			getStopId: (id) => `${cdpId}:${id}`,
 			dispose: () => {
 				this.cdp.delete(cdpId);
+
 				return worker.dispose();
 			},
 		};
@@ -125,9 +127,11 @@ export class WasmWorkerFactory implements IWasmWorkerFactory {
 
 	private async loadWasmValue(expression: string, stopId: unknown) {
 		const cast = stopId as string;
+
 		const idx = cast.indexOf(":");
 
 		const cdpId = cast.substring(0, idx);
+
 		const callFrameId = cast.substring(idx + 1);
 
 		const result = await this.cdp
@@ -171,18 +175,22 @@ export class WasmSymbolProvider implements IWasmSymbolProvider, IDisposable {
 		}
 
 		const worker = await this.worker();
+
 		if (!worker) {
 			const syms = this.defaultSymbols(script);
 			// disassembly is a good signal for a prompt, since that means a user
 			// will have stepped into and be looking at webassembly code.
 			syms.onDidDisassemble = this.dwarf.prompt;
+
 			return syms;
 		}
 
 		const { rpc } = worker;
+
 		const moduleId = randomUUID();
 
 		let symbolsUrl: URL | undefined;
+
 		try {
 			symbolsUrl = script.debugSymbols?.externalURL
 				? new URL(script.debugSymbols?.externalURL)
@@ -195,15 +203,19 @@ export class WasmSymbolProvider implements IWasmSymbolProvider, IDisposable {
 		// fetching is handled internally by the wasm module, so we manually
 		// attempt both loopbacks, which is a little less nice.
 		const scriptUrl = new URL(script.url);
+
 		const attemptHostname =
 			scriptUrl.hostname === "localhost"
 				? ["127.0.0.1", "[::1]", "localhost"]
 				: [scriptUrl.hostname];
+
 		const symbolsAreLocalhostToo = symbolsUrl?.hostname === "localhost";
 
 		let result: MethodReturn<"addRawModule"> | undefined;
+
 		for (const hostname of attemptHostname) {
 			scriptUrl.hostname = hostname;
+
 			if (symbolsUrl && symbolsAreLocalhostToo) {
 				symbolsUrl.hostname = hostname;
 			}
@@ -222,6 +234,7 @@ export class WasmSymbolProvider implements IWasmSymbolProvider, IDisposable {
 								: undefined,
 					},
 				);
+
 				break;
 			} catch (e) {
 				this.logger.warn(
@@ -262,7 +275,9 @@ export class WasmSymbolProvider implements IWasmSymbolProvider, IDisposable {
 
 	private async getBytecode(scriptId: string) {
 		const source = await this.cdp.Debugger.getScriptSource({ scriptId });
+
 		const bytecode = source?.bytecode;
+
 		return bytecode ? Buffer.from(bytecode, "base64").buffer : undefined;
 	}
 }
@@ -272,6 +287,7 @@ export interface IWasmVariableEvaluation {
 	description: string | undefined;
 	linearMemoryAddress?: number;
 	linearMemorySize?: number;
+
 	getChildren?: () => Promise<
 		{ name: string; value: IWasmVariableEvaluation }[]
 	>;
@@ -411,6 +427,7 @@ class DecompiledWasmSymbols implements IWasmSymbols {
 	public async getDisassembly(): Promise<string> {
 		const { lines } = await this.doDisassemble();
 		this.onDidDisassemble?.();
+
 		return lines.join("\n");
 	}
 
@@ -426,6 +443,7 @@ class DecompiledWasmSymbols implements IWasmSymbols {
 		compiledPosition: IPosition,
 	): Promise<{ url: string; position: IPosition } | undefined> {
 		const { byteOffsetsOfLines } = await this.doDisassemble();
+
 		const lineNumber = binarySearch(
 			byteOffsetsOfLines,
 			compiledPosition.base0.columnNumber,
@@ -452,13 +470,16 @@ class DecompiledWasmSymbols implements IWasmSymbols {
 		}
 
 		const { byteOffsetsOfLines } = await this.doDisassemble();
+
 		const { lineNumber } = sourcePosition.base0;
+
 		if (lineNumber >= byteOffsetsOfLines.length) {
 			return [];
 		}
 
 		const columnNumber =
 			byteOffsetsOfLines[sourcePosition.base0.lineNumber];
+
 		return [new Base0Position(0, columnNumber)];
 	}
 
@@ -475,12 +496,14 @@ class DecompiledWasmSymbols implements IWasmSymbols {
 	 */
 	private readonly doDisassemble = once(async () => {
 		let lines: string[] = [];
+
 		let byteOffsetsOfLines: Uint32Array | undefined;
 
 		for await (const chunk of this.getDisassembledStream()) {
 			lines = lines.concat(chunk.lines);
 
 			let start: number;
+
 			if (byteOffsetsOfLines) {
 				const newOffsets = new Uint32Array(
 					byteOffsetsOfLines.length + chunk.lines.length,
@@ -505,7 +528,9 @@ class DecompiledWasmSymbols implements IWasmSymbols {
 
 	private async *getDisassembledStream() {
 		const { scriptId } = this.event;
+
 		const r = await this.cdp.Debugger.disassembleWasmModule({ scriptId });
+
 		if (!r) {
 			return;
 		}
@@ -516,6 +541,7 @@ class DecompiledWasmSymbols implements IWasmSymbols {
 			const r2 = await this.cdp.Debugger.nextWasmDisassemblyChunk({
 				streamId: r.streamId,
 			});
+
 			if (!r2) {
 				return;
 			}
@@ -580,6 +606,7 @@ class WasmSymbols extends DecompiledWasmSymbols {
 		}
 
 		const { lineNumber, columnNumber } = sourcePosition.base0;
+
 		const locations = await this.worker.rpc.sendMessage(
 			"sourceLocationToRawLocation",
 			{
@@ -596,7 +623,9 @@ class WasmSymbols extends DecompiledWasmSymbols {
 		// the next mapped line and use that location.
 		if (columnNumber === 0 && locations.length === 0) {
 			const mappedLines = await this.getMappedLines(sourceUrl);
+
 			const next = mappedLines.find((l) => l > lineNumber);
+
 			if (!mappedLines.includes(lineNumber) && next /* always > 0 */) {
 				return this.compiledPositionFor(
 					sourceUrl,
@@ -644,6 +673,7 @@ class WasmSymbols extends DecompiledWasmSymbols {
 						location,
 						this.worker.getStopId(callFrameId),
 					);
+
 					return result
 						? new WasmVariableEvaluation(result, this.worker.rpc)
 						: nullType;
@@ -695,6 +725,7 @@ class WasmSymbols extends DecompiledWasmSymbols {
 		};
 
 		let rawRanges: Chrome.DevTools.RawLocationRange[];
+
 		switch (direction) {
 			case StepDirection.Out: {
 				// Step out should step out of inline functions.
@@ -702,6 +733,7 @@ class WasmSymbols extends DecompiledWasmSymbols {
 					"getInlinedFunctionRanges",
 					thisLocation,
 				);
+
 				break;
 			}
 			case StepDirection.Over: {
@@ -716,14 +748,18 @@ class WasmSymbols extends DecompiledWasmSymbols {
 					getOwnLineRanges(),
 				]);
 				rawRanges = flatten(ranges);
+
 				break;
 			}
 			case StepDirection.In:
 				// Step in should skip over any intermediary statements on this line
 				rawRanges = await getOwnLineRanges();
+
 				break;
+
 			default:
 				rawRanges = [];
+
 				break;
 		}
 
@@ -765,6 +801,7 @@ class WasmSymbols extends DecompiledWasmSymbols {
 
 	private getMappedLines(sourceURL: string) {
 		const prev = this.mappedLines.get(sourceURL);
+
 		if (prev) {
 			return prev;
 		}
@@ -776,6 +813,7 @@ class WasmSymbols extends DecompiledWasmSymbols {
 					this.moduleId,
 					sourceURL,
 				);
+
 				return new Uint32Array(lines?.sort((a, b) => a - b) || []);
 			} catch {
 				return new Uint32Array();
@@ -783,6 +821,7 @@ class WasmSymbols extends DecompiledWasmSymbols {
 		})();
 
 		this.mappedLines.set(sourceURL, value);
+
 		return value;
 	}
 }
@@ -822,6 +861,7 @@ class WasmVariableEvaluation implements IWasmVariableEvaluation {
 		objectId: string,
 	): Promise<{ name: string; value: IWasmVariableEvaluation }[]> {
 		const vars = await rpc.sendMessage("getProperties", objectId);
+
 		return vars.map((v) => ({
 			name: v.name,
 			value: new WasmVariableEvaluation(v.value, rpc),

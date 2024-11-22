@@ -78,6 +78,7 @@ export class DebugAdapter implements IDisposable {
 
 		const performanceProvider =
 			_services.get<IPerformanceProvider>(IPerformanceProvider);
+
 		const telemetry = _services.get<ITelemetryReporter>(ITelemetryReporter);
 		telemetry.onFlush(() => {
 			telemetry.report(
@@ -195,6 +196,7 @@ export class DebugAdapter implements IDisposable {
 		params: Dap.GetPreferredUILocationParams,
 	): Promise<Dap.GetPreferredUILocationResult> {
 		const source = this.sourceContainer.source(params.source);
+
 		if (!source) {
 			return params;
 		}
@@ -230,6 +232,7 @@ export class DebugAdapter implements IDisposable {
 		params: Dap.SetDebuggerPropertyParams,
 	): Promise<Dap.SetDebuggerPropertyResult> {
 		this._thread?.cdp().DotnetDebugger.setDebuggerProperty(params);
+
 		return Promise.resolve({});
 	}
 
@@ -237,6 +240,7 @@ export class DebugAdapter implements IDisposable {
 		params: Dap.SetSymbolOptionsParams,
 	): Promise<Dap.SetSymbolOptionsResult> {
 		this._thread?.cdp().DotnetDebugger.setSymbolOptions(params);
+
 		return Promise.resolve({});
 	}
 
@@ -245,6 +249,7 @@ export class DebugAdapter implements IDisposable {
 	): Promise<Dap.BreakpointLocationsResult> {
 		return this._withThread(async (thread) => {
 			const source = this.sourceContainer.source(params.source);
+
 			if (!source) {
 				return { breakpoints: [] };
 			}
@@ -286,6 +291,7 @@ export class DebugAdapter implements IDisposable {
 		enabled,
 	}: Dap.SetSourceMapSteppingParams): Promise<Dap.SetSourceMapSteppingResult> {
 		this.sourceContainer.doSourceMappedStepping = enabled;
+
 		return Promise.resolve({});
 	}
 
@@ -296,6 +302,7 @@ export class DebugAdapter implements IDisposable {
 		await this._services
 			.get<FsPromises>(FS)
 			.writeFile(toFile, logs.map((l) => JSON.stringify(l)).join("\n"));
+
 		return {};
 	}
 
@@ -312,6 +319,7 @@ export class DebugAdapter implements IDisposable {
 	}: Dap.SetExcludedCallersParams): Promise<Dap.SetExcludedCallersResult> {
 		const thread = await this._threadDeferred.promise;
 		thread.setExcludedCallers(callers);
+
 		return {};
 	}
 
@@ -321,9 +329,13 @@ export class DebugAdapter implements IDisposable {
 		console.assert(params.linesStartAt1);
 		console.assert(params.columnsStartAt1);
 		this._services.get<IClientCapabilies>(IClientCapabilies).value = params;
+
 		const capabilities = DebugAdapter.capabilities(true);
+
 		setTimeout(() => this.dap.initialized({}), 0);
+
 		setTimeout(() => this._thread?.dapInitialized(), 0);
+
 		return capabilities;
 	}
 
@@ -406,11 +418,13 @@ export class DebugAdapter implements IDisposable {
 		await this._services
 			.get<IExceptionPauseService>(IExceptionPauseService)
 			.setBreakpoints(params);
+
 		return {};
 	}
 
 	async configurationDone(): Promise<Dap.ConfigurationDoneResult> {
 		this._configurationDoneDeferred.resolve();
+
 		return {};
 	}
 
@@ -420,6 +434,7 @@ export class DebugAdapter implements IDisposable {
 
 	private async _onDisableSourcemap(params: Dap.DisableSourcemapParams) {
 		const source = this.sourceContainer.source(params.source);
+
 		if (!source) {
 			return errors.createSilentError(l10n.t("Source not found"));
 		}
@@ -450,12 +465,15 @@ export class DebugAdapter implements IDisposable {
 		params.source.path = urlUtils.platformPathToPreferredCase(
 			params.source.path,
 		);
+
 		const source = this.sourceContainer.source(params.source);
+
 		if (!source) {
 			return errors.createSilentError(l10n.t("Source not found"));
 		}
 
 		const content = await source.content();
+
 		if (content === undefined) {
 			if (source instanceof SourceFromMap) {
 				this.dap.suggestDisableSourcemap({ source: params.source });
@@ -471,8 +489,10 @@ export class DebugAdapter implements IDisposable {
 
 	async _onThreads(): Promise<Dap.ThreadsResult | Dap.Error> {
 		const threads: Dap.Thread[] = [];
+
 		if (this._thread)
 			threads.push({ id: this._thread.id, name: this._thread.name() });
+
 		return { threads };
 	}
 
@@ -482,6 +502,7 @@ export class DebugAdapter implements IDisposable {
 		}
 
 		const pausedVariables = this._thread.pausedVariables();
+
 		if (pausedVariables && fn(pausedVariables)) {
 			return pausedVariables;
 		}
@@ -499,15 +520,20 @@ export class DebugAdapter implements IDisposable {
 		const variableStore = this.findVariableStore((v) =>
 			v.hasVariable(params.locationReference),
 		);
+
 		if (!variableStore || !this._thread) throw errors.locationNotFound();
+
 		const location = await variableStore.getLocations(
 			params.locationReference,
 		);
+
 		const uiLocation =
 			await this._thread.rawLocationToUiLocationWithWaiting(
 				this._thread.rawLocation(location),
 			);
+
 		if (!uiLocation) throw errors.locationNotFound();
+
 		return {
 			source: await uiLocation.source.toDap(),
 			line: uiLocation.lineNumber,
@@ -521,6 +547,7 @@ export class DebugAdapter implements IDisposable {
 		const variableStore = this.findVariableStore((v) =>
 			v.hasVariable(params.variablesReference),
 		);
+
 		return { variables: (await variableStore?.getVariables(params)) ?? [] };
 	}
 
@@ -528,9 +555,11 @@ export class DebugAdapter implements IDisposable {
 		params: Dap.ReadMemoryParams,
 	): Promise<Dap.ReadMemoryResult> {
 		const ref = params.memoryReference;
+
 		const memory = await this.findVariableStore((v) =>
 			v.hasMemory(ref),
 		)?.readMemory(ref, params.offset ?? 0, params.count);
+
 		if (!memory) {
 			return { address: "0", unreadableBytes: params.count };
 		}
@@ -546,6 +575,7 @@ export class DebugAdapter implements IDisposable {
 		params: Dap.WriteMemoryParams,
 	): Promise<Dap.WriteMemoryResult> {
 		const ref = params.memoryReference;
+
 		const bytesWritten = await this.findVariableStore((v) =>
 			v.hasMemory(ref),
 		)?.writeMemory(
@@ -553,6 +583,7 @@ export class DebugAdapter implements IDisposable {
 			params.offset ?? 0,
 			Buffer.from(params.data, "base64"),
 		);
+
 		return { bytesWritten };
 	}
 
@@ -587,9 +618,11 @@ export class DebugAdapter implements IDisposable {
 		const variableStore = this.findVariableStore((v) =>
 			v.hasVariable(params.variablesReference),
 		);
+
 		if (!variableStore)
 			return errors.createSilentError(l10n.t("Variable not found"));
 		params.value = sourceUtils.wrapObjectLiteral(params.value.trim());
+
 		return variableStore.setVariable(params);
 	}
 
@@ -603,7 +636,9 @@ export class DebugAdapter implements IDisposable {
 
 	async _refreshStackTrace() {
 		if (!this._thread) return;
+
 		const details = this._thread.pausedDetails();
+
 		if (details) await this._thread.refreshStackTrace();
 	}
 
@@ -629,6 +664,7 @@ export class DebugAdapter implements IDisposable {
 		const profile =
 			this._services.get<IProfileController>(IProfileController);
 		profile.connect(this.dap, this._thread);
+
 		if (
 			"profileStartup" in this.launchConfig &&
 			this.launchConfig.profileStartup
@@ -666,6 +702,7 @@ export class DebugAdapter implements IDisposable {
 		await this._thread?.updateCustomBreakpoints(xhr, ids);
 		this._customBreakpoints = ids;
 		this._xhrBreakpoints = xhr;
+
 		return {};
 	}
 
@@ -676,6 +713,7 @@ export class DebugAdapter implements IDisposable {
 			.get<ScriptSkipper>(IScriptSkipper)
 			.toggleSkippingFile(params);
 		await this._refreshStackTrace();
+
 		return {};
 	}
 
@@ -689,12 +727,15 @@ export class DebugAdapter implements IDisposable {
 		params.source.path = urlUtils.platformPathToPreferredCase(
 			params.source.path,
 		);
+
 		const source = this.sourceContainer.source(params.source);
+
 		if (!source) {
 			return errors.createSilentError(l10n.t("Source not found"));
 		}
 
 		const prettified = await source.prettyPrint();
+
 		if (!prettified) {
 			return errors.createSilentError(l10n.t("Unable to pretty print"));
 		}
@@ -731,6 +772,7 @@ export class DebugAdapter implements IDisposable {
 		const out = {
 			file: await this._services.get(Diagnostics).generateHtml(),
 		};
+
 		if (params.fromSuggestion) {
 			this._services
 				.get<ITelemetryReporter>(ITelemetryReporter)

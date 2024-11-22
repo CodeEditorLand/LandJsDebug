@@ -53,6 +53,7 @@ export class RemoteBrowserHelper implements IDisposable {
 		}
 
 		const path = `/${randomBytes(20).toString("hex")}`;
+
 		const server = (this.server = await acquireTrackedWebSocketServer(
 			this.portLeaseTracker,
 			{

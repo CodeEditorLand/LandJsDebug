@@ -53,7 +53,9 @@ function preprocessNodeInternals(
 	const nodeInternalPatterns = userSkipPatterns
 		.map((userPattern) => {
 			userPattern = userPattern.trim();
+
 			const nodeInternalPattern = nodeInternalRegex.exec(userPattern);
+
 			return nodeInternalPattern ? nodeInternalPattern[1] : null;
 		})
 		.filter(truthy);
@@ -204,8 +206,10 @@ export class ScriptSkipper implements IScriptSkipper {
 		).map((re) => re.source);
 
 		const nodeInternals = this._allNodeInternals?.settledValue;
+
 		if (nodeInternals) {
 			patterns.push(`^(${node15InternalsPrefix})?internal\\/`);
+
 			for (const internal of nodeInternals) {
 				if (this._testSkipNodeInternal(internal)) {
 					patterns.push(
@@ -231,6 +235,7 @@ export class ScriptSkipper implements IScriptSkipper {
 		}
 
 		url = this._normalizeUrl(url);
+
 		if (this._isUrlFromSourceMapSkipped.get(url) === true) {
 			return true;
 		}
@@ -244,10 +249,14 @@ export class ScriptSkipper implements IScriptSkipper {
 	): Promise<void> {
 		// Order "should" be correct
 		const parentIsSkipped = this.isScriptSkipped(source.url);
+
 		const skipRanges: Cdp.Debugger.ScriptPosition[] = [];
+
 		let inSkipRange = parentIsSkipped;
+
 		for (const authoredSource of source.sourceMap.sourceByUrl.values()) {
 			let isSkippedSource = this.isScriptSkipped(authoredSource.url);
+
 			if (typeof isSkippedSource === "undefined") {
 				// If not toggled or specified in launch config, inherit the parent's status
 				isSkippedSource = parentIsSkipped;
@@ -272,6 +281,7 @@ export class ScriptSkipper implements IScriptSkipper {
 						source,
 					),
 				]);
+
 				if (start && end) {
 					skipRanges.push(
 						{
@@ -295,6 +305,7 @@ export class ScriptSkipper implements IScriptSkipper {
 		}
 
 		let targets = scripts;
+
 		if (!skipRanges.length) {
 			targets = targets.filter((t) =>
 				this._scriptsWithSkipping.has(t.scriptId),
@@ -323,6 +334,7 @@ export class ScriptSkipper implements IScriptSkipper {
 		scripts = source.scripts,
 	) {
 		const url = source.url;
+
 		let skipped = this.isScriptSkipped(url);
 
 		// Check if this source was mapped to a URL we should have skipped, but didn't (oops)
@@ -369,6 +381,7 @@ export class ScriptSkipper implements IScriptSkipper {
 		}
 
 		const deferred = (this._allNodeInternals = getDeferred());
+
 		const evalResult = await this.cdp.Runtime.evaluate({
 			expression: "require('module').builtinModules" + getSourceSuffix(),
 			returnByValue: true,
@@ -394,6 +407,7 @@ export class ScriptSkipper implements IScriptSkipper {
 		params: Dap.ToggleSkipFileStatusParams,
 	): Promise<Dap.ToggleSkipFileStatusResult> {
 		let path: string | undefined = undefined;
+
 		if (params.resource) {
 			if (urlUtils.isAbsolute(params.resource)) {
 				path = params.resource;
@@ -404,12 +418,15 @@ export class ScriptSkipper implements IScriptSkipper {
 			path: path,
 			sourceReference: params.sourceReference,
 		};
+
 		const source = this._sourceContainer.source(sourceParams);
+
 		if (!source) {
 			return {};
 		}
 
 		const newSkipValue = !this.isScriptSkipped(source.url);
+
 		if (source instanceof SourceFromMap) {
 			this._isUrlFromSourceMapSkipped.set(source.url, newSkipValue);
 
@@ -446,11 +463,13 @@ export class ScriptSkipper implements IScriptSkipper {
 	/** Sets whether the URL is explicitly skipped in the blackbox patterns */
 	private setIsUrlBlackboxSkipped(url: string, skipped: boolean) {
 		const positive = url;
+
 		const negative = `!${positive}`;
 
 		const globs = this._authoredGlobs.filter(
 			(g) => g !== positive && g !== negative,
 		);
+
 		if (
 			this._regexForAuthored(globs).some((r) => r.test(url)) !== skipped
 		) {
@@ -469,12 +488,14 @@ export class ScriptSkipper implements IScriptSkipper {
 			rootTargetId: this._rootTargetId,
 			targetId: this._targetId,
 		});
+
 		return result;
 	}
 }
 
 function getRootTarget(target: ITarget): ITarget {
 	const parent = target.parent();
+
 	if (parent) {
 		return getRootTarget(parent);
 	} else {

@@ -84,12 +84,14 @@ export class EnvironmentVars {
 		includePlaceholder = false,
 	) {
 		const prop = EnvironmentVars.platform === "win32" ? "Path" : "PATH";
+
 		const delimiter =
 			EnvironmentVars.platform === "win32"
 				? path.win32.delimiter
 				: path.posix.delimiter;
 
 		let value = this.lookup(prop);
+
 		if (includePlaceholder && !value) {
 			value = `\${env:${prop}}`;
 		}
@@ -110,6 +112,7 @@ export class EnvironmentVars {
 	 */
 	public addNodeOption(option: string) {
 		const existing = this.lookup("NODE_OPTIONS");
+
 		return this.update(
 			"NODE_OPTIONS",
 			existing ? `${existing} ${option}` : option,
@@ -162,6 +165,7 @@ export class EnvironmentVars {
 		const objects = vars.map((v) =>
 			v instanceof EnvironmentVars ? v.value : v,
 		);
+
 		const result =
 			EnvironmentVars.platform === "win32"
 				? caseInsensitiveMerge(...objects)

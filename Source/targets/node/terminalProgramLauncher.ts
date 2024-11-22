@@ -23,6 +23,7 @@ export class TerminalProgramLauncher implements IProgramLauncher {
 
 	public canLaunch(args: INodeLaunchConfiguration) {
 		args.internalConsoleOptions;
+
 		return args.console !== "internalConsole";
 	}
 
@@ -44,6 +45,7 @@ export class TerminalProgramLauncher implements IProgramLauncher {
 		};
 
 		let result: Dap.RunInTerminalResult;
+
 		try {
 			result = await this.sendLaunchRequest(params, context);
 		} catch (err) {

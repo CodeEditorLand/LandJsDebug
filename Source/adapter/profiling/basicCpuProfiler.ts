@@ -77,6 +77,7 @@ export class BasicCpuProfiler implements IProfiler<IBasicProfileParams> {
 			this.sources,
 			this.launchConfig.__workspaceFolder,
 		);
+
 		if (!isAbsolute(file)) {
 			file = join(this.launchConfig.__workspaceFolder, file);
 		}
@@ -122,6 +123,7 @@ class BasicProfile implements IProfile {
 	 */
 	public async stop() {
 		const result = await this.cdp.Profiler.stop({});
+
 		if (!result) {
 			throw new ProtocolError(profileCaptureError());
 		}
@@ -146,6 +148,7 @@ async function annotateSources(
 	workspaceFolder: string,
 ) {
 	const helper = new SourceAnnotationHelper(sources);
+
 	const nodes = profile.nodes.map((node) => ({
 		...node,
 		locationId: helper.getLocationIdFor(node.callFrame),

@@ -20,12 +20,16 @@ export const readMemory = remoteFunction(function (
 				: this;
 
 	const readStart = byteOffset + Math.min(start, byteLength);
+
 	const readCount = Math.max(0, Math.min(count, byteLength - start));
+
 	return encodeHex(new Uint8Array(buffer, readStart, readCount));
 
 	function encodeHex(buffer: Uint8Array) {
 		const dictionary = "0123456789abcdef";
+
 		let output = "";
+
 		for (let i = 0; i < buffer.length; i++) {
 			const b = buffer[i];
 			output += dictionary[b >>> 4] + dictionary[b & 0b1111];

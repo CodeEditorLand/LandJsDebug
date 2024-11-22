@@ -72,8 +72,11 @@ export const createMetadataForFile = async (
 	fileContents?: string,
 ): Promise<Required<ISourceMapMetadata> | undefined> => {
 	let sourceMapUrl;
+
 	const compiledFileName = basename(compiledPath);
+
 	const maybeSibling = `${compiledFileName}.map`;
+
 	if (metadata.siblings.includes(maybeSibling)) {
 		sourceMapUrl = maybeSibling;
 	}
@@ -88,6 +91,7 @@ export const createMetadataForFile = async (
 	}
 
 	const smIsDataUri = isDataUri(sourceMapUrl);
+
 	if (!smIsDataUri) {
 		sourceMapUrl = completeUrl(
 			absolutePathToFileUrl(compiledPath),

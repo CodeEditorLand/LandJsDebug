@@ -63,6 +63,7 @@ export abstract class SourcePathResolverBase<
 			let suffix = location
 				.slice(prefix.length)
 				.replace(/(?<!\.)\.[^./\\]+$/, ".*");
+
 			if (!isAbsolute(suffix)) {
 				return forceForwardSlashes(location);
 			}
@@ -71,8 +72,11 @@ export abstract class SourcePathResolverBase<
 
 			// replace special minimatch characters that appear in the local root (vscode#166400)
 			const wfParts = properSplit(this.options.workspaceFolder);
+
 			const suffixParts = properSplit(suffix);
+
 			let sharedPrefixLen = 0;
+
 			for (
 				let i = 0;
 				i < wfParts.length &&
@@ -151,7 +155,9 @@ export abstract class SourcePathResolverBase<
 		const caseSensitive = isWindowsPath(sourceMapUrl)
 			? false
 			: getCaseSensitivePaths();
+
 		const rebased = this.rebaseRemoteToLocal(sourcePath);
+
 		const testLocations =
 			rebased !== sourcePath ? [sourcePath, rebased] : [sourcePath];
 
@@ -187,6 +193,7 @@ export abstract class SourcePathResolverBase<
 			this.options.remoteRoot,
 			remotePath,
 		);
+
 		if (relativePath.startsWith("..")) {
 			return "";
 		}
@@ -198,6 +205,7 @@ export abstract class SourcePathResolverBase<
 			LogTag.RuntimeSourceMap,
 			`Mapped remoteToLocal: ${remotePath} -> ${localPath}`,
 		);
+
 		return properResolve(localPath);
 	}
 
@@ -215,6 +223,7 @@ export abstract class SourcePathResolverBase<
 		}
 
 		const relPath = properRelative(this.options.localRoot, localPath);
+
 		let remotePath = properJoin(this.options.remoteRoot, relPath);
 
 		remotePath = fixDriveLetterAndSlashes(
@@ -225,6 +234,7 @@ export abstract class SourcePathResolverBase<
 			LogTag.RuntimeSourceMap,
 			`Mapped localToRemote: ${localPath} -> ${remotePath}`,
 		);
+
 		return remotePath;
 	}
 
@@ -243,6 +253,7 @@ export abstract class SourcePathResolverBase<
 		// https://github.com/microsoft/vscode/issues/147662#issuecomment-1108985029
 		// https://github.com/microsoft/vscode-js-debug/issues/1225
 		const queryStringStart = url.lastIndexOf("?");
+
 		if (
 			queryStringStart !== -1 &&
 			url.slice(queryStringStart - 4, queryStringStart) !== ".vue"

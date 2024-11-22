@@ -66,6 +66,7 @@ export class ProfileController implements IProfileController {
 	connect(dap: Dap.Api, thread: Thread) {
 		dap.on("startProfile", async (params) => {
 			await this.start(dap, thread, params);
+
 			return {};
 		});
 
@@ -80,6 +81,7 @@ export class ProfileController implements IProfileController {
 
 		this.cdp.Profiler.on("consoleProfileFinished", async (evt) => {
 			const promise = this.saveConsoleProfile(dap, evt);
+
 			const shutdownBlocker = this.shutdown.register(
 				ShutdownOrder.ExecutionContexts,
 				() => promise,
@@ -106,6 +108,7 @@ export class ProfileController implements IProfileController {
 		this.profile = this.startProfileInner(dap, thread, params).catch(
 			(err) => {
 				this.profile = undefined;
+
 				throw err;
 			},
 		);
@@ -118,10 +121,13 @@ export class ProfileController implements IProfileController {
 		evt: Cdp.Profiler.ConsoleProfileFinishedEvent,
 	) {
 		let basename: string;
+
 		if (evt.title) {
 			basename = evt.title.replace(/[\/\\]/g, "-");
+
 			const nth = this.seenConsoleProfileNames[evt.title] || 0;
 			this.seenConsoleProfileNames[evt.title] = nth + 1;
+
 			if (nth > 0) {
 				basename += `-${nth}`;
 			}
@@ -148,7 +154,9 @@ export class ProfileController implements IProfileController {
 		params: Dap.StartProfileParams,
 	) {
 		let keepDebuggerOn = false;
+
 		let enableFilter: BreakpointEnableFilter;
+
 		if (params.stopAtBreakpoint?.length) {
 			const toBreakpoint = new Set(params.stopAtBreakpoint);
 			keepDebuggerOn = true;
@@ -165,7 +173,9 @@ export class ProfileController implements IProfileController {
 			tmpdir(),
 			`vscode-js-profile-${randomBytes(4).toString("hex")}`,
 		);
+
 		const profile = await this.factory.get(params.type).start(params, file);
+
 		const runningProfile: IRunningProfile = {
 			file,
 			profile,
@@ -184,17 +194,20 @@ export class ProfileController implements IProfileController {
 			await thread.resume();
 		} else if (isPaused) {
 			await this.cdp.Debugger.disable({});
+
 			if (isPaused) {
 				thread.onResumed(); // see docs on this method for why we call it here
 			}
 		}
 
 		dap.profileStarted({ file: runningProfile.file, type: params.type });
+
 		return runningProfile;
 	}
 
 	private async stopProfiling(dap: Dap.Api) {
 		const running = await this.profile?.catch(() => undefined);
+
 		if (!running || !this.profile) {
 			return {}; // guard against concurrent stops
 		}
@@ -202,6 +215,7 @@ export class ProfileController implements IProfileController {
 		this.profile = undefined;
 		await running?.profile.stop();
 		dap.profilerStateUpdate({ label: "", running: false });
+
 		return {};
 	}
 

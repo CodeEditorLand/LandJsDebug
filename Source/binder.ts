@@ -129,19 +129,24 @@ export class Binder implements IDisposable {
 		connection.attachTelemetry(_rootServices.get(ITelemetryReporter));
 
 		const dap = this._dap;
+
 		let lastBreakpointId = 0;
+
 		let selfProfile: SelfProfile | undefined;
 
 		dap.on("initialize", async (clientCapabilities) => {
 			this._rootServices
 				.bind(IInitializeParams)
 				.toConstantValue(clientCapabilities);
+
 			const capabilities = DebugAdapter.capabilities();
+
 			if (clientCapabilities.clientID === "vscode") {
 				filterErrorsReportedToTelemetry();
 			}
 
 			setTimeout(() => dap.initialized({}), 0);
+
 			return capabilities;
 		});
 		dap.on("setExceptionBreakpoints", async () => ({}));
@@ -169,10 +174,12 @@ export class Binder implements IDisposable {
 		);
 		dap.on("attach", async (params) => {
 			await this.boot(params as AnyResolvingConfiguration, dap);
+
 			return {};
 		});
 		dap.on("launch", async (params) => {
 			await this.boot(params as AnyResolvingConfiguration, dap);
+
 			return {};
 		});
 		dap.on("pause", async () => {
@@ -182,12 +189,14 @@ export class Binder implements IDisposable {
 		dap.on("disconnect", (args) => this._disconnectRoot(args));
 		dap.on("restart", async ({ arguments: params }) => {
 			await this._restart(params as AnyResolvingConfiguration);
+
 			return {};
 		});
 		dap.on("startSelfProfile", async ({ file }) => {
 			selfProfile?.dispose();
 			selfProfile = new SelfProfile(file);
 			await selfProfile.start();
+
 			return {};
 		});
 		dap.on("stopSelfProfile", async () => {
@@ -229,6 +238,7 @@ export class Binder implements IDisposable {
 		);
 		await this._root.waitUntilChildrenAre(TargetState.Terminated);
 		this._root.state = TargetState.Terminated;
+
 		return {};
 	}
 
@@ -243,6 +253,7 @@ export class Binder implements IDisposable {
 		this._rootServices.get<ITelemetryReporter>(ITelemetryReporter).flush();
 		await this._root.waitUntilChildrenAre(TargetState.Disconnected);
 		this._root.state = TargetState.Disconnected;
+
 		return {};
 	}
 
@@ -339,6 +350,7 @@ export class Binder implements IDisposable {
 
 	async _restart(newParams?: AnyResolvingConfiguration) {
 		let resolved: AnyLaunchConfiguration | undefined;
+
 		if (newParams) {
 			const currentParams =
 				this._rootServices.get<MutableLaunchConfig>(
@@ -369,6 +381,7 @@ export class Binder implements IDisposable {
 			params,
 			cancellationToken,
 		);
+
 		if (!result.blockSessionTermination) {
 			return { terminated: Promise.resolve(undefined) };
 		}
@@ -398,6 +411,7 @@ export class Binder implements IDisposable {
 		const name = launcher.constructor.name;
 
 		let result: ILaunchResult;
+
 		try {
 			result = await launcher.launch(params, {
 				telemetryReporter: this._rootServices.get(ITelemetryReporter),
@@ -433,6 +447,7 @@ export class Binder implements IDisposable {
 
 	targetList(): ITarget[] {
 		const result: ITarget[] = [];
+
 		for (const delegate of this.getLaunchers()) {
 			result.push(...delegate.targetList());
 		}
@@ -446,15 +461,19 @@ export class Binder implements IDisposable {
 		}
 
 		const target = node.value;
+
 		if (!target.canAttach()) {
 			return;
 		}
 		const cdp = await target.attach();
+
 		if (!cdp) {
 			return;
 		}
 		const connection = await this._delegate.acquireDap(target);
+
 		const dap = connection.dap();
+
 		const launchParams = this._launchParams;
 
 		if (!this._asyncStackPolicy) {
@@ -464,9 +483,11 @@ export class Binder implements IDisposable {
 		}
 
 		const parentTarget = target.parent();
+
 		const parentContainer =
 			(parentTarget && this._serviceTree.get(parentTarget)) ||
 			this._rootServices;
+
 		const container = createTargetContainer(
 			parentContainer,
 			target,
@@ -482,10 +503,12 @@ export class Binder implements IDisposable {
 			launchParams,
 			container,
 		);
+
 		const thread = debugAdapter.createThread(cdp, target);
 
 		const isBlazor =
 			"inspectUri" in launchParams && !!launchParams.inspectUri;
+
 		if (isBlazor) {
 			this.attachDotnetDebuggerEvent(
 				cdp,
@@ -498,6 +521,7 @@ export class Binder implements IDisposable {
 			await debugAdapter.launchBlocker();
 			target.runIfWaitingForDebugger();
 			node.threadData.resolve({ thread, debugAdapter });
+
 			return {};
 		};
 
@@ -550,9 +574,11 @@ export class Binder implements IDisposable {
 			}
 
 			const parentTarget = target.parent();
+
 			const parent = parentTarget
 				? TreeNode.targetNodes.get(parentTarget)
 				: this._root;
+
 			if (!parent) {
 				throw new Error(
 					`Got target with unknown parent: ${target.name()}`,
@@ -575,6 +601,7 @@ export class Binder implements IDisposable {
 		const toRelease = [...this._root.all()].filter(
 			(n) => !targets.includes(n.value),
 		);
+
 		return Promise.all(
 			toRelease.map((n) =>
 				this._markTargetAsTerminated(n, terminateArgs),
@@ -591,10 +618,12 @@ export class Binder implements IDisposable {
 	) {
 		if (node.state >= TargetState.Terminating) {
 			await node.waitUntil(TargetState.Terminated);
+
 			return {};
 		}
 
 		node.state = TargetState.Terminating;
+
 		if (isTargetTreeNode(node)) {
 			const threadData = await node.threadData.promise;
 			await threadData.thread.dispose();
@@ -606,6 +635,7 @@ export class Binder implements IDisposable {
 
 		await node.waitUntilChildrenAre(TargetState.Terminated);
 		node.state = TargetState.Terminated;
+
 		return {};
 	}
 
@@ -628,6 +658,7 @@ export class Binder implements IDisposable {
 		}
 
 		await node.waitUntil(TargetState.Terminated);
+
 		return {};
 	}
 
@@ -659,6 +690,7 @@ export class Binder implements IDisposable {
 		queueMicrotask(() => this._delegate.releaseDap(node.value));
 
 		const parentTarget = node.value.parent();
+
 		const parentNode = parentTarget
 			? TreeNode.targetNodes.get(parentTarget)
 			: this._root;

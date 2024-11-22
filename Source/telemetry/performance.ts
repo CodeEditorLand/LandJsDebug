@@ -14,6 +14,7 @@ export const logPerf = async <T>(
 	metadata: object = {},
 ): Promise<T> => {
 	const start = Date.now();
+
 	try {
 		return await fn();
 	} finally {

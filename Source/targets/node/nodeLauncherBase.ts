@@ -165,6 +165,7 @@ export abstract class NodeLauncherBase<T extends AnyNodeConfiguration>
 		context: ILaunchContext,
 	): Promise<ILaunchResult> {
 		const resolved = this.resolveParams(params);
+
 		if (!resolved) {
 			return { blockSessionTermination: false };
 		}
@@ -174,7 +175,9 @@ export abstract class NodeLauncherBase<T extends AnyNodeConfiguration>
 		const { server, pipe } = await this._startServer(
 			context.telemetryReporter,
 		);
+
 		const logger = this.logger.forTarget();
+
 		const run = (this.run = {
 			server,
 			serverAddress: pipe,
@@ -188,6 +191,7 @@ export abstract class NodeLauncherBase<T extends AnyNodeConfiguration>
 		});
 
 		await this.launchProgram(run);
+
 		return { blockSessionTermination: true };
 	}
 
@@ -212,6 +216,7 @@ export abstract class NodeLauncherBase<T extends AnyNodeConfiguration>
 
 		// Clear the program so that termination logic doesn't run.
 		const program = this.program;
+
 		if (program) {
 			this.program = undefined;
 			await program.stop();
@@ -329,6 +334,7 @@ export abstract class NodeLauncherBase<T extends AnyNodeConfiguration>
 		additionalOptions?: Partial<IBootloaderInfo>,
 	) {
 		const baseEnv = this.getConfiguredEnvironment(params);
+
 		const bootloader = await this.bootloaderFile(params.cwd, binary);
 
 		const bootloaderInfo: IBootloaderInfo = {
@@ -363,11 +369,13 @@ export abstract class NodeLauncherBase<T extends AnyNodeConfiguration>
 		} as IBootloaderEnvironment;
 
 		const baseEnvOpts = baseEnv.lookup("NODE_OPTIONS");
+
 		if (baseEnvOpts) {
 			env.NODE_OPTIONS += ` ${baseEnvOpts} `;
 		}
 
 		const globalOpts = EnvironmentVars.processEnv().lookup("NODE_OPTIONS");
+
 		if (globalOpts) {
 			env.NODE_OPTIONS += ` ${globalOpts}`;
 		}
@@ -391,6 +399,7 @@ export abstract class NodeLauncherBase<T extends AnyNodeConfiguration>
 
 	protected async _startServer(telemetryReporter: ITelemetryReporter) {
 		const pipe = getRandomPipe();
+
 		const server = await new Promise<net.Server>((resolve, reject) => {
 			const s = net
 				.createServer((socket) =>
@@ -429,9 +438,11 @@ export abstract class NodeLauncherBase<T extends AnyNodeConfiguration>
 			telemetryReporter,
 			this.run.logger,
 		);
+
 		if (!this.run) {
 			// if we aren't running a session, discard the socket.
 			socket.destroy();
+
 			return;
 		}
 
@@ -464,6 +475,7 @@ export abstract class NodeLauncherBase<T extends AnyNodeConfiguration>
 	) {
 		cdp.NodeWorker.on("attachedToWorker", (evt) => {
 			const transport = new WorkerTransport(evt.sessionId, cdp);
+
 			const target = new NodeWorkerTarget(
 				parent.launchConfig,
 				{
@@ -514,11 +526,13 @@ export abstract class NodeLauncherBase<T extends AnyNodeConfiguration>
 		);
 
 		const cdp = connection.rootSession();
+
 		const { targetInfo } = await new Promise<Cdp.Target.TargetCreatedEvent>(
 			(f) => cdp.Target.on("targetCreated", f),
 		);
 
 		const cast = targetInfo as WatchdogTarget;
+
 		const portLease = this.portLeaseTracker.register(
 			cast.processInspectorPort,
 		);
@@ -558,19 +572,23 @@ export abstract class NodeLauncherBase<T extends AnyNodeConfiguration>
 
 		// 2. Try the tmpdir, if it's space-free.
 		const contents = `require(${JSON.stringify(targetPath)})`;
+
 		if (!os.tmpdir().includes(" ") || !cwd) {
 			const tmpPath = path.join(
 				os.tmpdir(),
 				"vscode-js-debug-bootloader.js",
 			);
 			await fs.promises.writeFile(tmpPath, contents);
+
 			return { interpolatedPath: tmpPath, dispose: () => undefined };
 		}
 
 		// 3. Worst case, write into the cwd. This is messy, but we have few options.
 		const nearFilename = ".vscode-js-debug-bootloader.js";
+
 		const nearPath = path.join(cwd, nearFilename);
 		await fs.promises.writeFile(nearPath, contents);
+
 		return {
 			interpolatedPath: `./${nearFilename}`,
 			dispose: () => fs.unlinkSync(nearPath),
@@ -604,6 +622,7 @@ export abstract class NodeLauncherBase<T extends AnyNodeConfiguration>
 					LogTag.RuntimeTarget,
 					"Undefined result getting telemetry",
 				);
+
 				return;
 			}
 
@@ -613,6 +632,7 @@ export abstract class NodeLauncherBase<T extends AnyNodeConfiguration>
 					"Process not yet defined, will retry",
 				);
 				await delay(50 * 2 ** retries);
+
 				continue;
 			}
 
@@ -636,6 +656,7 @@ function readEnvFile(file: string): { [key: string]: string } {
 	}
 
 	const buffer = stripBOM(fs.readFileSync(file, "utf8"));
+
 	const env = dotenv.parse(Buffer.from(buffer));
 
 	return env;

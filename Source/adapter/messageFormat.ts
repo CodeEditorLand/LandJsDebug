@@ -35,8 +35,11 @@ function tokenizeFormatString(
 
 	function addStringToken(str: string) {
 		if (!str) return;
+
 		const lastToken = tokens[tokens.length - 1];
+
 		if (lastToken?.type === "string") lastToken.value += str;
+
 		else tokens.push({ type: "string", value: str });
 	}
 
@@ -54,13 +57,17 @@ function tokenizeFormatString(
 	}
 
 	let textStart = 0;
+
 	let substitutionIndex = 0;
+
 	const re = new RegExp(
 		`%%|%(?:(\\d+)\\$)?(?:\\.(\\d*))?([${formatterNames.join("")}])`,
 		"g",
 	);
+
 	for (let match = re.exec(format); !!match; match = re.exec(format)) {
 		const matchStart = match.index;
+
 		if (matchStart > textStart)
 			addStringToken(format.substring(textStart, matchStart));
 
@@ -69,6 +76,7 @@ function tokenizeFormatString(
 		} else {
 			const [, substitionString, precisionString, specifierString] =
 				match;
+
 			if (substitionString && Number(substitionString) > 0) {
 				substitutionIndex = Number(substitionString) - 1;
 			}
@@ -81,6 +89,7 @@ function tokenizeFormatString(
 		textStart = matchStart + match[0].length;
 	}
 	addStringToken(format.substring(textStart));
+
 	return tokens;
 }
 
@@ -90,30 +99,41 @@ export function formatMessage<T>(
 	formatters: Formatters<T>,
 ): { result: string; usedAllSubs: boolean } {
 	const tokens = tokenizeFormatString(format, Array.from(formatters.keys()));
+
 	const usedSubstitutionIndexes = new Set<number>();
+
 	const defaultFormatter = formatters.get("");
+
 	if (!defaultFormatter) {
 		throw new Error("Expected to hav a default formatter");
 	}
 
 	const builder = new BudgetStringBuilder(maxMessageFormatLength);
+
 	let cssFormatApplied = false;
+
 	for (let i = 0; builder.checkBudget() && i < tokens.length; ++i) {
 		const token = tokens[i];
+
 		if (token.type === "string") {
 			builder.append(token.value);
+
 			continue;
 		}
 
 		const index = token.substitutionIndex;
+
 		if (index >= substitutions.length) {
 			// If there are not enough substitutions for the current substitutionIndex
 			// just output the format specifier literally and move on.
 			builder.append("%" + (token.precision || "") + token.specifier);
+
 			continue;
 		}
 		usedSubstitutionIndexes.add(index);
+
 		if (token.specifier === "c") cssFormatApplied = true;
+
 		const formatter = formatters.get(token.specifier) || defaultFormatter;
 		builder.append(
 			formatter(substitutions[index], {
@@ -129,6 +149,7 @@ export function formatMessage<T>(
 	for (let i = 0; builder.checkBudget() && i < substitutions.length; ++i) {
 		if (usedSubstitutionIndexes.has(i)) continue;
 		usedSubstitutionIndexes.add(i);
+
 		if (format || i) {
 			// either we are second argument or we had format.
 			builder.append(" ");
@@ -152,6 +173,7 @@ function escapeAnsiColor(colorString: string): number | undefined {
 	try {
 		// Color can parse hex and color names
 		const color = new Color(colorString);
+
 		return color.ansi256().object().ansi256;
 	} catch (ex) {
 		// Unable to parse Color
@@ -162,32 +184,47 @@ function escapeAnsiColor(colorString: string): number | undefined {
 
 export function formatCssAsAnsi(style: string): string {
 	const cssRegex = /\s*(.*?)\s*:\s*(.*?)\s*(?:;|$)/g;
+
 	let escapedSequence = "\x1b[0m";
+
 	let match = cssRegex.exec(style);
+
 	while (match !== null) {
 		if (match.length === 3) {
 			switch (match[1]) {
 				case "color":
 					const color = escapeAnsiColor(match[2]);
+
 					if (color) escapedSequence += `\x1b[38;5;${color}m`;
+
 					break;
+
 				case "background":
 				case "background-color":
 					const background = escapeAnsiColor(match[2]);
+
 					if (background)
 						escapedSequence += `\x1b[48;5;${background}m`;
+
 					break;
+
 				case "font-weight":
 					if (match[2] === "bold") escapedSequence += AnsiStyles.Bold;
+
 					break;
+
 				case "font-style":
 					if (match[2] === "italic")
 						escapedSequence += AnsiStyles.Italic;
+
 					break;
+
 				case "text-decoration":
 					if (match[2] === "underline")
 						escapedSequence += AnsiStyles.Underline;
+
 					break;
+
 				default:
 				// css not mapped, skip
 			}

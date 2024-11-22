@@ -109,6 +109,7 @@ export class TurboGlobStream<E> {
 				// start at 1, since 0 is 'bos'
 				for (let i = 1; i < m.tokens.length; ) {
 					let nextSlash = i + 1;
+
 					while (
 						nextSlash < m.tokens.length &&
 						m.tokens[nextSlash].type !== "slash"
@@ -117,6 +118,7 @@ export class TurboGlobStream<E> {
 					}
 
 					const first = m.tokens[i];
+
 					if (first.type === "globstar") {
 						tokens.push("**");
 					} else if (nextSlash === i + 1 && first.type === "text") {
@@ -139,8 +141,11 @@ export class TurboGlobStream<E> {
 
 				// base case of starting with a **, normally handled by `getDirectoryReadDescends`
 				const depths = tokens[0] === "**" ? [0, 1] : [0];
+
 				const cacheEntry = CacheTree.getPath(opts.cache, opts.cwd);
+
 				const ctx = { elements: tokens, seen: new Set<string>() };
+
 				return Promise.all(
 					depths.map((d) =>
 						this.readSomething(ctx, d, opts.cwd, [], cacheEntry),
@@ -169,16 +174,19 @@ export class TurboGlobStream<E> {
 		// Skip generic paths (we don't know if it's a file or not at this point)
 		// if we already visited that with the same token index state.
 		const seenKey = `${ti}:${path}`;
+
 		if (ctx.seen.has(seenKey)) {
 			return;
 		}
 		ctx.seen.add(seenKey);
 
 		let stat: Stats;
+
 		try {
 			stat = await this.stat(path);
 		} catch (error) {
 			this.errorEmitter.fire({ path, error });
+
 			return;
 		}
 
@@ -188,12 +196,15 @@ export class TurboGlobStream<E> {
 		}
 
 		const cd = cache.data;
+
 		if (cd && stat.mtimeMs === cd.mtime) {
 			// if the mtime of a directory is the same, there are have been no direct
 			// children added or removed.
 			if (cd.type === CachedType.Directory) {
 				const todo: unknown[] = [];
+
 				const entries = Object.entries(cache.children);
+
 				const siblings = entries
 					.filter(([, e]) => e.data?.type !== CachedType.Directory)
 					.map(([n]) => n);
@@ -253,6 +264,7 @@ export class TurboGlobStream<E> {
 		parentCache: CacheTree<IGlobCached<E>>,
 	) {
 		const child = parentCache.children[name];
+
 		if (this.alreadyProcessedFiles.has(child)) {
 			return false;
 		}
@@ -284,7 +296,9 @@ export class TurboGlobStream<E> {
 		cache: CacheTree<IGlobCached<E>>,
 	): unknown {
 		const nextPath = path + "/" + dirent.name;
+
 		const descends = this.getDirectoryReadDescends(ctx, ti, path, dirent);
+
 		if (descends === undefined) {
 			return;
 		}
@@ -292,6 +306,7 @@ export class TurboGlobStream<E> {
 		// note: intentionally making the child before the filter check, so it
 		// exists in the tree even if this current glob filters it out
 		const nextChild = CacheTree.getOrMakeChild(cache, dirent.name);
+
 		if (
 			dirent.type === CachedType.File &&
 			!this.applyFilterToFile(dirent.name, nextPath, cache)
@@ -335,11 +350,13 @@ export class TurboGlobStream<E> {
 		dirent: { name: string; type: CachedType },
 	): undefined | number | number[] {
 		const nextPath = path + "/" + dirent.name;
+
 		if (this.ignore.some((i) => i(nextPath))) {
 			return;
 		}
 
 		const isTerminal = ti === ctx.elements.length - 1;
+
 		const token = ctx.elements[ti];
 
 		if (token === "**") {
@@ -380,11 +397,14 @@ export class TurboGlobStream<E> {
 	) {
 		const platformPath =
 			sep === "/" ? path : path.replace(forwardSlashRe, sep);
+
 		let extracted: E;
+
 		try {
 			extracted = await this.processor(platformPath, { siblings, mtime });
 		} catch (error) {
 			this.errorEmitter.fire({ path: platformPath, error });
+
 			return;
 		}
 
@@ -400,21 +420,26 @@ export class TurboGlobStream<E> {
 		cache: CacheTree<IGlobCached<E>>,
 	) {
 		let files: Dirent[];
+
 		try {
 			files = await this.readdir(path);
 		} catch (error) {
 			this.errorEmitter.fire({ path, error });
+
 			return;
 		}
 
 		const todo: unknown[] = [];
+
 		const siblings = files.filter((f) => f.isFile()).map((f) => f.name);
+
 		for (const file of files) {
 			if (file.name.startsWith(".")) {
 				continue;
 			}
 
 			let type: CachedType;
+
 			if (file.isDirectory()) {
 				type = CachedType.Directory;
 			} else if (file.isFile()) {

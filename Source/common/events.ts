@@ -43,6 +43,7 @@ export class EventEmitter<T> implements IDisposable {
 		) => {
 			const data: ListenerData<T, ThisArg> = { listener, thisArg };
 			this._listeners.add(data);
+
 			const result = {
 				dispose: () => {
 					result.dispose = () => {
@@ -51,17 +52,23 @@ export class EventEmitter<T> implements IDisposable {
 					this._listeners.delete(data);
 				},
 			};
+
 			if (disposables) disposables.push(result);
+
 			return result;
 		};
 	}
 
 	fire(event: T): void {
 		const dispatch = !this._deliveryQueue;
+
 		if (!this._deliveryQueue) this._deliveryQueue = [];
+
 		for (const data of this._listeners)
 			this._deliveryQueue.push({ data, event });
+
 		if (!dispatch) return;
+
 		for (let index = 0; index < this._deliveryQueue.length; index++) {
 			const { data, event } = this._deliveryQueue[index];
 			data.listener.call(data.thisArg, event);
@@ -71,6 +78,7 @@ export class EventEmitter<T> implements IDisposable {
 
 	dispose() {
 		this._listeners.clear();
+
 		if (this._deliveryQueue) this._deliveryQueue = [];
 	}
 }
@@ -87,15 +95,18 @@ export class ListenerMap<K, V> {
 	 */
 	public listen(key: K, handler: (arg: V) => void): IDisposable {
 		let emitter = this.map.get(key);
+
 		if (!emitter) {
 			emitter = new EventEmitter<V>();
 			this.map.set(key, emitter);
 		}
 
 		const listener = emitter.event(handler);
+
 		return {
 			dispose: once(() => {
 				listener.dispose();
+
 				if (emitter?.size === 0) {
 					this.map.delete(key);
 				}

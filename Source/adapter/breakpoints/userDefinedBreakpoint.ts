@@ -82,6 +82,7 @@ export class UserDefinedBreakpoint extends Breakpoint {
 	 */
 	public async toDap(): Promise<Dap.Breakpoint> {
 		const location = this.enabled && this.getResolvedUiLocation();
+
 		if (location) {
 			return {
 				id: this.dapId,
@@ -126,6 +127,7 @@ export class UserDefinedBreakpoint extends Breakpoint {
 		) => ReadonlyArray<BreakpointCdpReference>,
 	) {
 		const previousLocation = this.getResolvedUiLocation();
+
 		super.updateCdpRefs(mutator);
 
 		if (this.getResolvedUiLocation() !== previousLocation) {

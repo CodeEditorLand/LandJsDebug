@@ -27,6 +27,7 @@ export async function debugNpmScript(
 	inFolder?: vscode.WorkspaceFolder | string,
 ) {
 	const scripts = await findScripts(inFolder ? [inFolder] : undefined);
+
 	if (!scripts) {
 		return; // cancelled
 	}
@@ -51,10 +52,13 @@ export async function debugNpmScript(
 	// For multi-root workspaces, prefix the script name with the workspace
 	// directory name so the user knows where it's coming from.
 	const multiDir = scripts.some((s) => s.directory !== scripts[0].directory);
+
 	const quickPick = vscode.window.createQuickPick<ScriptPickItem>();
 
 	let lastDir: string | undefined;
+
 	const items: ScriptPickItem[] = [];
+
 	for (const script of scripts) {
 		if (script.directory !== lastDir && multiDir) {
 			items.push({
@@ -142,6 +146,7 @@ export async function findScripts(
 		path: candidates[0].fsPath,
 		score: 0,
 	};
+
 	for (const { fsPath } of new Set(candidates)) {
 		// update this now, because we know it exists
 		editCandidate = updateEditCandidate(editCandidate, {
@@ -150,6 +155,7 @@ export async function findScripts(
 		});
 
 		let parsed: { scripts?: { [key: string]: string } };
+
 		try {
 			parsed = JSON.parse(await readfile(fsPath));
 		} catch (e) {
@@ -166,6 +172,7 @@ export async function findScripts(
 				path: undefined,
 				score: 3,
 			});
+
 			continue;
 		}
 
@@ -214,6 +221,7 @@ async function promptToOpen(
 	file: string,
 ) {
 	const openAction = l10n.t("Edit package.json");
+
 	if ((await vscode.window[method](message, openAction)) !== openAction) {
 		return;
 	}
@@ -223,16 +231,19 @@ async function promptToOpen(
 	if (fs.existsSync(file)) {
 		const document = await vscode.workspace.openTextDocument(file);
 		await vscode.window.showTextDocument(document);
+
 		return;
 	}
 
 	const document = await vscode.workspace.openTextDocument(
 		vscode.Uri.file(file).with({ scheme: "untitled" }),
 	);
+
 	const editor = await vscode.window.showTextDocument(document);
 	await editor.edit((e) =>
 		e.insert(new vscode.Position(0, 0), defaultPackageJsonContents),
 	);
+
 	const pos = new vscode.Position(2, 5);
 	editor.selection = new vscode.Selection(pos, pos);
 }

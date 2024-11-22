@@ -30,6 +30,7 @@ function pathExtensions(env: EnvironmentVars) {
 	}
 
 	const pathExts = env.lookup("PATHEXT");
+
 	return pathExts?.split(";") || [".exe"];
 }
 
@@ -42,6 +43,7 @@ export async function findInPath(
 	env: { [key: string]: string | null | undefined },
 ): Promise<string | undefined> {
 	let locator: string;
+
 	if (process.platform === "win32") {
 		const windir = env["WINDIR"] || "C:\\Windows";
 		locator = path.join(windir, "System32", "where.exe");
@@ -54,6 +56,7 @@ export async function findInPath(
 			const located = await execa(locator, [program], {
 				env: removeNulls(env),
 			});
+
 			const lines = located.stdout.split(/\r?\n/);
 
 			if (process.platform === "win32") {
@@ -64,6 +67,7 @@ export async function findInPath(
 
 				for (const candidate of lines) {
 					const ext = path.extname(candidate).toUpperCase();
+
 					if (ext && executableExtensions.includes(ext)) {
 						return candidate;
 					}
@@ -102,6 +106,7 @@ export async function findExecutable(
 	if (process.platform === "win32" && !path.extname(program)) {
 		for (const extension of pathExtensions(env)) {
 			const path = program + extension;
+
 			if (await existsInjected(fs, path)) {
 				return path;
 			}
@@ -164,6 +169,7 @@ export function properRelative(fromPath: string, toPath: string): string {
 }
 
 const splitRe = /\/|\\/;
+
 const fileUriPrefix = "file:///";
 
 const isWindowsFileUri = (aPath: string) =>
@@ -204,6 +210,7 @@ export function fixDriveLetterAndSlashes(
 	if (!aPath) return aPath;
 
 	aPath = fixDriveLetter(aPath, uppercaseDriveLetter);
+
 	if (isWindowsFileUri(aPath)) {
 		const prefixLen = fileUriPrefix.length;
 		aPath =
@@ -232,6 +239,7 @@ export function forceForwardSlashes(aUrl: string): string {
  */
 export const splitWithDriveLetter = (inputPath: string) => {
 	const parts = inputPath.split(path.sep);
+
 	if (/^[a-z]:$/i.test(parts[0])) {
 		parts[0] += path.sep;
 	}
@@ -244,6 +252,7 @@ export const splitWithDriveLetter = (inputPath: string) => {
  */
 export const isSubdirectoryOf = (parent: string, child: string) => {
 	const rel = path.relative(parent, child);
+
 	return rel.length && !path.isAbsolute(rel) && !rel.startsWith("..");
 };
 
@@ -252,6 +261,7 @@ export const isSubdirectoryOf = (parent: string, child: string) => {
  */
 export const isSubpathOrEqualTo = (parent: string, child: string) => {
 	const rel = path.relative(parent, child);
+
 	return !path.isAbsolute(rel) && !rel.startsWith("..");
 };
 

@@ -34,8 +34,11 @@ const revealLocation = async ({ line, column, source }: Dap.CallerLocation) => {
 	}
 
 	const uri = vscode.Uri.file(source.path);
+
 	const doc = await vscode.workspace.openTextDocument(uri);
+
 	const editor = await vscode.window.showTextDocument(doc);
+
 	const position = new vscode.Position(line - 1, column - 1);
 	editor.revealRange(new vscode.Range(position, position));
 	editor.selection = new vscode.Selection(position, position);
@@ -109,6 +112,7 @@ export class ExcludedCallersUI
 					}
 
 					const topOfStack = stack.stackFrames[0];
+
 					const caller = new ExcludedCaller(
 						{
 							name: context.frameName,
@@ -181,6 +185,7 @@ export class ExcludedCallersUI
 		}
 
 		const hasCallers = this.allCallers.size > 0;
+
 		if (hasCallers !== this.lastHadCallers) {
 			setContextKey(
 				vscode.commands,

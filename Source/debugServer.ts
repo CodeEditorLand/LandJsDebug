@@ -40,6 +40,7 @@ class Configurator {
 			const ids =
 				params.breakpoints?.map(() => ++this.lastBreakpointId) ?? [];
 			this._setBreakpointsParams.push({ params, ids });
+
 			const breakpoints = ids.map((id) => ({
 				id,
 				verified: false,
@@ -50,12 +51,14 @@ class Configurator {
 
 		dap.on("setExceptionBreakpoints", async (params) => {
 			this._setExceptionBreakpointsParams = params;
+
 			return {};
 		});
 
 		dap.on("setCustomBreakpoints", async (params) => {
 			this._customBreakpoints = params.ids;
 			this._xhrBreakpoints = params.xhr;
+
 			return {};
 		});
 
@@ -99,6 +102,7 @@ export function startDebugServer(
 				const services = createTopLevelSessionContainer(
 					createGlobalContainer({ storagePath, isVsCode: false }),
 				);
+
 				const binderDelegate: IBinderDelegate = {
 					async acquireDap(): Promise<DapConnection> {
 						// Note: we can make multi-session work through custom dap message:
@@ -112,6 +116,7 @@ export function startDebugServer(
 						debugAdapter: DebugAdapter,
 					): Promise<boolean> {
 						await configurator.configure(debugAdapter);
+
 						return true;
 					},
 
@@ -125,6 +130,7 @@ export function startDebugServer(
 					socket,
 					services.get(ILogger),
 				);
+
 				const connection = new DapConnection(
 					transport,
 					services.get(ILogger),
@@ -135,6 +141,7 @@ export function startDebugServer(
 					services,
 					new TargetOrigin("targetOrigin"),
 				);
+
 				const configurator = new Configurator(connection.dap());
 			})
 			.on("error", reject)

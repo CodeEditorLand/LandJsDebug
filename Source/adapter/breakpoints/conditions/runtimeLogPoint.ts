@@ -17,6 +17,7 @@ export class RuntimeLogPoint implements IBreakpointCondition {
 
 	public async shouldStayPaused(details: Cdp.Debugger.PausedEvent) {
 		await this.invoke({ callFrameId: details.callFrames[0].callFrameId });
+
 		return false;
 	}
 }

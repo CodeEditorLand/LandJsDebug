@@ -15,6 +15,7 @@ export const addHeader: (
 	key = key.toLowerCase();
 
 	const existing = options?.[key];
+
 	return {
 		...options,
 		[key]: existing
@@ -30,6 +31,7 @@ export const mergeOptions = (
 	from: Partial<OptionsOfTextResponseBody>,
 ) => {
 	const cast = into as Record<string, unknown>;
+
 	for (const [key, value] of Object.entries(from)) {
 		if (typeof value === "object" && !!value) {
 			cast[key] = Object.assign(

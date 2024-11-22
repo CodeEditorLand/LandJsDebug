@@ -33,6 +33,7 @@ export async function attachProcess() {
 	// We pick here, rather than just putting the command as the process ID, so
 	// that the cwd is set correctly in multi-root workspaces.
 	const processId = await pickProcess();
+
 	if (!processId) {
 		return;
 	}
@@ -71,7 +72,9 @@ export async function resolveProcessId(
 ) {
 	// we resolve Process Picker early (before VS Code) so that we can probe the process for its protocol
 	const processId = config.processId?.trim();
+
 	const result = processId && decodePidAndPort(processId);
+
 	if (!result || isNaN(result.pid)) {
 		throw new Error(
 			l10n.t(
@@ -90,6 +93,7 @@ export async function resolveProcessId(
 
 	if (setCwd) {
 		const inferredWd = await inferWorkingDirectory(fsUtils, result.pid);
+
 		if (inferredWd) {
 			config.cwd = inferredWd;
 		}
@@ -113,6 +117,7 @@ async function inferWorkingDirectory(
 		inferredWd,
 		"package.json",
 	);
+
 	if (!packageRoot) {
 		return inferredWd;
 	}
@@ -122,6 +127,7 @@ async function inferWorkingDirectory(
 	const parentWorkspaceFolder = vscode.workspace.getWorkspaceFolder(
 		vscode.Uri.file(inferredWd),
 	);
+
 	return !parentWorkspaceFolder ||
 		isSubdirectoryOf(parentWorkspaceFolder.uri.fsPath, packageRoot)
 		? packageRoot
@@ -135,6 +141,7 @@ async function inferWorkingDirectory(
 export async function pickProcess(): Promise<string | null> {
 	try {
 		const item = await listProcesses();
+
 		return item ? item.pidAndPort : null;
 	} catch (err) {
 		await vscode.window.showErrorMessage(
@@ -143,6 +150,7 @@ export async function pickProcess(): Promise<string | null> {
 				modal: true,
 			},
 		);
+
 		return null;
 	}
 }
@@ -151,13 +159,16 @@ export async function pickProcess(): Promise<string | null> {
 
 const encodePidAndPort = (processId: number, port?: number) =>
 	`${processId}:${port ?? ""}`;
+
 const decodePidAndPort = (encoded: string) => {
 	const [pid, port] = encoded.split(":");
+
 	return { pid: Number(pid), port: port ? Number(port) : undefined };
 };
 
 async function listProcesses(): Promise<IProcessItem | undefined> {
 	const nodeProcessPattern = /^(?:node|iojs)(?:$|\b)/i;
+
 	let seq = 0; // default sort key
 
 	const quickPick = vscode.window.createQuickPick<IProcessItem>();
@@ -168,6 +179,7 @@ async function listProcesses(): Promise<IProcessItem | undefined> {
 	quickPick.show();
 
 	let hasPicked = false;
+
 	const itemPromise = new Promise<IProcessItem | undefined>((resolve) => {
 		quickPick.onDidAccept(() => resolve(quickPick.selectedItems[0]));
 		quickPick.onDidHide(() => resolve(undefined));
@@ -188,7 +200,9 @@ async function listProcesses(): Promise<IProcessItem | undefined> {
 			}
 
 			const executableName = basename(leaf.command, ".exe");
+
 			const { port } = analyseArguments(leaf.args);
+
 			if (!port && !nodeProcessPattern.test(executableName)) {
 				return acc;
 			}
@@ -213,6 +227,7 @@ async function listProcesses(): Promise<IProcessItem | undefined> {
 			);
 			acc.splice(index === -1 ? acc.length : index, 0, newItem);
 			quickPick.items = acc;
+
 			return acc;
 		}, [])
 		.then(() => (quickPick.busy = false))
@@ -226,6 +241,7 @@ async function listProcesses(): Promise<IProcessItem | undefined> {
 	const item = await itemPromise;
 	hasPicked = true;
 	quickPick.dispose();
+
 	return item;
 }
 

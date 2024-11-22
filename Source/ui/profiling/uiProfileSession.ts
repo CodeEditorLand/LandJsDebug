@@ -143,6 +143,7 @@ export class UiProfileSession implements IDisposable {
 	public onStateUpdate(update: Dap.ProfilerStateUpdateEventParams) {
 		if (update.running) {
 			this.setStatus(Category.Adapter, update.label);
+
 			return;
 		}
 

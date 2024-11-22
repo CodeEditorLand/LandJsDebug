@@ -25,6 +25,7 @@ export namespace CacheTree {
 	 */
 	export function getPath<T>(node: CacheTree<T>, directory: string) {
 		node[touched] = 1;
+
 		return _getDir(node, splitDir(directory), 0);
 	}
 
@@ -51,6 +52,7 @@ export namespace CacheTree {
 	): CacheTree<T> {
 		const child = (node.children[name] ??= { children: {} });
 		child[touched] = 1;
+
 		return child;
 	}
 
@@ -66,9 +68,12 @@ export namespace CacheTree {
 			switch (child[touched]) {
 				case 1:
 					prune(child);
+
 					break;
+
 				case 2:
 					break;
+
 				default:
 					delete node.children[name];
 			}
@@ -79,6 +84,7 @@ export namespace CacheTree {
 
 	function splitDir(dir: string) {
 		const parts = dir.split(/\/|\\/);
+
 		if (parts[0] === "") {
 			parts.unshift();
 		}
@@ -92,6 +98,7 @@ export namespace CacheTree {
 		i: number,
 	): CacheTree<T> {
 		const child = getOrMakeChild(node, parts[i]);
+
 		if (i === parts.length - 1) {
 			return child;
 		}

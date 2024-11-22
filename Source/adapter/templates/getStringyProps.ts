@@ -38,7 +38,9 @@ export const getStringyProps = templateFunction(function (
 	customToString: (defaultRepr: string) => unknown,
 ) {
 	const out: Record<string, string> = {};
+
 	const defaultPlaceholder = "<<default preview>>";
+
 	if (typeof this !== "object" || !this) {
 		return out;
 	}
@@ -47,25 +49,30 @@ export const getStringyProps = templateFunction(function (
 		if (customToString) {
 			try {
 				const repr = customToString.call(value, defaultPlaceholder);
+
 				if (repr !== defaultPlaceholder) {
 					out[key] = String(repr);
+
 					continue;
 				}
 			} catch (e) {
 				out[key] =
 					`<<indescribable>>${JSON.stringify([String(e), key])}`;
+
 				continue;
 			}
 		}
 
 		if (typeof value === "object" && value) {
 			let str: string | undefined;
+
 			for (const sym of runtimeArgs[0]) {
 				if (typeof value[sym] !== "function") {
 					continue;
 				}
 				try {
 					str = value[sym](DescriptionSymbols.Depth);
+
 					break;
 				} catch {
 					// ignored
@@ -96,7 +103,9 @@ export const getToStringIfCustom = templateFunction(function (
 	if (customToString) {
 		try {
 			const defaultPlaceholder = "<<default preview>>";
+
 			const repr = customToString.call(this, defaultPlaceholder);
+
 			if (repr !== defaultPlaceholder) {
 				return String(repr);
 			}
@@ -107,6 +116,7 @@ export const getToStringIfCustom = templateFunction(function (
 
 	if (typeof this === "object" && this) {
 		let str: string | undefined;
+
 		for (const sym of [
 			Symbol.for(DescriptionSymbols.Generic),
 			Symbol.for(DescriptionSymbols.Node),
@@ -122,6 +132,7 @@ export const getToStringIfCustom = templateFunction(function (
 				str = (this as Record<symbol, (depth?: number) => string>)[sym](
 					DescriptionSymbols.Depth,
 				);
+
 				break;
 			} catch {
 				// ignored

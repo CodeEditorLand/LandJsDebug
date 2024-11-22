@@ -19,6 +19,7 @@ export const enumerateProperties = remoteFunction(function (
 	const defaultType = isGlobal
 		? CompletionKind.Variable
 		: CompletionKind.Property;
+
 	const getCompletionKind = (
 		name: string,
 		dtype: string | undefined,
@@ -37,6 +38,7 @@ export const enumerateProperties = remoteFunction(function (
 		// No, there's not really a better way to do this.
 		// https://stackoverflow.com/questions/30758961/how-to-check-if-a-variable-is-an-es6-class-declaration
 		const stringified = String(value);
+
 		if (
 			stringified.startsWith("class ") ||
 			(stringified.includes("[native code]") && /^[A-Z]/.test(name))
@@ -52,25 +54,32 @@ export const enumerateProperties = remoteFunction(function (
 			case "number":
 			case "boolean":
 				return `${value}`;
+
 			case "object":
 				return value === null
 					? "null"
 					: value.constructor.name || "object";
+
 			case "function":
 				return `fn(${new Array(value.length).fill("?").join(", ")})`;
+
 			default:
 				return typeof value;
 		}
 	};
 
 	const result: ICompletionWithSort[] = [];
+
 	const discovered = new Set<string>();
+
 	let sortPrefix = "~";
 
 	// eslint-disable-next-line @typescript-eslint/no-this-alias
 	let object = target === undefined ? this : target;
+
 	for (; object != null; object = (object as any).__proto__) {
 		sortPrefix += "~";
+
 		const props = Object.getOwnPropertyNames(object).filter(
 			(l) => l.startsWith(prefix) && !l.match(/^\d+$/),
 		);
@@ -81,9 +90,13 @@ export const enumerateProperties = remoteFunction(function (
 			}
 
 			discovered.add(name);
+
 			const descriptor = Object.getOwnPropertyDescriptor(object, name);
+
 			let type = defaultType;
+
 			let detail: string | undefined;
+
 			try {
 				const value = (object as any)[name];
 				type = getCompletionKind(name, typeof descriptor?.value, value);

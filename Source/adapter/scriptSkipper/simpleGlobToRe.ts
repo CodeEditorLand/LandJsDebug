@@ -19,12 +19,15 @@ export function simpleGlobsToRe(
 	processPart = escapeRegexSpecialChars,
 ) {
 	const res: string[] = [];
+
 	for (let i = 0; i < globs.length; i++) {
 		const g = globs[i];
+
 		if (g.startsWith("!")) {
 			// Add each negation as a negative lookahead. This is not the fastest for
 			// regex engines to compute, but is far faster than previous approaches...
 			const re = globToRe(g.slice(1), processPart);
+
 			for (let i = 0; i < res.length; i++) {
 				res[i] = `^(?!${re.slice(1)})${res[i].slice(1)}`;
 			}
@@ -42,9 +45,12 @@ export function simpleGlobsToRe(
  */
 function globToRe(glob: string, processPart = escapeRegexSpecialChars) {
 	const parts = glob.split("/");
+
 	const regexParts = [];
+
 	for (let j = 0; j < parts.length; j++) {
 		const p = parts[j];
+
 		if (p === "**") {
 			if (j === 0) {
 				regexParts.push("(.+/)?"); // match start, or any slash preceeding what's next...

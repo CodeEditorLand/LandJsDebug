@@ -134,6 +134,7 @@ export type RenamePrepareOptions = {
 export type LocationEvaluateOptions = {
 	source: Source;
 	position: IPosition;
+
 	variables: VariableStore;
 };
 
@@ -196,6 +197,7 @@ export class Evaluator implements IEvaluator {
 		// evalute the expression and unhoist it from the globals.
 		const toHoist = new Map<string, string>();
 		toHoist.set(returnValueStr, makeHoistedName());
+
 		for (const key of hoist ?? []) {
 			toHoist.set(key, makeHoistedName());
 		}
@@ -205,6 +207,7 @@ export class Evaluator implements IEvaluator {
 			toHoist,
 			renames,
 		);
+
 		if (!hoisted.size) {
 			return {
 				canEvaluateDirectly: true,
@@ -268,8 +271,11 @@ export class Evaluator implements IEvaluator {
 		}
 
 		const prepareOptions: IPrepareOptions | undefined = { ...options };
+
 		const { location, stackFrame } = options;
+
 		let hoist: PreparedHoistFn | undefined;
+
 		if (location) {
 			await Promise.all([
 				// 1. Get the rename mapping at the desired position
@@ -323,12 +329,14 @@ export class Evaluator implements IEvaluator {
 		}
 
 		const objectId = object?.objectId;
+
 		const dehoist = `setTimeout(() => { delete globalThis.${hoistedVar} }, 0)`;
 
 		let r:
 			| Cdp.Runtime.CallFunctionOnResult
 			| Cdp.Runtime.EvaluateResult
 			| undefined;
+
 		if (objectId) {
 			r = await this.cdp.Runtime.callFunctionOn({
 				objectId,
@@ -372,6 +380,7 @@ export class Evaluator implements IEvaluator {
 				).contains(position) &&
 				(await source.equalsDap(s.source)),
 		);
+
 		if (scopeIndex === -1) {
 			return;
 		}
@@ -387,6 +396,7 @@ export class Evaluator implements IEvaluator {
 				const vars = await variables.getVariableNames({
 					variablesReference: s.variablesReference,
 				});
+
 				for (const { name } of vars) {
 					hoistable.add(name);
 				}
@@ -398,6 +408,7 @@ export class Evaluator implements IEvaluator {
 				const vars = await variables.getVariableNames({
 					variablesReference: scopes[i].variablesReference,
 				});
+
 				return vars.find((v) => v.name === variable)?.remoteObject;
 			}
 		};
@@ -415,6 +426,7 @@ export class Evaluator implements IEvaluator {
 		renames: RenamePrepareOptions | undefined,
 	): { hoisted: Set<string>; transformed: string } {
 		const hoisted = new Set<string>();
+
 		let mutated = false;
 
 		const replacement = (
@@ -438,10 +450,13 @@ export class Evaluator implements IEvaluator {
 		});
 
 		const parents: Node[] = [];
+
 		const program = parseProgram(expr);
+
 		const transformed = replace(program, {
 			enter(node, parent) {
 				const asAcorn = node as AcornNode;
+
 				if (
 					node.type !== "Identifier" ||
 					expr[asAcorn.start - 1] === "."
@@ -450,9 +465,11 @@ export class Evaluator implements IEvaluator {
 				}
 
 				const hoistName = hoistMap.get(node.name);
+
 				if (hoistName) {
 					hoisted.add(node.name);
 					mutated = true;
+
 					return {
 						replace: isInPatternSlot(node, parent)
 							? { type: "Identifier", name: hoistName }
@@ -464,8 +481,10 @@ export class Evaluator implements IEvaluator {
 					node.name,
 					renames.position,
 				);
+
 				if (cname) {
 					mutated = true;
+
 					return {
 						replace: isInPatternSlot(node, parent)
 							? { type: "Identifier", name: cname }
@@ -486,6 +505,7 @@ export class Evaluator implements IEvaluator {
 		// see https://github.com/microsoft/vscode-js-debug/issues/1259#issuecomment-1442584596
 		const stmtsEnd = (program.body[program.body.length - 1] as AcornNode)
 			.end;
+
 		return {
 			hoisted,
 			transformed: generate(transformed) + expr.slice(stmtsEnd),

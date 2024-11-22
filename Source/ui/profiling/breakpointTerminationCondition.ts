@@ -63,6 +63,7 @@ export class BreakpointTerminationConditionFactory
 				}
 
 				const location = active[0].location;
+
 				const document = await vscode.workspace.openTextDocument(
 					location.uri,
 				);
@@ -79,9 +80,11 @@ export class BreakpointTerminationConditionFactory
 				const codeBps = vscode.debug.breakpoints.filter(
 					(bp) => bp.enabled && bp instanceof vscode.SourceBreakpoint,
 				);
+
 				const dapBps = await Promise.all(
 					codeBps.map((bp) => session.getDebugProtocolBreakpoint(bp)),
 				);
+
 				const candidates = await this.getCandidates(
 					dapBps as (Dap.Breakpoint | undefined)[],
 					codeBps as vscode.SourceBreakpoint[],
@@ -100,6 +103,7 @@ export class BreakpointTerminationConditionFactory
 		}
 
 		await this.warnSlowCode();
+
 		return new BreakpointTerminationCondition(
 			chosen.map((c) => Number(c.id)),
 		);
@@ -133,17 +137,21 @@ export class BreakpointTerminationConditionFactory
 			codeBps.map(
 				async (codeBp, i): Promise<BreakpointPickItem | undefined> => {
 					const dapBp = dapBps[i];
+
 					if (!dapBp || !dapBp.id) {
 						return; // does not apply to this session
 					}
 
 					const location = codeBp.location;
+
 					const folder = vscode.workspace.getWorkspaceFolder(
 						location.uri,
 					);
+
 					const labelPath = folder
 						? path.relative(folder.uri.fsPath, location.uri.fsPath)
 						: location.uri.fsPath;
+
 					const lines = await getLines(location.uri.fsPath);
 
 					return {
@@ -162,6 +170,7 @@ export class BreakpointTerminationConditionFactory
 	private async getFileLines(path: string): Promise<string[] | undefined> {
 		try {
 			const contents = await this.fs.readFile(path, "utf-8");
+
 			return contents.split("\n");
 		} catch {
 			return undefined;

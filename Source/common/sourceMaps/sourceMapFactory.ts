@@ -142,6 +142,7 @@ export class RootSourceMapFactory implements IRootSourceMapFactory {
 		// This would prevent us from being able to see that it's actually in
 		// a parent directory, so we make the sourceRoot empty but show it here.
 		let actualRoot: string | undefined;
+
 		if ("sourceRoot" in basic) {
 			actualRoot = basic.sourceRoot;
 			basic.sourceRoot = undefined;
@@ -153,9 +154,12 @@ export class RootSourceMapFactory implements IRootSourceMapFactory {
 		// preserve them in the same way. Then, rename the sources to prevent any
 		// of their names colliding (e.g. "webpack://./index.js" and "webpack://../index.js")
 		let actualSources: (string | null)[] = [];
+
 		if ("sections" in basic) {
 			actualSources = [];
+
 			let i = 0;
+
 			for (const section of basic.sections) {
 				const map = section.map as EncodedSourceMap;
 				actualSources.push(...map.sources);
@@ -182,6 +186,7 @@ export class RootSourceMapFactory implements IRootSourceMapFactory {
 		sourceMapUrl: string,
 	): Promise<AnySourceMap> {
 		let sm: UnresolvedSourceMap | undefined;
+
 		try {
 			sm = await this.parseSourceMapDirect(
 				resourceProvider,
@@ -192,6 +197,7 @@ export class RootSourceMapFactory implements IRootSourceMapFactory {
 				resourceProvider,
 				sourceMapUrl,
 			);
+
 			if (!sm) {
 				throw e;
 			}
@@ -208,6 +214,7 @@ export class RootSourceMapFactory implements IRootSourceMapFactory {
 										LogTag.SourceMapParsing,
 										`Error parsing nested map ${i}: ${e}`,
 									);
+
 									return undefined;
 								})
 						: s,
@@ -231,6 +238,7 @@ export class RootSourceMapFactory implements IRootSourceMapFactory {
 		const localSourceMapUrl = await this.pathResolve.urlToAbsolutePath({
 			url,
 		});
+
 		if (!localSourceMapUrl) return;
 
 		try {
@@ -290,6 +298,7 @@ export class RootSourceMapFactory implements IRootSourceMapFactory {
 		sourceMapUrl: string,
 	): Promise<UnresolvedSourceMap> {
 		let absolutePath = fileUrlToAbsolutePath(sourceMapUrl);
+
 		if (absolutePath) {
 			absolutePath = this.pathResolve.rebaseRemoteToLocal(absolutePath);
 		}
@@ -297,11 +306,13 @@ export class RootSourceMapFactory implements IRootSourceMapFactory {
 		const content = await resourceProvider.fetch(
 			absolutePath || sourceMapUrl,
 		);
+
 		if (!content.ok) {
 			throw content.error;
 		}
 
 		let body = content.body;
+
 		if (body.slice(0, 3) === ")]}") {
 			body = body.substring(body.indexOf("\n"));
 		}
@@ -333,11 +344,13 @@ export class CachingSourceMapFactory extends RootSourceMapFactory {
 		metadata: ISourceMapMetadata,
 	): Promise<SourceMap> {
 		const existing = this.knownMaps.get(metadata.sourceMapUrl);
+
 		if (!existing) {
 			return this.loadNewSourceMap(resourceProvider, metadata);
 		}
 
 		const curKey = metadata.cacheKey;
+
 		const prevKey = existing.metadata.cacheKey;
 		// If asked to reload, do so if either map is missing a mtime, or they aren't the same
 		if (existing.reloadIfNoMtime) {
@@ -345,6 +358,7 @@ export class CachingSourceMapFactory extends RootSourceMapFactory {
 				return this.loadNewSourceMap(resourceProvider, metadata);
 			} else {
 				existing.reloadIfNoMtime = false;
+
 				return existing.prom;
 			}
 		}
@@ -367,6 +381,7 @@ export class CachingSourceMapFactory extends RootSourceMapFactory {
 			reloadIfNoMtime: false,
 			prom: created,
 		});
+
 		return created;
 	}
 

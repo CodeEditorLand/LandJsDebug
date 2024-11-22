@@ -36,6 +36,7 @@ export class QueryObjectsMessage implements IConsoleMessage {
 		await this.cdp.Runtime.releaseObject({
 			objectId: this.protoObj.objectId,
 		});
+
 		if (!response) {
 			return {
 				category: "stderr",
@@ -44,6 +45,7 @@ export class QueryObjectsMessage implements IConsoleMessage {
 		}
 
 		let withPreview: Cdp.Runtime.RemoteObject;
+
 		try {
 			withPreview = await previewThis({
 				cdp: this.cdp,
@@ -63,6 +65,7 @@ export class QueryObjectsMessage implements IConsoleMessage {
 			"\x1b[32mobjects: " +
 			previewRemoteObject(withPreview, "repl") +
 			"\x1b[0m";
+
 		const variablesReference = thread.replVariables.createVariableForOutput(
 			text,
 			[withPreview],

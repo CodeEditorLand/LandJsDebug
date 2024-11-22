@@ -108,7 +108,9 @@ export class UiProfileManager implements IDisposable {
 				}
 
 				const args = event.body as Dap.ProfileStartedEventParams;
+
 				let session = this.activeSessions.get(event.session.id);
+
 				if (!session) {
 					session = new UiProfileSession(
 						event.session,
@@ -130,9 +132,11 @@ export class UiProfileManager implements IDisposable {
 	 */
 	public async start(args: IStartProfileArguments) {
 		let maybeSession: vscode.DebugSession | undefined;
+
 		const candidates = [...this.tracker.getConcreteSessions()].filter(
 			isProfileCandidate,
 		);
+
 		if (args.sessionId) {
 			maybeSession = candidates.find((s) => s.id === args.sessionId);
 		} else {
@@ -144,7 +148,9 @@ export class UiProfileManager implements IDisposable {
 		}
 
 		const session = maybeSession;
+
 		const existing = this.activeSessions.get(session.id);
+
 		if (existing) {
 			if (!(await this.alreadyRunningSession(existing))) {
 				return;
@@ -152,19 +158,23 @@ export class UiProfileManager implements IDisposable {
 		}
 
 		const impl = await this.pickType(session, args.type);
+
 		if (!impl) {
 			return;
 		}
 
 		let termination: ITerminationCondition | undefined;
+
 		if (!impl.instant) {
 			termination = await this.pickTermination(session, args.termination);
+
 			if (!termination) {
 				return;
 			}
 		}
 
 		const uiSession = new UiProfileSession(session, impl, termination);
+
 		if (!uiSession) {
 			return;
 		}
@@ -182,6 +192,7 @@ export class UiProfileManager implements IDisposable {
 	 */
 	public async stop(sessionId?: string) {
 		let uiSession: UiProfileSession | undefined;
+
 		if (sessionId) {
 			uiSession = this.activeSessions.get(sessionId);
 		} else {
@@ -280,7 +291,9 @@ export class UiProfileManager implements IDisposable {
 	private updateStatusBar() {
 		if (this.activeSessions.size === 0) {
 			this.statusBarItem?.hide();
+
 			setContextKey(vscode.commands, ContextKey.IsProfiling, false);
+
 			return;
 		}
 
@@ -295,6 +308,7 @@ export class UiProfileManager implements IDisposable {
 		setContextKey(vscode.commands, ContextKey.IsProfiling, true);
 
 		const session = iteratorFirst(this.activeSessions.values());
+
 		if (session && this.activeSessions.size === 1) {
 			this.statusBarItem.text = session.status
 				? l10n.t(
@@ -320,7 +334,9 @@ export class UiProfileManager implements IDisposable {
 	 */
 	private async alreadyRunningSession(existing: UiProfileSession) {
 		const yes = l10n.t("Yes");
+
 		const no = l10n.t("No");
+
 		const stopExisting = await vscode.window.showErrorMessage(
 			l10n.t(
 				"A profiling session is already running, would you like to stop it and start a new session?",
@@ -334,6 +350,7 @@ export class UiProfileManager implements IDisposable {
 		}
 
 		await this.stop(existing.session.id);
+
 		return true;
 	}
 
@@ -352,6 +369,7 @@ export class UiProfileManager implements IDisposable {
 		const chosen = await vscode.window.showQuickPick(
 			candidates.map((c) => ({ label: c.name, id: c.id })),
 		);
+
 		return chosen && candidates.find((c) => c.id === chosen.id);
 	}
 
@@ -363,6 +381,7 @@ export class UiProfileManager implements IDisposable {
 		suggestedType?: string,
 	) {
 		const params = session.configuration as AnyLaunchConfiguration;
+
 		if (suggestedType) {
 			return ProfilerFactory.ctors.find(
 				(t) => t.type === suggestedType && t.canApplyTo(params),
@@ -374,6 +393,7 @@ export class UiProfileManager implements IDisposable {
 			ProfilerFactory.ctors.filter((ctor) => ctor.canApplyTo(params)),
 			this.lastChosenType,
 		);
+
 		if (chosen) {
 			this.lastChosenType = chosen.label;
 		}
@@ -391,6 +411,7 @@ export class UiProfileManager implements IDisposable {
 		if (suggested) {
 			const s =
 				typeof suggested === "string" ? { type: suggested } : suggested;
+
 			return this.terminationConditions
 				.find((t) => t.id === s.type)
 				?.onPick(session, ...(s.args ?? []));
@@ -401,6 +422,7 @@ export class UiProfileManager implements IDisposable {
 			this.terminationConditions,
 			this.lastChosenTermination,
 		);
+
 		if (chosen) {
 			this.lastChosenTermination = chosen.label;
 		}

@@ -62,6 +62,7 @@ export type HashResponse<T extends HashRequest> = T extends {
 const nodePrefix = Buffer.from(
 	"(function (exports, require, module, __filename, __dirname) { ",
 );
+
 const nodeSuffix = Buffer.from("\n});");
 
 /**
@@ -74,6 +75,7 @@ const electronPrefix = Buffer.from(
 	"(function (exports, require, module, __filename, __dirname, process, global, Buffer) { " +
 		"return function (exports, require, module, __filename, __dirname) { ",
 );
+
 const electronSuffix = Buffer.from(
 	"\n}.call(this, exports, require, module, __filename, __dirname); });",
 );
@@ -84,6 +86,7 @@ const electronSuffix = Buffer.from(
 const shebangPrefix = Buffer.from("#!");
 
 const CR = Buffer.from("\r")[0];
+
 const LF = Buffer.from("\n")[0];
 
 const hasPrefix = (buf: Buffer, prefix: Buffer) =>
@@ -91,6 +94,7 @@ const hasPrefix = (buf: Buffer, prefix: Buffer) =>
 
 const verifyBytes = (bytes: Buffer, expected: string, checkNode: boolean) => {
 	const hashFn = expected.length === 64 ? shaHash : hash;
+
 	if (hashFn(bytes) === expected) {
 		return true;
 	}
@@ -98,6 +102,7 @@ const verifyBytes = (bytes: Buffer, expected: string, checkNode: boolean) => {
 	if (checkNode) {
 		if (hasPrefix(bytes, shebangPrefix)) {
 			let end = bytes.indexOf(LF);
+
 			if (bytes[end - 1] === CR) {
 				// CRLF
 				end--;
@@ -134,6 +139,7 @@ async function handle(
 		case MessageType.HashFile:
 			try {
 				const data = await fs.readFile(message.file);
+
 				return {
 					id: message.id,
 					hash:
@@ -153,6 +159,7 @@ async function handle(
 		case MessageType.VerifyFile:
 			try {
 				const data = await fs.readFile(message.file);
+
 				return {
 					id: message.id,
 					matches: verifyBytes(

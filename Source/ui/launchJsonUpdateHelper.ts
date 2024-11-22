@@ -23,9 +23,12 @@ export abstract class LaunchJsonUpdaterHelper {
 		position: vscode.Position,
 	): Promise<void> {
 		const activeTextEditor = vscode.window.activeTextEditor;
+
 		if (activeTextEditor && activeTextEditor.document === document) {
 			const folder = vscode.workspace.getWorkspaceFolder(document.uri);
+
 			const config = await this.getLaunchConfig(folder);
+
 			if (config) {
 				await LaunchJsonUpdaterHelper.insertDebugConfiguration(
 					document,
@@ -59,6 +62,7 @@ export abstract class LaunchJsonUpdaterHelper {
 				document,
 				position,
 			);
+
 		if (!cursorPosition) {
 			return;
 		}
@@ -69,11 +73,13 @@ export abstract class LaunchJsonUpdaterHelper {
 			)
 				? "BeforeCursor"
 				: undefined;
+
 		const formattedJson = LaunchJsonUpdaterHelper.getTextForInsertion(
 			config,
 			cursorPosition,
 			commaPosition,
 		);
+
 		const workspaceEdit = new vscode.WorkspaceEdit();
 		workspaceEdit.insert(document.uri, position, formattedJson);
 		await vscode.workspace.applyEdit(workspaceEdit);
@@ -99,6 +105,7 @@ export abstract class LaunchJsonUpdaterHelper {
 		commaPosition?: PositionOfComma,
 	): string {
 		const json = JSON.stringify(config);
+
 		if (cursorPosition === "AfterItem") {
 			// If we already have a comma immediately before the cursor, then no need of adding a comma.
 			return commaPosition === "BeforeCursor" ? json : `,${json}`;
@@ -118,7 +125,9 @@ export abstract class LaunchJsonUpdaterHelper {
 		}
 		const scanner = createScanner(document.getText(), true);
 		scanner.setPosition(document.offsetAt(position));
+
 		const nextToken = scanner.scan();
+
 		if (
 			nextToken === SyntaxKind.CommaToken ||
 			nextToken === SyntaxKind.CloseBracketToken
@@ -140,6 +149,7 @@ export abstract class LaunchJsonUpdaterHelper {
 		}) as {
 			configurations: [];
 		};
+
 		return (
 			!configuration ||
 			!Array.isArray(configuration.configurations) ||
@@ -156,6 +166,7 @@ export abstract class LaunchJsonUpdaterHelper {
 		const currentLine = document.getText(
 			new vscode.Range(line.range.start, position),
 		);
+
 		if (currentLine.trim().endsWith(",")) {
 			return true;
 		}
@@ -166,8 +177,10 @@ export abstract class LaunchJsonUpdaterHelper {
 
 		// Keep walking backwards until we hit a non-comma character or a comm character.
 		let startLineNumber = position.line - 1;
+
 		while (startLineNumber > 0) {
 			const lineText = document.lineAt(startLineNumber).text;
+
 			if (lineText.trim().endsWith(",")) {
 				return true;
 			}

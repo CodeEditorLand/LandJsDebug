@@ -66,6 +66,7 @@ export class NodeConfigurationResolver extends BaseConfigurationResolver<AnyNode
 		rawConfig: vscode.DebugConfiguration,
 	): Promise<vscode.DebugConfiguration | undefined> {
 		const config = rawConfig as AnyNodeConfiguration;
+
 		if (
 			config.type === DebugType.Node &&
 			config.request === "attach" &&
@@ -87,6 +88,7 @@ export class NodeConfigurationResolver extends BaseConfigurationResolver<AnyNode
 		// check that the cwd is valid to avoid mysterious ENOENTs (vscode#133310)
 		if (config.cwd) {
 			const stats = await existsInjected(fs, config.cwd);
+
 			if (!stats) {
 				vscode.window.showErrorMessage(
 					l10n.t(
@@ -95,6 +97,7 @@ export class NodeConfigurationResolver extends BaseConfigurationResolver<AnyNode
 					),
 					{ modal: true },
 				);
+
 				return;
 			}
 
@@ -106,6 +109,7 @@ export class NodeConfigurationResolver extends BaseConfigurationResolver<AnyNode
 					),
 					{ modal: true },
 				);
+
 				return;
 			}
 		}
@@ -123,6 +127,7 @@ export class NodeConfigurationResolver extends BaseConfigurationResolver<AnyNode
 	): Promise<AnyNodeConfiguration | undefined> {
 		if (!config.name && !config.type && !config.request) {
 			config = await createLaunchConfigFromContext(folder, true, config);
+
 			if (config.request === "launch" && !config.program) {
 				vscode.window.showErrorMessage(
 					l10n.t("Cannot find a program to debug"),
@@ -130,6 +135,7 @@ export class NodeConfigurationResolver extends BaseConfigurationResolver<AnyNode
 						modal: true,
 					},
 				);
+
 				return;
 			}
 		}
@@ -170,6 +176,7 @@ export class NodeConfigurationResolver extends BaseConfigurationResolver<AnyNode
 						`--inspect-brk=127.0.0.1:${port}`,
 						"--allow-all",
 					];
+
 					if (!config.runtimeArgs) {
 						config.runtimeArgs = ["run", ...runtimeArgs];
 					} else if (!config.runtimeArgs.includes("run")) {
@@ -189,6 +196,7 @@ export class NodeConfigurationResolver extends BaseConfigurationResolver<AnyNode
 
 			// nvm support
 			const nvmVersion = config.runtimeVersion;
+
 			if (typeof nvmVersion === "string" && nvmVersion !== "default") {
 				const { directory, binary } =
 					await this.nvmResolver.resolveNvmVersionPath(nvmVersion);
@@ -225,6 +233,7 @@ export class NodeConfigurationResolver extends BaseConfigurationResolver<AnyNode
 						undefined,
 						cancellationToken,
 					);
+
 					const arg = `--inspect-brk=${config.attachSimplePort}`;
 					config.runtimeArgs = config.runtimeArgs
 						? [...config.runtimeArgs, arg]
@@ -335,8 +344,10 @@ async function guessOutFiles(
 	}
 
 	let programLocation: string | undefined;
+
 	if (config.program) {
 		programLocation = getAbsoluteLocation(folder, config.program);
+
 		if (programLocation) {
 			programLocation = path.dirname(programLocation);
 		}
@@ -360,6 +371,7 @@ async function guessOutFiles(
 
 	if (root) {
 		const rel = forceForwardSlashes(path.relative(folder.uri.fsPath, root));
+
 		if (rel.length) {
 			config.outFiles = [
 				...baseDefaults.outFiles,
@@ -401,7 +413,9 @@ export async function createLaunchConfigFromContext(
 	}
 
 	const pkg = await loadJSON<IPartialPackageJson>(folder, "package.json");
+
 	let program: string | undefined;
+
 	let useSourceMaps = false;
 
 	if (pkg && pkg.name === "mern-starter") {
@@ -414,12 +428,14 @@ export async function createLaunchConfigFromContext(
 			);
 		}
 		configureMern(config);
+
 		return config;
 	}
 
 	if (pkg) {
 		// try to find a value for 'program' by analysing package.json
 		program = await guessProgramFromPackage(folder, pkg, resolve);
+
 		if (program && resolve) {
 			writeToConsole(
 				l10n.t("Launch configuration created based on 'package.json'."),
@@ -430,6 +446,7 @@ export async function createLaunchConfigFromContext(
 	if (!program) {
 		// try to use file open in editor
 		const editor = vscode.window.activeTextEditor;
+
 		if (
 			editor &&
 			breakpointLanguages.includes(editor.document.languageId)
@@ -486,11 +503,15 @@ export async function createLaunchConfigFromContext(
 		}
 
 		let dir = "";
+
 		const tsConfig = await loadJSON<ITSConfig>(folder, "tsconfig.json");
+
 		if (tsConfig?.compilerOptions?.outDir && canDetectTsBuildTask()) {
 			const outDir = tsConfig.compilerOptions.outDir;
+
 			if (!path.isAbsolute(outDir)) {
 				dir = outDir;
+
 				if (dir.indexOf("./") === 0) {
 					dir = dir.substr(2);
 				}
@@ -510,6 +531,7 @@ function canDetectTsBuildTask() {
 	const value = vscode.workspace
 		.getConfiguration()
 		.get("typescript.tsc.autoDetect");
+
 	return value !== "off" && value !== "watch";
 }
 
@@ -540,6 +562,7 @@ async function loadJSON<T>(
 				path.join(folder.uri.fsPath, file),
 				"utf8",
 			);
+
 			return JSON.parse(content);
 		} catch (error) {
 			// silently ignore
@@ -570,6 +593,7 @@ async function guessProgramFromPackage(
 
 		if (program) {
 			let targetPath: string | undefined;
+
 			if (path.isAbsolute(program)) {
 				targetPath = program;
 			} else {

@@ -46,14 +46,19 @@ function getLogFn(level: LogLevel): signale.LoggerFunc {
 	switch (level) {
 		case LogLevel.Fatal:
 			return signale.fatal;
+
 		case LogLevel.Error:
 			return signale.error;
+
 		case LogLevel.Warn:
 			return signale.warn;
+
 		case LogLevel.Info:
 			return signale.info;
+
 		case LogLevel.Verbose:
 			return signale.debug;
+
 		default:
 			return signale.debug;
 	}

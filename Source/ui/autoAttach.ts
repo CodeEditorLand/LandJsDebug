@@ -33,12 +33,14 @@ export function registerAutoAttach(
 		vscode.WorkspaceFolder | undefined,
 		Promise<AutoAttachLauncher>
 	>();
+
 	let disposeTimeout: NodeJS.Timeout | undefined;
 
 	const acquireLauncher = (
 		workspaceFolder: vscode.WorkspaceFolder | undefined,
 	) => {
 		const prev = launchers.get(workspaceFolder);
+
 		if (prev) {
 			return prev;
 		}
@@ -63,6 +65,7 @@ export function registerAutoAttach(
 				vscode.workspace,
 				Configuration.TerminalDebugConfig,
 			);
+
 			if (workspaceFolder) {
 				const fsPath = workspaceFolder?.uri.fsPath;
 				config = { ...config, cwd: fsPath, __workspaceFolder: fsPath };
@@ -102,6 +105,7 @@ export function registerAutoAttach(
 					const launcher = await acquireLauncher(
 						vscode.workspace.workspaceFolders?.[0],
 					);
+
 					return {
 						ipcAddress: launcher.deferredSocketName as string,
 					};
@@ -111,6 +115,7 @@ export function registerAutoAttach(
 						e.helpLink
 					) {
 						const details = l10n.t("Details");
+
 						if (
 							(await vscode.window.showErrorMessage(
 								e.message,
@@ -137,6 +142,7 @@ export function registerAutoAttach(
 						vscode.workspace.getWorkspaceFolder(
 							vscode.Uri.file(info.scriptName),
 						);
+
 					const launcher = await acquireLauncher(
 						wf || vscode.workspace.workspaceFolders?.[0],
 					);

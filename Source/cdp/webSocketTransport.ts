@@ -34,10 +34,12 @@ export class WebSocketTransport implements ITransport {
 		remoteHostHeader?: string,
 	): Promise<WebSocketTransport> {
 		const isSecure = !url.startsWith("ws://");
+
 		const targetAddressIsLoopback = await isLoopback(url);
 
 		while (true) {
 			const dontRetryBefore = Date.now() + maxRetryInterval;
+
 			try {
 				const options = {
 					headers: { host: remoteHostHeader ?? "localhost" },
@@ -48,6 +50,7 @@ export class WebSocketTransport implements ITransport {
 				};
 
 				const ws = new WebSocket(url, [], options);
+
 				return await timeoutPromise(
 					new Promise<WebSocketTransport>((resolve, reject) => {
 						ws.addEventListener("open", () =>
@@ -77,6 +80,7 @@ export class WebSocketTransport implements ITransport {
 					`Could not open ${url}`,
 				).catch((err) => {
 					ws.close();
+
 					throw err;
 				});
 			} catch (err) {
@@ -85,6 +89,7 @@ export class WebSocketTransport implements ITransport {
 				}
 
 				const retryIn = dontRetryBefore - Date.now();
+
 				if (retryIn > 0) {
 					await delay(retryIn);
 				}

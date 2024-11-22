@@ -80,12 +80,15 @@ class DurationTerminationCondition implements ITerminationCondition {
 
 	public attachTo(session: UiProfileSession) {
 		const deadline = Date.now() + this.duration;
+
 		const updateTimer = () =>
 			session.setStatus(
 				Category.TerminationTimer,
 				`${Math.round((deadline - Date.now()) / 1000)}s`,
 			);
+
 		const stopTimeout = setTimeout(() => session.stop(), this.duration);
+
 		const updateInterval = setInterval(updateTimer, 1000);
 		updateTimer();
 

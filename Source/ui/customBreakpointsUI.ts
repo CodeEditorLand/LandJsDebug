@@ -22,6 +22,7 @@ class XHRBreakpoint extends vscode.TreeItem {
 	}
 
 	match: string;
+
 	constructor(xhr: IXHRBreakpoint, enabled: boolean) {
 		super(
 			xhr.match
@@ -102,6 +103,7 @@ class BreakpointsDataProvider implements vscode.TreeDataProvider<TreeItem> {
 	constructor(debugSessionTracker: DebugSessionTracker) {
 		for (const breakpoint of [...customBreakpoints().values()]) {
 			let category = this.categories.get(breakpoint.group);
+
 			if (!category) {
 				category = new Category(breakpoint.group);
 				this.categories.set(breakpoint.group, category);
@@ -125,6 +127,7 @@ class BreakpointsDataProvider implements vscode.TreeDataProvider<TreeItem> {
 			const toEnable = this.allBreakpoints
 				.filter((b) => b.checked)
 				.map((b) => b.id);
+
 			if (toEnable.length === 0) {
 				return;
 			}
@@ -154,8 +157,10 @@ class BreakpointsDataProvider implements vscode.TreeDataProvider<TreeItem> {
 		if (item instanceof Category) {
 			if (item.contextValue === "xhrCategory") {
 				const title = l10n.t("Add new URL...");
+
 				const addNew = new vscode.TreeItem(title) as XHRBreakpoint;
 				addNew.command = { title, command: Commands.AddXHRBreakpoints };
+
 				return [...this.xhrBreakpoints, addNew];
 			}
 			return this.categories.get(item.label)?.children;
@@ -197,6 +202,7 @@ class BreakpointsDataProvider implements vscode.TreeDataProvider<TreeItem> {
 				breakpoint instanceof XHRBreakpoint
 			) {
 				const parent = this.getParent(breakpoint) as Category;
+
 				if (!enabled && parent.checked) {
 					parent.checkboxState = state;
 				} else if (
@@ -218,9 +224,11 @@ class BreakpointsDataProvider implements vscode.TreeDataProvider<TreeItem> {
 		const ids = this.allBreakpoints
 			.filter((b) => b.checked)
 			.map((b) => b.id);
+
 		const xhr = this.xhrBreakpoints
 			.filter((b) => b.checked)
 			.map((b) => b.id);
+
 		for (const session of this._debugSessionTracker.getConcreteSessions()) {
 			session.customRequest("setCustomBreakpoints", { xhr, ids });
 		}
@@ -248,12 +256,14 @@ class BreakpointsDataProvider implements vscode.TreeDataProvider<TreeItem> {
 
 	syncXHRCategoryState() {
 		const category = this.categories.get(xhrBreakpointsCategory());
+
 		if (!category) {
 			return;
 		}
 
 		if (!this.xhrBreakpoints.length) {
 			category.checkboxState = undefined;
+
 			return;
 		}
 

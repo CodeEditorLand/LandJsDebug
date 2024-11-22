@@ -21,6 +21,7 @@ export class StreamSplitter extends Transform {
 
 	constructor(splitter: string | number | Buffer) {
 		super();
+
 		if (typeof splitter === "string" && splitter.length === 1) {
 			this.splitter = splitter.charCodeAt(0);
 		} else if (typeof splitter === "number") {
@@ -36,13 +37,16 @@ export class StreamSplitter extends Transform {
 		callback: (error?: Error | null, data?: unknown) => void,
 	): void {
 		let offset = 0;
+
 		while (offset < chunk.length) {
 			const index = chunk.indexOf(this.splitter, offset);
+
 			if (index === -1) {
 				break;
 			}
 
 			const thisChunk = chunk.subarray(offset, index);
+
 			const toEmit =
 				this.prefix.length || this.splitSuffix.length
 					? Buffer.concat([

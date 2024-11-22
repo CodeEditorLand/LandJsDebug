@@ -36,9 +36,13 @@ export class VSCodeRendererTargetManager extends BrowserTargetManager {
 		targetOrigin: ITargetOrigin,
 	): Promise<BrowserTargetManager | undefined> {
 		const rootSession = connection.rootSession();
+
 		const result = await rootSession.Target.attachToBrowserTarget({});
+
 		if (!result) return;
+
 		const browserSession = connection.createSession(result.sessionId);
+
 		return new this(
 			connection,
 			undefined,
@@ -61,6 +65,7 @@ export class VSCodeRendererTargetManager extends BrowserTargetManager {
 	public readonly filter: TargetFilter = (target) => {
 		const { debugWebWorkerExtHost, debugWebviews } = this
 			.launchParams as IRendererAttachParams;
+
 		if (debugWebWorkerExtHost) {
 			if (
 				target.type === BrowserTargetType.Worker &&
@@ -150,6 +155,7 @@ export class VSCodeRendererTargetManager extends BrowserTargetManager {
 
 const computeWebviewName = (target: BrowserTarget) => {
 	let url: URL;
+
 	try {
 		url = new URL(target.targetInfo.url);
 	} catch {
@@ -159,10 +165,13 @@ const computeWebviewName = (target: BrowserTarget) => {
 	switch (url.searchParams.get("purpose")) {
 		case WebviewContentPurpose.CustomEditor:
 			return `${url.searchParams.get("extensionId")} editor: ${url.host}`;
+
 		case WebviewContentPurpose.NotebookRenderer:
 			return `Notebook Renderer: ${url.host}`;
+
 		default:
 			const extensionId = url.searchParams.get("extensionId");
+
 			return `Webview: ${extensionId ? extensionId + " " : ""} ${url.host}`;
 	}
 };

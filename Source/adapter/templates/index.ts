@@ -99,10 +99,12 @@ function templateFunctionStr<Args extends string[]>(
 	});
 
 	const { start, end } = decl.body as unknown as Node;
+
 	const inner = (args: string[]) => `
     ${args.map((a, i) => `let ${params[i]} = ${a}`).join("; ")};
     ${stringified.slice(start + 1, end - 1)}
   `;
+
 	return {
 		expr: (...args: Args) =>
 			`(()=>{${inner(args)}})();\n${getSourceSuffix(sourceURL)}`,
@@ -141,6 +143,7 @@ export function remoteFunction<Args extends unknown[], R>(
 	sourceURL?: string,
 ) {
 	let stringified = "" + fn;
+
 	const endIndex = stringified.lastIndexOf("}");
 	stringified =
 		stringified.slice(0, endIndex) +

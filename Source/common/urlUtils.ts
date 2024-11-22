@@ -79,6 +79,7 @@ const win32PathExt =
  */
 export const getNormalizedBinaryName = (binaryPath: string) => {
 	const filename = lowerCaseInsensitivePath(path.basename(binaryPath));
+
 	if (win32PathExt) {
 		for (const ext of win32PathExt) {
 			if (filename.endsWith(ext)) {
@@ -99,11 +100,13 @@ export const nearestDirectoryWhere = async <T>(
 ): Promise<T | undefined> => {
 	while (true) {
 		const value = await predicate(rootDir);
+
 		if (value !== undefined) {
 			return value;
 		}
 
 		const parent = path.dirname(rootDir);
+
 		if (parent === rootDir) {
 			return undefined;
 		}
@@ -126,6 +129,7 @@ export const nearestDirectoryContaining = (
 
 // todo: not super correct, and most node libraries don't handle this accurately
 const knownLoopbacks = new Set<string>(["localhost", "127.0.0.1", "::1"]);
+
 const knownMetaAddresses = new Set<string>([
 	"0.0.0.0",
 	"::",
@@ -165,12 +169,14 @@ export const isMetaAddress = (address: string) =>
  */
 export const isLoopback = memoize(async (address: string) => {
 	const ipOrHostname = getHostnameFromMaybeUrl(address);
+
 	if (isLoopbackIp(ipOrHostname)) {
 		return true;
 	}
 
 	try {
 		const resolved = await dns.lookup(ipOrHostname);
+
 		return isLoopbackIp(resolved.address);
 	} catch {
 		return false;
@@ -190,6 +196,7 @@ export function removeQueryString(url: string) {
 	try {
 		const parsed = new URL(url);
 		parsed.search = "";
+
 		return parsed.toString();
 	} catch {
 		return url;
@@ -199,6 +206,7 @@ export function removeQueryString(url: string) {
 export function getPathName(url: string) {
 	try {
 		const parsed = new URL(url);
+
 		return parsed.pathname;
 	} catch {
 		return undefined;
@@ -214,10 +222,12 @@ export function completeUrlEscapingRoot(
 ): string {
 	try {
 		new URL(relative);
+
 		return relative;
 	} catch (e) {}
 
 	let url: URL;
+
 	try {
 		url = new URL(base || "");
 	} catch (e) {
@@ -225,17 +235,21 @@ export function completeUrlEscapingRoot(
 	}
 
 	let s = url.protocol + "//";
+
 	if (url.username) s += url.username + ":" + url.password + "@";
 	s += url.host;
 	s += path.dirname(url.pathname);
+
 	if (s[s.length - 1] !== "/") s += "/";
 	s += relative;
+
 	return s;
 }
 
 export function isValidUrl(url: string): boolean {
 	try {
 		new URL(url);
+
 		return true;
 	} catch (e) {
 		return false;
@@ -246,15 +260,18 @@ export function escapeForRegExp(s: string): string {
 	const chars = "^[]{}()\\.^$*+?|-,";
 
 	let foundChar = false;
+
 	for (let i = 0; i < chars.length; ++i) {
 		if (s.indexOf(chars.charAt(i)) !== -1) {
 			foundChar = true;
+
 			break;
 		}
 	}
 	if (!foundChar) return s;
 
 	let result = "";
+
 	for (let i = 0; i < s.length; ++i) {
 		if (chars.indexOf(s.charAt(i)) !== -1) result += "\\";
 		result += s.charAt(i);
@@ -271,6 +288,7 @@ export function stripTrailingSlash(aPath: string): string {
 
 const vscodeWebviewResourceSchemeRe =
 	/^https:\/\/([a-z0-9\-]+)\+\.vscode-resource\.vscode-(?:webview|cdn)\.net\/(.+)/i;
+
 const vscodeAppResource = "vscode-file://vscode-app/";
 
 /**
@@ -280,6 +298,7 @@ export function fileUrlToAbsolutePath(urlOrPath: FileUrl): string;
 export function fileUrlToAbsolutePath(urlOrPath: string): string | undefined;
 export function fileUrlToAbsolutePath(urlOrPath: string): string | undefined {
 	const webviewResource = vscodeWebviewResourceSchemeRe.exec(urlOrPath);
+
 	if (webviewResource) {
 		urlOrPath = `${webviewResource[1]}:///${webviewResource[2]}`;
 	} else if (urlOrPath.startsWith("vscode-webview-resource://")) {
@@ -384,11 +403,13 @@ const urlToRegexChar = (
 ) => {
 	if (!escapeRegex || char === ":") {
 		arr.add(char);
+
 		return;
 	}
 
 	if (char === "/") {
 		arr.add(`\\${char}`);
+
 		return;
 	}
 
@@ -399,6 +420,7 @@ const urlToRegexChar = (
 	}
 
 	const encoded = encodeURIComponent(char);
+
 	if (char !== "\\" && encoded !== char) {
 		arr.add(encoded); // will never have any regex special chars
 	}
@@ -408,12 +430,15 @@ const createReGroup = (patterns: ReadonlySet<string>): string => {
 	switch (patterns.size) {
 		case 0:
 			return "";
+
 		case 1:
 			return iteratorFirst(patterns.values()) as string;
+
 		default:
 			// Prefer the more compacy [aA] form if we're only matching single
 			// characters, produce a non-capturing group otherwise.
 			const arr = [...patterns];
+
 			return arr.some((p) => p.length > 1)
 				? `(?:${arr.join("|")})`
 				: `[${arr.join("")}]`;
@@ -470,12 +495,14 @@ export function urlToRegex(
 
 	// Split out the portion of the path that has already been converted to a regex pattern
 	const rePrefix = charRangeToUrlReGroup(aPath, 0, escapeReStart, false);
+
 	const reSuffix = charRangeToUrlReGroup(
 		aPath,
 		escapeReEnd,
 		aPath.length,
 		false,
 	);
+
 	const unescapedPath = aPath.slice(escapeReStart, escapeReEnd);
 
 	// aPath will often (always?) be provided as a file URI, or URL. Decode it
@@ -587,6 +614,7 @@ export function platformPathToPreferredCase(
 ): string | undefined {
 	if (p && platform === "win32" && p[1] === ":")
 		return p[0].toUpperCase() + p.substring(1);
+
 	return p;
 }
 
@@ -601,9 +629,11 @@ export const createTargetFilterForConfig = (
 ): ((t: { url: string }) => boolean) => {
 	const filter =
 		config.urlFilter || ("file" in config && config.file) || config.url;
+
 	const tester = filter
 		? createTargetFilter(filter, ...additonalMatches)
 		: undefined;
+
 	return (t) => !t.url.startsWith("devtools://") && tester?.(t.url) !== false;
 };
 
@@ -643,6 +673,7 @@ export const createTargetFilter = (
 		aUrl = aUrl.toLowerCase();
 
 		const fileUrl = fileUrlToAbsolutePath(aUrl);
+
 		if (fileUrl) {
 			// Strip file:///, if present
 			aUrl = fileUrl;
@@ -657,6 +688,7 @@ export const createTargetFilter = (
 		}
 
 		const hashIndex = aUrl.indexOf("#");
+
 		if (hashIndex !== -1) {
 			aUrl = aUrl.slice(
 				0,
@@ -673,10 +705,12 @@ export const createTargetFilter = (
 			".*",
 		),
 	);
+
 	const targetUrlRegex = new RegExp("^(" + escaped.join("|") + ")$", "g");
 
 	return (testUrl) => {
 		targetUrlRegex.lastIndex = 0;
+
 		return targetUrlRegex.test(standardizeMatch(testUrl));
 	};
 };

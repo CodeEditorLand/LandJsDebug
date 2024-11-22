@@ -33,6 +33,7 @@ const storagePath = fs.mkdtempSync(path.join(os.tmpdir(), "vscode-js-debug-"));
 
 interface IInitializationCollection {
 	setExceptionBreakpointsParams?: Dap.SetExceptionBreakpointsParams;
+
 	setBreakpointsParams: { params: Dap.SetBreakpointsParams; ids: number[] }[];
 	customBreakpoints: string[];
 	xhrBreakpoints: string[];
@@ -54,19 +55,27 @@ function collectInitialize(dap: Dap.Api) {
 	let setExceptionBreakpointsParams:
 		| Dap.SetExceptionBreakpointsParams
 		| undefined;
+
 	const setBreakpointsParams: {
 		params: Dap.SetBreakpointsParams;
 		ids: number[];
 	}[] = [];
+
 	let customBreakpoints: string[] = [];
+
 	let xhrBreakpoints: string[] = [];
+
 	const configurationDone = getDeferred<void>();
+
 	let lastBreakpointId = 0;
+
 	let initializeParams: Dap.InitializeParams;
 
 	dap.on("setBreakpoints", async (params) => {
 		const ids = params.breakpoints?.map(() => ++lastBreakpointId) ?? [];
+
 		setBreakpointsParams.push({ params, ids });
+
 		const breakpoints = ids.map((id) => ({
 			id,
 			verified: false,
@@ -80,17 +89,20 @@ function collectInitialize(dap: Dap.Api) {
 
 	dap.on("setExceptionBreakpoints", async (params) => {
 		setExceptionBreakpointsParams = params;
+
 		return {};
 	});
 
 	dap.on("setCustomBreakpoints", async (params) => {
 		customBreakpoints = params.ids;
 		xhrBreakpoints = params.xhr;
+
 		return {};
 	});
 
 	dap.on("configurationDone", async () => {
 		configurationDone.resolve();
+
 		return {};
 	});
 
@@ -104,7 +116,9 @@ function collectInitialize(dap: Dap.Api) {
 
 	dap.on("initialize", async (params) => {
 		initializeParams = params;
+
 		setTimeout(() => dap.initialized({}), 0);
+
 		return DebugAdapter.capabilities();
 	});
 
@@ -118,6 +132,7 @@ function collectInitialize(dap: Dap.Api) {
 			await configurationDone.promise;
 
 			const deferred = getDeferred<Dap.LaunchResult | Dap.AttachResult>();
+
 			if (!initializeParams) {
 				throw new Error(`cannot call launch/attach before initialize`);
 			}
@@ -154,15 +169,20 @@ class DapSessionManager implements IBinderDelegate {
 	/** @inheritdoc */
 	public async acquireDap(target: ITarget): Promise<DapConnection> {
 		const existing = this.sessions.get(target.id());
+
 		if (existing) {
 			const { connection } = await existing.promise;
+
 			return connection;
 		}
 
 		const parent = target.parent();
+
 		let dap: Dap.Api;
+
 		if (parent) {
 			const parentCnx = this.sessions.get(parent.id())?.settledValue;
+
 			if (!parentCnx) {
 				throw new Error(
 					"Expected parent session to have a settled value",
@@ -196,6 +216,7 @@ class DapSessionManager implements IBinderDelegate {
 		target: ITarget,
 	): Promise<boolean> {
 		const init = this.sessions.get(target.id())?.settledValue;
+
 		if (!init) {
 			throw new Error(
 				`Expected to find pending init for target ${target.id()}`,
@@ -243,7 +264,9 @@ class DapSessionManager implements IBinderDelegate {
 		}
 
 		const targetId = info.launchParams.__pendingTargetId;
+
 		const session = this.sessions.get(targetId);
+
 		if (!session) {
 			throw new Error(`__pendingTargetId ${targetId} not found`);
 		}
@@ -254,26 +277,33 @@ class DapSessionManager implements IBinderDelegate {
 
 function startDebugServer(options: net.ListenOptions) {
 	const services = createGlobalContainer({ storagePath, isVsCode: false });
+
 	const managers = new Set<DapSessionManager>();
 
 	const server = net
 		.createServer(async (socket) => {
 			try {
 				const logger = new ProxyLogger();
+
 				const transport = new StreamDapTransport(
 					socket,
 					socket,
 					logger,
 				);
+
 				const connection = new DapConnection(transport, logger);
+
 				const dap = connection.dap();
 
 				const initialized = await collectInitialize(dap);
+
 				if ("__pendingTargetId" in initialized.launchParams) {
 					const ptId = initialized.launchParams.__pendingTargetId;
+
 					const manager =
 						ptId &&
 						[...managers].find((m) => m.hasPendingTarget(ptId));
+
 					if (!manager) {
 						throw new Error(
 							`Cannot find pending target for ${ptId}`,
@@ -284,12 +314,14 @@ function startDebugServer(options: net.ListenOptions) {
 				} else {
 					const sessionServices =
 						createTopLevelSessionContainer(services);
+
 					const manager = new DapSessionManager(dap, sessionServices);
 					managers.add(manager);
 					sessionServices
 						.bind(IInitializeParams)
 						.toConstantValue(initialized.initializeParams);
 					logger.connectTo(sessionServices.get(ILogger));
+
 					const binder = new Binder(
 						manager,
 						connection,
@@ -306,6 +338,7 @@ function startDebugServer(options: net.ListenOptions) {
 				}
 			} catch (e) {
 				console.error(e);
+
 				return socket.destroy();
 			}
 		})
