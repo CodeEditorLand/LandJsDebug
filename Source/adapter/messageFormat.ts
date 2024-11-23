@@ -39,7 +39,6 @@ function tokenizeFormatString(
 		const lastToken = tokens[tokens.length - 1];
 
 		if (lastToken?.type === "string") lastToken.value += str;
-
 		else tokens.push({ type: "string", value: str });
 	}
 

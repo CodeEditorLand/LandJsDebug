@@ -260,7 +260,6 @@ async function generate() {
 				result.push(`export interface ${toTitleCase(type.id)} {`);
 
 				if (type.properties) appendProps(type.properties);
-
 				else result.push(`[key: string]: any;`);
 				result.push(`}`);
 			} else {
