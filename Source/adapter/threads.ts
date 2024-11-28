@@ -109,6 +109,7 @@ export type ScriptWithSourceMapHandler = (
 	script: Script,
 	sources: Source[],
 ) => Promise<IUiLocation[]>;
+
 export type SourceMapDisabler = (hitBreakpoints: string[]) => ISourceWithMap[];
 
 export type RawLocation = {

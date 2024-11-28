@@ -34,10 +34,12 @@ export function filterValues<V, F extends V>(
 	obj: Readonly<{ [key: string]: V }>,
 	predicate: (value: V, key: string) => value is F,
 ): { [key: string]: F };
+
 export function filterValues<V>(
 	obj: Readonly<{ [key: string]: V }>,
 	predicate: (value: V, key: string) => boolean,
 ): { [key: string]: V };
+
 export function filterValues<V>(
 	obj: Readonly<{ [key: string]: V }>,
 	predicate: (value: V, key: string) => boolean,

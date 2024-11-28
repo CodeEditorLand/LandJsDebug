@@ -66,6 +66,7 @@ export const properAbsolute = (testPath: string): boolean =>
 	isAbsolutePosix(testPath) || isAbsoluteWin32(testPath);
 
 export const isAbsolutePosix = (path: string) => path.startsWith("/");
+
 export const isAbsoluteWin32 = (path: string) => /^[a-z]:/i.test(path);
 
 export const relative = (fromPath: string, toPath: string) => {

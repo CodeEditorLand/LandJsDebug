@@ -484,6 +484,7 @@ export interface ISourceMapLocationProvider extends ISourceLocationProvider {
 export type SourceLocationProvider =
 	| ISourceMapLocationProvider
 	| IWasmLocationProvider;
+
 export namespace SourceLocationProvider {
 	/** Waits for the sourcemap or wasm symbols to be loaded. */
 	export async function waitForValue(
@@ -608,6 +609,7 @@ export const isWasmSymbols = (
 	!!source && typeof (source as IWasmSymbols).getDisassembly === "function";
 
 export type ContentGetter = () => Promise<string | undefined>;
+
 export type LineColumn = { lineNumber: number; columnNumber: number }; // 1-based
 
 export function uiToRawOffset<T extends LineColumn>(

@@ -10,6 +10,7 @@ import { Thread } from "../threads";
 import { IConsoleMessage } from "./consoleMessage";
 
 export * from "./exceptionMessage";
+
 export * from "./queryObjectsMessage";
 
 export const IConsole = Symbol("IConsole");

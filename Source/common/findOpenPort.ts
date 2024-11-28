@@ -32,10 +32,12 @@ export function findOpenPort(
 	options?: Partial<IFindOpenPortOptions<number>>,
 	cancellationToken?: CancellationToken,
 ): Promise<number>;
+
 export function findOpenPort<T>(
 	options: Partial<IFindOpenPortOptions<T>>,
 	cancellationToken?: CancellationToken,
 ): Promise<T>;
+
 export async function findOpenPort<T>(
 	{
 		min = DefaultJsDebugPorts.Min,

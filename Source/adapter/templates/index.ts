@@ -56,18 +56,23 @@ export function templateFunction(
 	fn: () => void,
 	sourceURL?: string,
 ): TemplateFunction<[]>;
+
 export function templateFunction<A>(
 	fn: (a: A) => void,
 ): TemplateFunction<[string]>;
+
 export function templateFunction<A, B>(
 	fn: (a: A, b: B) => void,
 ): TemplateFunction<[string, string]>;
+
 export function templateFunction<A, B, C>(
 	fn: (a: A, b: B, c: C) => void,
 ): TemplateFunction<[string, string, string]>;
+
 export function templateFunction<Args extends unknown[]>(
 	fn: string,
 ): TemplateFunction<Args>;
+
 export function templateFunction<Args extends unknown[]>(
 	fn: string | ((...args: Args) => void),
 	sourceURL?: string,

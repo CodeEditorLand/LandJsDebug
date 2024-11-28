@@ -83,6 +83,7 @@ function shouldReportThisError(error: unknown): boolean {
 }
 
 let shouldFilterErrorsReportedToTelemetry = false;
+
 export function filterErrorsReportedToTelemetry(): void {
 	shouldFilterErrorsReportedToTelemetry = true;
 }

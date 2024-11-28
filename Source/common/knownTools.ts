@@ -20,6 +20,7 @@ const knownTools: ReadonlySet<string> = new Set([
 	"babel-node",
 	// #endregion,
 ]);
+
 export const knownToolToken = "$KNOWN_TOOLS$";
 
 export const knownToolGlob = `{${[...knownTools].join(",")}}`;

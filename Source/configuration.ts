@@ -782,24 +782,31 @@ export type AnyNodeConfiguration =
 	| IExtensionHostLaunchConfiguration
 	| IExtensionHostAttachConfiguration
 	| ITerminalDelegateConfiguration;
+
 export type AnyChromeConfiguration =
 	| IChromeAttachConfiguration
 	| IChromeLaunchConfiguration;
+
 export type AnyEdgeConfiguration =
 	| IEdgeAttachConfiguration
 	| IEdgeLaunchConfiguration;
+
 export type AnyChromiumLaunchConfiguration =
 	| IEdgeLaunchConfiguration
 	| IChromeLaunchConfiguration;
+
 export type AnyChromiumAttachConfiguration =
 	| IEdgeAttachConfiguration
 	| IChromeAttachConfiguration;
+
 export type AnyChromiumConfiguration =
 	| AnyEdgeConfiguration
 	| AnyChromeConfiguration;
+
 export type AnyLaunchConfiguration =
 	| AnyChromiumConfiguration
 	| AnyNodeConfiguration;
+
 export type AnyTerminalConfiguration =
 	| ITerminalDelegateConfiguration
 	| ITerminalLaunchConfiguration;
@@ -811,24 +818,33 @@ export type ResolvingConfiguration<T> = IMandatedConfiguration & Partial<T>;
 
 export type ResolvingExtensionHostConfiguration =
 	ResolvingConfiguration<IExtensionHostLaunchConfiguration>;
+
 export type ResolvingNodeAttachConfiguration =
 	ResolvingConfiguration<INodeAttachConfiguration>;
+
 export type ResolvingNodeLaunchConfiguration =
 	ResolvingConfiguration<INodeLaunchConfiguration>;
+
 export type ResolvingTerminalDelegateConfiguration =
 	ResolvingConfiguration<ITerminalDelegateConfiguration>;
+
 export type ResolvingTerminalLaunchConfiguration =
 	ResolvingConfiguration<ITerminalLaunchConfiguration>;
+
 export type ResolvingTerminalConfiguration =
 	| ResolvingTerminalDelegateConfiguration
 	| ResolvingTerminalLaunchConfiguration;
+
 export type ResolvingNodeConfiguration =
 	| ResolvingNodeAttachConfiguration
 	| ResolvingNodeLaunchConfiguration;
+
 export type ResolvingChromeConfiguration =
 	ResolvingConfiguration<AnyChromeConfiguration>;
+
 export type ResolvingEdgeConfiguration =
 	ResolvingConfiguration<AnyEdgeConfiguration>;
+
 export type AnyResolvingConfiguration =
 	| ResolvingExtensionHostConfiguration
 	| ResolvingChromeConfiguration
@@ -1296,11 +1312,15 @@ declare const EXTENSION_PUBLISHER: string;
 
 export const packageName =
 	typeof EXTENSION_NAME !== "undefined" ? EXTENSION_NAME : "js-debug";
+
 export const packageVersion =
 	typeof EXTENSION_VERSION !== "undefined" ? EXTENSION_VERSION : "0.0.0";
+
 export const packagePublisher =
 	typeof EXTENSION_PUBLISHER !== "undefined"
 		? EXTENSION_PUBLISHER
 		: "vscode-samples";
+
 export const isNightly = packageName.includes("nightly");
+
 export const extensionId = `${packagePublisher}.${packageName}`;

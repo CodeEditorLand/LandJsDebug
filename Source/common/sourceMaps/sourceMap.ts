@@ -28,6 +28,7 @@ export interface ISourceMapMetadata {
 }
 
 export type NullableMappedPosition = InvalidOriginalMapping | OriginalMapping;
+
 export type NullableGeneratedPosition =
 	| InvalidGeneratedMapping
 	| GeneratedMapping;

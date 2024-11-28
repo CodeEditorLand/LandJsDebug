@@ -62,6 +62,7 @@ export interface IProcessTree {
  */
 // TODO: Figure out how to inject the fsUtils here
 const fsUtils = new LocalFsUtils(fsPromises);
+
 export const processTree: IProcessTree =
 	process.platform === "win32"
 		? new WindowsProcessTree()

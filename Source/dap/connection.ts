@@ -14,6 +14,7 @@ import { ProtocolError } from "./protocolError";
 import { IDapTransport, Message } from "./transport";
 
 const requestSuffix = "Request";
+
 export const isRequest = (req: string) => req.endsWith("Request");
 
 /**

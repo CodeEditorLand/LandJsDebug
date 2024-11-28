@@ -54,9 +54,11 @@ export function previewAsObject(
 export function isArray(
 	object: Cdp.Runtime.RemoteObject,
 ): object is ObjectPreview.ArrayObj;
+
 export function isArray(
 	object: ObjectPreview.AnyPreview,
 ): object is ObjectPreview.ArrayPreview;
+
 export function isArray(
 	object:
 		| Cdp.Runtime.RemoteObject

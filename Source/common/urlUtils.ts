@@ -295,7 +295,9 @@ const vscodeAppResource = "vscode-file://vscode-app/";
  * If urlOrPath is a file URL, removes the 'file:///', adjusting for platform differences
  */
 export function fileUrlToAbsolutePath(urlOrPath: FileUrl): string;
+
 export function fileUrlToAbsolutePath(urlOrPath: string): string | undefined;
+
 export function fileUrlToAbsolutePath(urlOrPath: string): string | undefined {
 	const webviewResource = vscodeWebviewResourceSchemeRe.exec(urlOrPath);
 
@@ -446,6 +448,7 @@ const createReGroup = (patterns: ReadonlySet<string>): string => {
 };
 
 const charToUrlReGroupSet = new Set<string>();
+
 export function charRangeToUrlReGroup(
 	str: string,
 	start: number,
@@ -606,9 +609,11 @@ export function platformPathToUrlPath(p: string): string {
 }
 
 export function platformPathToPreferredCase(p: string): string;
+
 export function platformPathToPreferredCase(
 	p: string | undefined,
 ): string | undefined;
+
 export function platformPathToPreferredCase(
 	p: string | undefined,
 ): string | undefined {
