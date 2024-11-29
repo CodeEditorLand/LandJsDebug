@@ -27,6 +27,7 @@ type PatternElem = string | RegExp;
 
 interface ITokensContext {
 	elements: PatternElem[];
+
 	seen: Set<string>;
 }
 
@@ -61,26 +62,36 @@ export class TurboGlobStream<E> {
 	public readonly done: Promise<void>;
 
 	private readonly stat = memoize((path: string) => fs.lstat(path));
+
 	private readonly readdir = memoize((path: string) =>
 		fs.readdir(path, { withFileTypes: true }),
 	);
+
 	private readonly alreadyProcessedFiles = new Set<
 		CacheTree<IGlobCached<E>>
 	>();
 
 	private readonly filter?: (path: string, previousData?: E) => boolean;
+
 	private readonly ignore: ((path: string) => boolean)[];
+
 	private readonly processor: FileProcessorFn<E>;
+
 	private readonly fileEmitter = new EventEmitter<E>();
+
 	public readonly onFile = this.fileEmitter.event;
+
 	private readonly errorEmitter = new EventEmitter<{
 		path: string;
+
 		error: Error;
 	}>();
+
 	public readonly onError = this.errorEmitter.event;
 
 	constructor(opts: ITurboGlobStreamOptions<E>) {
 		this.processor = opts.fileProcessor;
+
 		this.filter = opts.filter;
 
 		// ignore will get matched against the full file path, so ensure it's absolute
@@ -178,6 +189,7 @@ export class TurboGlobStream<E> {
 		if (ctx.seen.has(seenKey)) {
 			return;
 		}
+
 		ctx.seen.add(seenKey);
 
 		let stat: Stats;
@@ -241,11 +253,14 @@ export class TurboGlobStream<E> {
 								),
 					);
 				}
+
 				await Promise.all(todo);
 			} else if (cd.type === CachedType.File) {
 				this.alreadyProcessedFiles.add(cache);
+
 				this.fileEmitter.fire(cd.extracted);
 			}
+
 			return;
 		}
 
@@ -254,6 +269,7 @@ export class TurboGlobStream<E> {
 			await this.handleDir(ctx, ti, stat.mtimeMs, path, cache);
 		} else {
 			this.alreadyProcessedFiles.add(cache);
+
 			await this.handleFile(stat.mtimeMs, path, siblings, cache);
 		}
 	}
@@ -277,6 +293,7 @@ export class TurboGlobStream<E> {
 			child.data?.type === CachedType.File
 				? child.data.extracted
 				: undefined;
+
 		CacheTree.touch(child);
 
 		return this.filter(path, data);
@@ -409,6 +426,7 @@ export class TurboGlobStream<E> {
 		}
 
 		cache.data = { type: CachedType.File, mtime, extracted };
+
 		this.fileEmitter.fire(extracted);
 	}
 
@@ -461,6 +479,7 @@ export class TurboGlobStream<E> {
 		}
 
 		await Promise.all(todo);
+
 		cache.data = { type: CachedType.Directory, mtime };
 	}
 }
@@ -468,11 +487,14 @@ export class TurboGlobStream<E> {
 export type IGlobCached<TFileData> =
 	| {
 			type: CachedType.Directory;
+
 			mtime: number;
 	  }
 	| {
 			type: CachedType.File;
+
 			mtime: number;
+
 			extracted: TFileData;
 	  };
 

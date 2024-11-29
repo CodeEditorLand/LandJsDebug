@@ -13,10 +13,13 @@ import { ITransport } from "./transport";
  */
 export class WorkerTransport implements ITransport {
 	private readonly onMessageEmitter = new EventEmitter<[string, HrTime]>();
+
 	private readonly onEndEmitter = new EventEmitter<void>();
+
 	private readonly disposables = new DisposableList();
 
 	public readonly onMessage = this.onMessageEmitter.event;
+
 	public readonly onEnd = this.onEndEmitter.event;
 
 	constructor(
@@ -27,6 +30,7 @@ export class WorkerTransport implements ITransport {
 			sink.NodeWorker.on("detachedFromWorker", (evt) => {
 				if (evt.sessionId === sessionId) {
 					this.onEndEmitter.fire();
+
 					this.dispose();
 				}
 			}),
@@ -48,6 +52,7 @@ export class WorkerTransport implements ITransport {
 	dispose(): void {
 		if (!this.disposables.isDisposed) {
 			this.disposables.dispose();
+
 			this.onEndEmitter.fire();
 		}
 	}

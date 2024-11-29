@@ -50,8 +50,10 @@ export const enum PauseOnExceptionsState {
 
 type ActivePause = {
 	cdp: PauseOnExceptionsState.All | PauseOnExceptionsState.Uncaught;
+
 	condition: {
 		caught?: PreparedCallFrameExpr;
+
 		uncaught?: PreparedCallFrameExpr;
 	};
 };
@@ -67,9 +69,13 @@ type PauseOnExceptions = { cdp: PauseOnExceptionsState.None } | ActivePause;
 @injectable()
 export class ExceptionPauseService implements IExceptionPauseService {
 	private state: PauseOnExceptions = { cdp: PauseOnExceptionsState.None };
+
 	private cdp?: Cdp.Api;
+
 	private breakOnError: boolean;
+
 	private noDebug: boolean;
+
 	private blocker = getDeferred<void>();
 
 	public get launchBlocker() {
@@ -85,7 +91,9 @@ export class ExceptionPauseService implements IExceptionPauseService {
 		private readonly sourceContainer: SourceContainer,
 	) {
 		this.noDebug = !!launchConfig.noDebug;
+
 		this.breakOnError = launchConfig.__breakOnConditionalError;
+
 		this.blocker.resolve();
 	}
 
@@ -103,6 +111,7 @@ export class ExceptionPauseService implements IExceptionPauseService {
 			if (!(e instanceof ProtocolError)) {
 				throw e;
 			}
+
 			this.dap.output({ category: "stderr", output: e.message });
 
 			return;
@@ -177,6 +186,7 @@ export class ExceptionPauseService implements IExceptionPauseService {
 
 	private async sendToCdp(cdp: Cdp.Api) {
 		await cdp.Debugger.setPauseOnExceptions({ state: this.state.cdp });
+
 		this.blocker.resolve();
 	}
 
@@ -248,6 +258,7 @@ export class ExceptionPauseService implements IExceptionPauseService {
 				if (cdp === PauseOnExceptionsState.None) {
 					cdp = PauseOnExceptionsState.Uncaught;
 				}
+
 				if (condition) {
 					uncaughtConditions.push(filterId);
 				}

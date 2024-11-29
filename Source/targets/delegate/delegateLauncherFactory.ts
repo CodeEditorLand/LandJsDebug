@@ -19,6 +19,7 @@ let idCounter = 0;
 @injectable()
 export class DelegateLauncherFactory {
 	private delegateSessions = new ObservableMap<number, IDelegateRef>();
+
 	private refsByTarget = new WeakMap<ITarget, IDelegateRef>();
 
 	/**
@@ -42,7 +43,9 @@ export class DelegateLauncherFactory {
 			dap,
 			parent: parent && this.refsByTarget.get(parent),
 		};
+
 		this.refsByTarget.set(target, ref);
+
 		this.delegateSessions.add(ref.id, ref);
 
 		return ref.id;

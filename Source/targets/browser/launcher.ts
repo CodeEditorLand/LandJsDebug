@@ -33,28 +33,44 @@ const noop = () => undefined;
 
 interface ILaunchOptions {
 	onStdout?: (data: string) => void;
+
 	onStderr?: (data: string) => void;
+
 	args?: ReadonlyArray<string>;
+
 	dumpio?: boolean;
+
 	hasUserNavigation?: boolean;
+
 	cwd?: string;
+
 	env?: EnvironmentVars;
+
 	ignoreDefaultArgs?: boolean | string[];
+
 	connection?: "pipe" | number; // pipe or port number
 	userDataDir?: string;
+
 	launchUnelevated?: boolean;
+
 	includeLaunchArgs?: boolean;
+
 	url?: string | null;
+
 	promisedPort?: Promise<number>;
+
 	inspectUri?: string | null;
+
 	cleanUp?: "wholeBrowser" | "onlyTab";
 }
 
 export interface ILaunchResult {
 	canReconnect: boolean;
+
 	createConnection(
 		cancellationToken: CancellationToken,
 	): Promise<CdpConnection>;
+
 	process: IBrowserProcess;
 }
 
@@ -90,6 +106,7 @@ export async function launch(
 		if (actualConnection === undefined) {
 			browserArguments =
 				browserArguments.setConnection(defaultConnection);
+
 			actualConnection = defaultConnection;
 		}
 	} else if (actualConnection === undefined) {
@@ -100,6 +117,7 @@ export async function launch(
 
 	if (actualConnection === "pipe") {
 		if (dumpio) stdio = ["ignore", "pipe", "pipe", "pipe", "pipe"];
+
 		else stdio = ["ignore", "ignore", "ignore", "pipe", "pipe"];
 	}
 
@@ -121,6 +139,7 @@ export async function launch(
 			browserArguments.toArray(),
 			cancellationToken,
 		);
+
 		browserProcess = new NonTrackedBrowserProcess(logger);
 	} else {
 		logger.info(
@@ -161,9 +180,11 @@ export async function launch(
 
 	if (dumpio) {
 		browserProcess.stderr?.on("data", (d) => onStderr(d.toString()));
+
 		browserProcess.stdout?.on("data", (d) => onStdout(d.toString()));
 	} else {
 		browserProcess.stderr?.resume();
+
 		browserProcess.stdout?.resume();
 	}
 
@@ -172,7 +193,9 @@ export async function launch(
 			browserProcess.kill();
 		}
 	};
+
 	process.on("exit", exitListener);
+
 	browserProcess.onExit(() => process.removeListener("exit", exitListener));
 
 	try {
@@ -253,8 +276,11 @@ export function defaultArgs(
 
 interface IAttachOptions {
 	browserURL?: string;
+
 	browserWSEndpoint?: string;
+
 	pageURL?: string | null;
+
 	inspectUri?: string | null;
 }
 
@@ -303,6 +329,7 @@ export async function attach(
 			telemetryReporter,
 		);
 	}
+
 	throw new Error(
 		"Either browserURL or browserWSEndpoint needs to be specified",
 	);

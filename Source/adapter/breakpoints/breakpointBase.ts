@@ -86,6 +86,7 @@ export type BreakpointCdpReference =
 
 export abstract class Breakpoint {
 	protected isEnabled = false;
+
 	private readonly setInCdpScriptIds = new Set<string>();
 
 	/**
@@ -153,6 +154,7 @@ export abstract class Breakpoint {
 		uiLocation: IUiLocation,
 	) {
 		this._source = source;
+
 		this._originalPosition = uiLocation;
 
 		const todo: Promise<unknown>[] = [];
@@ -321,6 +323,7 @@ export abstract class Breakpoint {
 		const promises: Promise<unknown>[] = this.cdpBreakpoints.map((bp) =>
 			this.removeCdpBreakpoint(bp),
 		);
+
 		await Promise.all(promises);
 	}
 
@@ -399,6 +402,7 @@ export abstract class Breakpoint {
 					url: source.url,
 				},
 			);
+
 			promises.push(this.removeCdpBreakpoint(bp));
 		}
 
@@ -472,9 +476,11 @@ export abstract class Breakpoint {
 		const cast = this as unknown as {
 			cdpBreakpoints: ReadonlyArray<BreakpointCdpReference>;
 		};
+
 		cast.cdpBreakpoints = mutator(this.cdpBreakpoints);
 
 		const nextIdSet = new Set<string>();
+
 		this.setInCdpScriptIds.clear();
 
 		for (const bp of this.cdpBreakpoints) {
@@ -792,6 +798,7 @@ export abstract class Breakpoint {
 				"actualLocation" in result
 					? [result.actualLocation]
 					: result.locations;
+
 			this._manager._resolvedBreakpoints.set(result.breakpointId, this);
 
 			// Note that we add the record after calling breakpointResolved()
@@ -803,9 +810,11 @@ export abstract class Breakpoint {
 				locations,
 				uiLocations: [],
 			};
+
 			this.updateCdpRefs((list) =>
 				list.map((r) => (r === state ? next : r)),
 			);
+
 			await this.updateUiLocations(
 				thread,
 				result.breakpointId,
@@ -819,6 +828,7 @@ export abstract class Breakpoint {
 			...list,
 			state as IBreakpointCdpReferencePending,
 		]);
+
 		await state.done;
 	}
 
@@ -831,11 +841,13 @@ export abstract class Breakpoint {
 
 		if (breakpoint.state === CdpReferenceState.Pending) {
 			breakpoint.deadletter = true;
+
 			await breakpoint.done;
 		} else {
 			await this._manager._thread
 				?.cdp()
 				.Debugger.removeBreakpoint({ breakpointId: breakpoint.cdpId });
+
 			this._manager._resolvedBreakpoints.delete(breakpoint.cdpId);
 		}
 	}

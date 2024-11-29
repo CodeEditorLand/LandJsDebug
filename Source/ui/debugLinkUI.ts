@@ -51,6 +51,7 @@ async function getPossibleUrl(
 		const prefixed = `http://${link}`;
 
 		const url = new URL(prefixed);
+
 		await assertResolves(url.hostname);
 
 		if (!requirePort || url.port) {
@@ -121,6 +122,7 @@ export class DebugLinkUi implements IExtensionContribution {
 			vscode.workspace.workspaceFolders?.[0],
 			config,
 		);
+
 		this.persistConfig(config);
 	}
 

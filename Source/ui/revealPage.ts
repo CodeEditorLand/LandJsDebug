@@ -17,6 +17,7 @@ export const registerRevealPage = (
 			Commands.RevealPage,
 			async (sessionId) => {
 				const session = tracker.getById(sessionId);
+
 				await session?.customRequest("revealPage");
 			},
 		),

@@ -18,16 +18,23 @@ export type Message = (
 	| { type: "request"; command: string; arguments: object }
 	| {
 			type: "response";
+
 			message?: string;
+
 			command: string;
+
 			request_seq: number;
+
 			success: boolean;
+
 			body: object;
 	  }
 	| { type: "event"; event: string; body: object }
 ) & {
 	sessionId?: string;
+
 	seq: number;
+
 	__receivedTime?: bigint;
 };
 
@@ -57,17 +64,23 @@ export interface IDapTransport {
 
 export class StreamDapTransport implements IDapTransport {
 	private _rawData: Buffer;
+
 	private _contentLength = -1;
+
 	private logger?: ILogger;
+
 	private _connectionId = connectionId++;
 
 	private msgEmitter = new EventEmitter<{
 		message: Message;
+
 		receivedTime: HrTime;
 	}>();
+
 	messageReceived = this.msgEmitter.event;
 
 	private endedEmitter = new EventEmitter<void>();
+
 	closed = this.endedEmitter.event;
 
 	constructor(
@@ -76,8 +89,11 @@ export class StreamDapTransport implements IDapTransport {
 		logger?: ILogger,
 	) {
 		this.logger = logger;
+
 		this._rawData = Buffer.alloc(0);
+
 		inputStream.on("end", () => this.endedEmitter.fire());
+
 		inputStream.on("data", this._handleData);
 	}
 
@@ -100,6 +116,7 @@ export class StreamDapTransport implements IDapTransport {
 				message: objectToLog,
 			});
 		}
+
 		const data = `Content-Length: ${Buffer.byteLength(json, "utf8")}\r\n\r\n${json}`;
 
 		if (this.outputStream.destroyed) {
@@ -107,6 +124,7 @@ export class StreamDapTransport implements IDapTransport {
 				LogTag.DapSend,
 				"Message not sent. Connection was closed.",
 			);
+
 			onDidWrite?.();
 
 			return;
@@ -117,11 +135,13 @@ export class StreamDapTransport implements IDapTransport {
 
 			if (err) {
 				console.log(message);
+
 				this.logger?.error(
 					LogTag.DapSend,
 					"Error while writing to output stream",
 					err,
 				);
+
 				this.close();
 			}
 		});
@@ -129,6 +149,7 @@ export class StreamDapTransport implements IDapTransport {
 
 	close() {
 		this.inputStream.destroy();
+
 		this.outputStream.destroy();
 	}
 
@@ -140,6 +161,7 @@ export class StreamDapTransport implements IDapTransport {
 
 	_handleData = (data: Buffer): void => {
 		const receivedTime = new HrTime();
+
 		this._rawData = Buffer.concat([this._rawData, data]);
 
 		while (true) {
@@ -150,16 +172,20 @@ export class StreamDapTransport implements IDapTransport {
 						0,
 						this._contentLength,
 					);
+
 					this._rawData = this._rawData.slice(this._contentLength);
+
 					this._contentLength = -1;
 
 					if (message.length > 0) {
 						try {
 							const msg: Message = JSON.parse(message);
+
 							this.logger?.verbose(LogTag.DapReceive, undefined, {
 								connectionId: this._connectionId,
 								message: msg,
 							});
+
 							this.msgEmitter.fire({
 								message: msg,
 								receivedTime,
@@ -170,6 +196,7 @@ export class StreamDapTransport implements IDapTransport {
 							);
 						}
 					}
+
 					continue; // there may be more complete messages to process
 				}
 			} else {
@@ -187,11 +214,13 @@ export class StreamDapTransport implements IDapTransport {
 							this._contentLength = +pair[1];
 						}
 					}
+
 					this._rawData = this._rawData.slice(idx + _TWO_CRLF.length);
 
 					continue;
 				}
 			}
+
 			break;
 		}
 	};
@@ -204,10 +233,14 @@ export class StreamDapTransport implements IDapTransport {
 export class SessionIdDapTransport implements IDapTransport {
 	sessionIdMessageEmitter = new EventEmitter<{
 		message: Message;
+
 		receivedTime: HrTime;
 	}>();
+
 	messageReceived = this.sessionIdMessageEmitter.event;
+
 	closedEmitter = new EventEmitter<void>();
+
 	closed = this.closedEmitter.event;
 
 	private _isClosed = false;
@@ -221,12 +254,14 @@ export class SessionIdDapTransport implements IDapTransport {
 		this.disposables.push(
 			rootTransport.messageReceived((e) => this.onMessage(e)),
 		);
+
 		this.disposables.push(rootTransport.closed(() => this.close()));
 	}
 
 	send(msg: Message, shouldLog?: boolean, onDidWrite?: () => void) {
 		if (!this._isClosed) {
 			msg.sessionId = this.sessionId;
+
 			this.rootTransport.send(msg, shouldLog, onDidWrite);
 		}
 	}
@@ -246,7 +281,9 @@ export class SessionIdDapTransport implements IDapTransport {
 	close() {
 		// don't actually close the root transport here, we just "disconnect" from it
 		this._isClosed = true;
+
 		this.disposables.forEach((x) => x.dispose());
+
 		this.closedEmitter.fire();
 	}
 }

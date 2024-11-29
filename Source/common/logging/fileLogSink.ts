@@ -43,6 +43,7 @@ export class FileLogSink implements ILogSink {
 
 		if (file.endsWith(".gz")) {
 			this.stream = createGzip();
+
 			this.stream.pipe(createWriteStream(file));
 		} else {
 			this.stream = createWriteStream(file);
@@ -65,6 +66,7 @@ export class FileLogSink implements ILogSink {
 	public dispose() {
 		if (this.stream) {
 			this.stream.end();
+
 			this.stream = undefined;
 		}
 	}

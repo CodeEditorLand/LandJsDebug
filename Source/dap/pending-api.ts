@@ -29,6 +29,7 @@ export const createPendingDapApi = (): IPendingDapApi => {
 		if ((method as unknown) === "connect") {
 			return (api: Dap.Api) => {
 				queue.resolve(api);
+
 				underlying = api;
 			};
 		}
@@ -36,6 +37,7 @@ export const createPendingDapApi = (): IPendingDapApi => {
 		if ((method as unknown) === "disconnect") {
 			return () => {
 				queue = getDeferred();
+
 				underlying = undefined;
 			};
 		}

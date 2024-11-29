@@ -9,6 +9,7 @@ const touched = Symbol("touched");
  */
 export type CacheTree<T> = {
 	data?: T;
+
 	children: Record<string, CacheTree<T>>;
 	[touched]?: number;
 };
@@ -51,6 +52,7 @@ export namespace CacheTree {
 		name: string,
 	): CacheTree<T> {
 		const child = (node.children[name] ??= { children: {} });
+
 		child[touched] = 1;
 
 		return child;

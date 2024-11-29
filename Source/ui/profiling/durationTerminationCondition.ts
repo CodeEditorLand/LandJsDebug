@@ -20,8 +20,11 @@ export class DurationTerminationConditionFactory
 	private lastDuration?: number;
 
 	public readonly sortOrder = 1;
+
 	public readonly id = "duration";
+
 	public readonly label = l10n.t("Duration");
+
 	public readonly description = l10n.t("Run for a specific amount of time");
 
 	public async onPick(_session: vscode.DebugSession, duration?: number) {
@@ -30,7 +33,9 @@ export class DurationTerminationConditionFactory
 		}
 
 		const input = vscode.window.createInputBox();
+
 		input.title = l10n.t("Duration of Profile");
+
 		input.placeholder = l10n.t('Profile duration in seconds, e.g "5"');
 
 		if (this.lastDuration) {
@@ -58,12 +63,14 @@ export class DurationTerminationConditionFactory
 				}
 
 				this.lastDuration = Number(input.value);
+
 				resolve(
 					new DurationTerminationCondition(this.lastDuration * 1000),
 				);
 			});
 
 			input.onDidHide(() => resolve(undefined));
+
 			input.show();
 		});
 
@@ -90,10 +97,12 @@ class DurationTerminationCondition implements ITerminationCondition {
 		const stopTimeout = setTimeout(() => session.stop(), this.duration);
 
 		const updateInterval = setInterval(updateTimer, 1000);
+
 		updateTimer();
 
 		this.disposable.callback(() => {
 			clearTimeout(stopTimeout);
+
 			clearInterval(updateInterval);
 		});
 	}

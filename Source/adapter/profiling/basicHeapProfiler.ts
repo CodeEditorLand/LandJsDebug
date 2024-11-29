@@ -23,11 +23,15 @@ import { SourceAnnotationHelper } from "./sourceAnnotationHelper";
 @injectable()
 export class BasicHeapProfiler implements IProfiler<{}> {
 	public static readonly type = "heap";
+
 	public static readonly extension = ".heapprofile";
+
 	public static readonly label = l10n.t("Heap Profile");
+
 	public static readonly description = l10n.t(
 		"Generates a .heapprofile file you can open in VS Code or the Edge/Chrome devtools",
 	);
+
 	public static readonly editable = true;
 
 	public static canApplyTo() {
@@ -64,6 +68,7 @@ export class BasicHeapProfiler implements IProfiler<{}> {
 
 class BasicProfile implements IProfile {
 	private readonly stopEmitter = new EventEmitter<void>();
+
 	private disposed = false;
 
 	/**
@@ -90,7 +95,9 @@ class BasicProfile implements IProfile {
 	public async dispose() {
 		if (!this.disposed) {
 			this.disposed = true;
+
 			await this.cdp.HeapProfiler.disable({});
+
 			this.stopEmitter.fire();
 		}
 	}
@@ -108,6 +115,7 @@ class BasicProfile implements IProfile {
 		await this.dispose();
 
 		const annotated = await this.annotateSources(result.profile);
+
 		await this.fs.writeFile(this.file, JSON.stringify(annotated));
 	}
 
@@ -129,6 +137,7 @@ class BasicProfile implements IProfile {
 
 			for (const child of node.children) {
 				const destChild = { ...child, children: [] };
+
 				destNode.children.push(destChild);
 
 				setLocationId(child, destChild);

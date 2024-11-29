@@ -15,9 +15,11 @@ export interface IPackageJson {
 	scripts?: {
 		[name: string]: string;
 	};
+
 	dependencies?: {
 		[name: string]: string;
 	};
+
 	devDependencies?: {
 		[name: string]: string;
 	};

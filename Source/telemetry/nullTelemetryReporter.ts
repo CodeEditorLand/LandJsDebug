@@ -10,6 +10,7 @@ import { ITelemetryReporter } from "./telemetryReporter";
 @injectable()
 export class NullTelemetryReporter implements ITelemetryReporter {
 	private readonly flushEmitter = new EventEmitter<void>();
+
 	public readonly onFlush = this.flushEmitter.event;
 
 	/**

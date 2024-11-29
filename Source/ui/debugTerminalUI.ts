@@ -57,6 +57,7 @@ export const launchVirtualTerminalParent = (
 	// to a connection. Terminal processes don't use this too much except for
 	// telemetry.
 	const dap = createPendingDapApi();
+
 	telemetry.attachDap(dap);
 
 	// Watch the set of targets we get from this terminal launcher. Remember
@@ -130,6 +131,7 @@ export const launchVirtualTerminalParent = (
 
 			if (!target.parent()) {
 				const cwd = await getWorkingDirectory(target);
+
 				vscode.debug.startDebugging(
 					cwd && vscode.workspace.getWorkspaceFolder(cwd),
 					{
@@ -209,6 +211,7 @@ async function getWorkspaceFolder() {
 
 class ProfileTerminalLauncher extends TerminalNodeLauncher {
 	private optionsReadyEmitter = new EventEmitter<vscode.TerminalOptions>();
+
 	public readonly onOptionsReady = this.optionsReadyEmitter.event;
 
 	/** @override */
@@ -218,6 +221,7 @@ class ProfileTerminalLauncher extends TerminalNodeLauncher {
 		return new Promise<vscode.Terminal>((resolve) => {
 			const listener = vscode.window.onDidOpenTerminal((t) => {
 				listener.dispose();
+
 				resolve(t);
 			});
 		});
@@ -236,7 +240,9 @@ export function registerDebugTerminalUI(
 		vscode.Terminal,
 		{
 			launcher: TerminalNodeLauncher;
+
 			folder?: vscode.WorkspaceFolder;
+
 			cwd?: string;
 		}
 	>();
@@ -281,6 +287,7 @@ export function registerDebugTerminalUI(
 					!config.launcher.targetList().length
 				) {
 					terminal.show(true);
+
 					terminal.sendText(command);
 
 					return;
@@ -325,6 +332,7 @@ export function registerDebugTerminalUI(
 							return true;
 						}
 					}
+
 					return false;
 				},
 			);

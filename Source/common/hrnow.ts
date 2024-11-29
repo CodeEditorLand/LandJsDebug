@@ -36,6 +36,7 @@ export class HrTime {
 
 		if (ns < 0) {
 			ns += nsPerSecond;
+
 			s--;
 		}
 

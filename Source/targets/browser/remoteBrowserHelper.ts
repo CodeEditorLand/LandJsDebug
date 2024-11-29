@@ -64,6 +64,7 @@ export class RemoteBrowserHelper implements IDisposable {
 		));
 
 		const launchId = ++launchIdCounter;
+
 		dap.launchBrowserInCompanion({
 			...params,
 			serverPort: (server.address() as AddressInfo).port,
@@ -74,6 +75,7 @@ export class RemoteBrowserHelper implements IDisposable {
 		const socket = await timeoutPromise(
 			new Promise<WebSocket>((resolve, reject) => {
 				server.once("connection", resolve);
+
 				server.once("error", reject);
 			}),
 			cancellationToken,
@@ -81,6 +83,7 @@ export class RemoteBrowserHelper implements IDisposable {
 		);
 
 		const transport = new WebSocketTransport(socket);
+
 		this.teardown.set(transport, () =>
 			dap.killCompanionBrowser({ launchId }),
 		);
@@ -100,6 +103,7 @@ export class RemoteBrowserHelper implements IDisposable {
 	 */
 	public dispose() {
 		this.server?.close();
+
 		this.server = undefined;
 	}
 }

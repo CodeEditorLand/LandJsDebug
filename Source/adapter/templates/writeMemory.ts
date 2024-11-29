@@ -24,6 +24,7 @@ export const writeMemory = remoteFunction(function (
 	const writeStart = byteOffset + Math.min(offset, byteLength);
 
 	const writeLen = Math.max(0, Math.min(bytes.length, byteLength - offset));
+
 	new Uint8Array(buffer, writeStart, writeLen).set(
 		bytes.subarray(0, writeLen),
 	);

@@ -9,10 +9,12 @@
  */
 export class MultiMap<T, K extends { [key: string]: unknown }> {
 	private readonly keygenPairs: [keyof K, (v: T) => unknown][] = [];
+
 	private readonly maps: { [K2 in keyof K]: Map<K[K2], T> };
 
 	constructor(keygen: { [K2 in keyof K]: (v: T) => K[K2] }) {
 		this.maps = {} as any;
+
 		this.keygenPairs = Object.entries(keygen);
 
 		for (const [key] of this.keygenPairs) {

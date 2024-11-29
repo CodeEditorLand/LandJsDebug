@@ -30,12 +30,20 @@ export type ExpectedPauseReason =
 
 export interface IPausedDetails {
 	thread: Thread;
+
 	reason: PausedReason;
+
 	event: Cdp.Debugger.PausedEvent;
+
 	description: string;
+
 	stackTrace: StackTrace;
+
 	stepInTargets?: IPossibleBreakLocation[];
+
 	hitBreakpoints?: string[];
+
 	text?: string;
+
 	exception?: Cdp.Runtime.RemoteObject;
 }

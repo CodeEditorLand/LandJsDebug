@@ -46,6 +46,7 @@ export async function findInPath(
 
 	if (process.platform === "win32") {
 		const windir = env["WINDIR"] || "C:\\Windows";
+
 		locator = path.join(windir, "System32", "where.exe");
 	} else {
 		locator = "/usr/bin/which";
@@ -78,10 +79,12 @@ export async function findInPath(
 					return lines[0];
 				}
 			}
+
 			return undefined;
 		} else {
 			// do not report failure if 'locator' app doesn't exist
 		}
+
 		return program;
 	} catch (err) {
 		// fall through
@@ -185,6 +188,7 @@ export function fixDriveLetter(
 
 	if (isWindowsFileUri(aPath)) {
 		const prefixLen = fileUriPrefix.length;
+
 		aPath =
 			fileUriPrefix +
 			aPath[prefixLen].toLowerCase() +
@@ -194,6 +198,7 @@ export function fixDriveLetter(
 		const driveLetter = uppercaseDriveLetter
 			? aPath[0].toUpperCase()
 			: aPath[0].toLowerCase();
+
 		aPath = driveLetter + aPath.substr(1);
 	}
 
@@ -213,6 +218,7 @@ export function fixDriveLetterAndSlashes(
 
 	if (isWindowsFileUri(aPath)) {
 		const prefixLen = fileUriPrefix.length;
+
 		aPath =
 			aPath.substr(0, prefixLen + 1) +
 			aPath.substr(prefixLen + 1).replace(/\//g, "\\");

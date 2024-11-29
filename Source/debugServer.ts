@@ -22,16 +22,22 @@ const storagePath = fs.mkdtempSync(path.join(os.tmpdir(), "vscode-js-debug-"));
 
 class Configurator {
 	private _setExceptionBreakpointsParams?: Dap.SetExceptionBreakpointsParams;
+
 	private _setBreakpointsParams: {
 		params: Dap.SetBreakpointsParams;
+
 		ids: number[];
 	}[];
+
 	private _customBreakpoints: string[] = [];
+
 	private _xhrBreakpoints: string[] = [];
+
 	private lastBreakpointId = 0;
 
 	constructor(dap: Dap.Api) {
 		this._setBreakpointsParams = [];
+
 		this._listen(dap);
 	}
 
@@ -39,6 +45,7 @@ class Configurator {
 		dap.on("setBreakpoints", async (params) => {
 			const ids =
 				params.breakpoints?.map(() => ++this.lastBreakpointId) ?? [];
+
 			this._setBreakpointsParams.push({ params, ids });
 
 			const breakpoints = ids.map((id) => ({
@@ -57,6 +64,7 @@ class Configurator {
 
 		dap.on("setCustomBreakpoints", async (params) => {
 			this._customBreakpoints = params.ids;
+
 			this._xhrBreakpoints = params.xhr;
 
 			return {};
@@ -81,13 +89,16 @@ class Configurator {
 				this._setExceptionBreakpointsParams,
 			);
 		}
+
 		for (const { params, ids } of this._setBreakpointsParams) {
 			await adapter.breakpointManager.setBreakpoints(params, ids);
 		}
+
 		await adapter.setCustomBreakpoints({
 			xhr: this._xhrBreakpoints,
 			ids: this._customBreakpoints,
 		});
+
 		await adapter.configurationDone();
 	}
 }
@@ -135,6 +146,7 @@ export function startDebugServer(
 					transport,
 					services.get(ILogger),
 				);
+
 				new Binder(
 					binderDelegate,
 					connection,
@@ -149,6 +161,7 @@ export function startDebugServer(
 				console.log(
 					`Debug server listening at ${(server.address() as net.AddressInfo).port}`,
 				);
+
 				resolve({
 					dispose: () => {
 						server.close();

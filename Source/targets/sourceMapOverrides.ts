@@ -23,6 +23,7 @@ const nonCapturingGroupRe = new RegExp(
 
 const occurencesInString = (re: RegExp, str: string) => {
 	const matches = str.match(re);
+
 	re.lastIndex = 0;
 
 	return matches ? matches.length : 0;
@@ -103,10 +104,12 @@ export class SourceMapOverrides {
 			let reSource = "^";
 
 			let leftIndex = 0;
+
 			anyGroupRe.lastIndex = 0;
 
 			while (true) {
 				const next = anyGroupRe.exec(leftPattern);
+
 				reSource += escapeRegexSpecialChars(
 					leftPattern.slice(leftIndex, next?.index),
 					"/",
@@ -127,6 +130,7 @@ export class SourceMapOverrides {
 
 			if (capturedGroups === 0) {
 				reSource += `([\\/\\\\].*)?`;
+
 				rightPattern += "*";
 			}
 

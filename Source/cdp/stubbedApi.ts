@@ -35,6 +35,7 @@ export const stubbedCdpApi = (): StubCdpApi => {
 
 							if (!s) {
 								s = stub();
+
 								stubs.set(`${domain}.${method}`, s);
 							}
 

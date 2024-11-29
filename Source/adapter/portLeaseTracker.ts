@@ -43,7 +43,9 @@ export const acquireTrackedServer = async (
 	const dispose = tracker.register(
 		(server.address() as net.AddressInfo).port,
 	);
+
 	server.on("close", () => dispose.dispose());
+
 	server.on("error", () => dispose.dispose());
 
 	return server;
@@ -65,7 +67,9 @@ export const acquireTrackedWebSocketServer = async (
 	const dispose = tracker.register(
 		(server.address() as net.AddressInfo).port,
 	);
+
 	server.on("close", () => dispose.dispose());
+
 	server.on("error", () => dispose.dispose());
 
 	return server;
@@ -109,6 +113,7 @@ export class PortLeaseTracker implements IPortLeaseTracker {
 	public readonly isMandated: boolean;
 
 	private readonly usedPorts = new Set<number>();
+
 	private readonly onRegistered = new EventEmitter<number>();
 
 	constructor(@inject(ExtensionLocation) location: ExtensionLocation) {
@@ -120,6 +125,7 @@ export class PortLeaseTracker implements IPortLeaseTracker {
 	 */
 	register(port: number): IDisposable {
 		this.usedPorts.add(port);
+
 		this.onRegistered.fire(port);
 
 		return { dispose: () => this.usedPorts.delete(port) };
@@ -147,6 +153,7 @@ export class PortLeaseTracker implements IPortLeaseTracker {
 							resolve(true);
 						}
 					});
+
 					ct.onCancellationRequested(() => l.dispose());
 				}),
 		]);

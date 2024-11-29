@@ -23,7 +23,9 @@ import { completeUrlEscapingRoot, isDataUri } from "../urlUtils";
 
 export interface ISourceMapMetadata {
 	sourceMapUrl: string;
+
 	cacheKey?: number | string;
+
 	compiledPath: string;
 }
 
@@ -43,6 +45,7 @@ export class SourceMap {
 	 * Map of aliased source names to the names in the `original` map.
 	 */
 	private sourceActualToOriginal = new Map<string, string>();
+
 	private sourceOriginalToActual = new Map<string, string>();
 
 	/**
@@ -70,6 +73,7 @@ export class SourceMap {
 
 			if (a !== null && o !== null) {
 				this.sourceActualToOriginal.set(a, o);
+
 				this.sourceOriginalToActual.set(o, a);
 			}
 		}
@@ -113,7 +117,9 @@ export class SourceMap {
 	 */
 	originalPositionFor(generatedPosition: {
 		line: number;
+
 		column: number;
+
 		bias?: 1 | -1;
 	}): NullableMappedPosition {
 		const mapped = originalPositionFor(this.original, generatedPosition);
@@ -131,8 +137,11 @@ export class SourceMap {
 	 */
 	generatedPositionFor(originalPosition: {
 		line: number;
+
 		column: number;
+
 		bias?: 1 | -1;
+
 		source: string;
 	}): NullableGeneratedPosition {
 		const source =
@@ -201,6 +210,7 @@ export class SourceMap {
 		picker: (is: EachMapping, betterThan: EachMapping) => number,
 	): NullableGeneratedPosition {
 		let best: EachMapping | undefined;
+
 		this.eachMapping((mapping) => {
 			if (
 				mapping.source === source &&

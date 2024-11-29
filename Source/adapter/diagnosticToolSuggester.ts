@@ -53,9 +53,13 @@ export class DiagnosticToolSuggester {
 	private static didSuggest = false;
 
 	private readonly disposable = new DisposableList();
+
 	private hadBreakpoint = false;
+
 	private didVerifyBreakpoint = false;
+
 	private hadNonModuleSourcemap = false;
+
 	private startedAt = Date.now();
 
 	private get currentlyQualifying() {
@@ -101,7 +105,9 @@ export class DiagnosticToolSuggester {
 					telemetry.report("diagnosticPrompt", {
 						event: "suggested",
 					});
+
 					DiagnosticToolSuggester.didSuggest = true;
+
 					dap.suggestDiagnosticTool({});
 				}, suggestDelay),
 			);
@@ -121,6 +127,7 @@ export class DiagnosticToolSuggester {
 
 		if (DiagnosticToolSuggester.didSuggest) {
 			DiagnosticToolSuggester.didSuggest = false;
+
 			this.telemetry.report("diagnosticPrompt", { event: "resolved" });
 		}
 	}
@@ -137,6 +144,7 @@ export class DiagnosticToolSuggester {
 						!ignoredModulePatterns.test(evt.url)
 					) {
 						this.hadNonModuleSourcemap = true;
+
 						this.disposable.disposeObject(listener);
 					}
 				}),

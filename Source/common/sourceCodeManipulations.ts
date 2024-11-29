@@ -62,6 +62,7 @@ export const parseSource: (str: string) => (Statement & AcornNode)[] = (
 			(stmt as any).id = null;
 		}
 	}
+
 	return parsed.body;
 };
 
@@ -309,6 +310,7 @@ export const traverse = (
 	node: Node,
 	visitor: {
 		enter: (node: Node, parent?: Node) => VisitorOption | void;
+
 		leave?: (node: Node) => void;
 	},
 ) => {
@@ -326,6 +328,7 @@ export const replace = <T extends Node>(
 			node: Node,
 			parent?: Node,
 		) => VisitorOption | { replace: Node } | void;
+
 		leave?: (node: Node) => void;
 	},
 ): T => {
@@ -347,6 +350,7 @@ const traverseInner = (
 	node: Node,
 	visitor: {
 		enter: (node: Node, parent?: Node) => VisitorResult | void;
+
 		leave?: (node: Node) => void;
 	},
 	parent?: Node,

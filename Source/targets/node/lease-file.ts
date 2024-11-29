@@ -15,8 +15,11 @@ import { IDisposable } from "../../common/events";
  */
 export class LeaseFile implements IDisposable {
 	private static readonly updateInterval = 1000;
+
 	private static readonly recencyDeadline = 2000;
+
 	private file: Promise<fs.FileHandle>;
+
 	private disposed = false;
 
 	/**
@@ -76,7 +79,9 @@ export class LeaseFile implements IDisposable {
 		const fd = await this.file;
 
 		const buf = Buffer.alloc(8);
+
 		buf.writeDoubleBE(dateProvider());
+
 		await fd.write(buf, 0, buf.length, 0);
 	}
 
@@ -96,7 +101,9 @@ export class LeaseFile implements IDisposable {
 
 		try {
 			const fd = await this.file;
+
 			await fd.close();
+
 			await fs.unlink(this.path);
 		} catch {
 			// ignored

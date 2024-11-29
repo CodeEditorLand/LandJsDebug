@@ -70,6 +70,7 @@ export const getStringyProps = templateFunction(function (
 				if (typeof value[sym] !== "function") {
 					continue;
 				}
+
 				try {
 					str = value[sym](DescriptionSymbols.Depth);
 
@@ -128,6 +129,7 @@ export const getToStringIfCustom = templateFunction(function (
 			) {
 				continue;
 			}
+
 			try {
 				str = (this as Record<symbol, (depth?: number) => string>)[sym](
 					DescriptionSymbols.Depth,

@@ -43,6 +43,7 @@ const onceBp = (maxDepth: number): IAsyncStackPolicy => {
 	const tryEnable = () => {
 		if (!enabled) {
 			enabled = true;
+
 			onEnable.fire();
 		}
 	};
@@ -63,6 +64,7 @@ const onceBp = (maxDepth: number): IAsyncStackPolicy => {
 				// should also have their async stacks turned on.
 				onEnable.event(() => {
 					disposable.dispose();
+
 					cdp.Debugger.setAsyncCallStackDepth({ maxDepth });
 				}),
 				// when a breakpoint resolves, turn on stacks because we're likely to

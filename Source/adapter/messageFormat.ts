@@ -11,8 +11,11 @@ export type FormatToken =
 	| { type: "string"; value: string }
 	| {
 			type: "specifier";
+
 			specifier: string;
+
 			precision?: number;
+
 			substitutionIndex: number;
 	  };
 
@@ -39,6 +42,7 @@ function tokenizeFormatString(
 		const lastToken = tokens[tokens.length - 1];
 
 		if (lastToken?.type === "string") lastToken.value += str;
+
 		else tokens.push({ type: "string", value: str });
 	}
 
@@ -79,14 +83,18 @@ function tokenizeFormatString(
 			if (substitionString && Number(substitionString) > 0) {
 				substitutionIndex = Number(substitionString) - 1;
 			}
+
 			const precision = precisionString
 				? Number(precisionString)
 				: undefined;
+
 			addSpecifierToken(specifierString, precision, substitutionIndex);
 			++substitutionIndex;
 		}
+
 		textStart = matchStart + match[0].length;
 	}
+
 	addStringToken(format.substring(textStart));
 
 	return tokens;
@@ -129,11 +137,13 @@ export function formatMessage<T>(
 
 			continue;
 		}
+
 		usedSubstitutionIndexes.add(index);
 
 		if (token.specifier === "c") cssFormatApplied = true;
 
 		const formatter = formatters.get(token.specifier) || defaultFormatter;
+
 		builder.append(
 			formatter(substitutions[index], {
 				budget: builder.budget(),
@@ -147,12 +157,14 @@ export function formatMessage<T>(
 
 	for (let i = 0; builder.checkBudget() && i < substitutions.length; ++i) {
 		if (usedSubstitutionIndexes.has(i)) continue;
+
 		usedSubstitutionIndexes.add(i);
 
 		if (format || i) {
 			// either we are second argument or we had format.
 			builder.append(" ");
 		}
+
 		builder.append(
 			defaultFormatter(substitutions[i], {
 				budget: builder.budget(),
@@ -178,6 +190,7 @@ function escapeAnsiColor(colorString: string): number | undefined {
 		// Unable to parse Color
 		// For instance, "inherit" color will throw
 	}
+
 	return undefined;
 }
 

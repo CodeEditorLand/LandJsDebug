@@ -12,6 +12,7 @@ import { DisposableList, IDisposable } from "../common/disposable";
  */
 export class DebugSessionTunnels implements IDisposable {
 	private readonly tunnels = new Map<string, vscode.Tunnel>();
+
 	private readonly disposable = new DisposableList();
 
 	constructor() {
@@ -37,6 +38,7 @@ export class DebugSessionTunnels implements IDisposable {
 
 		if (tunnel) {
 			tunnel.dispose();
+
 			this.tunnels.delete(sessionId);
 		}
 	}
@@ -49,7 +51,9 @@ export class DebugSessionTunnels implements IDisposable {
 		sessionId: string,
 		opts: {
 			label: string;
+
 			localPort?: number;
+
 			remotePort: number;
 		},
 	) {
@@ -61,6 +65,7 @@ export class DebugSessionTunnels implements IDisposable {
 				localAddressPort: opts.localPort ?? opts.remotePort,
 				label: opts.label,
 			});
+
 			this.tunnels.set(sessionId, tunnel);
 		}
 
@@ -68,6 +73,7 @@ export class DebugSessionTunnels implements IDisposable {
 
 		if (typeof tunnel.localAddress === "string") {
 			const [host, port] = tunnel.localAddress.split(":");
+
 			localAddress = { host, port: Number(port) };
 		} else {
 			localAddress = tunnel.localAddress;

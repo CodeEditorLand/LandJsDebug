@@ -65,12 +65,19 @@ export abstract class BrowserLauncher<T extends AnyChromiumLaunchConfiguration>
 	implements ILauncher
 {
 	private _connectionForTest: CdpConnection | undefined;
+
 	private _targetManager: BrowserTargetManager | undefined;
+
 	protected _disposables = new DisposableList();
+
 	private _onTerminatedEmitter = new EventEmitter<IStopMetadata>();
+
 	readonly onTerminated = this._onTerminatedEmitter.event;
+
 	private _onTargetListChangedEmitter = new EventEmitter<void>();
+
 	readonly onTargetListChanged = this._onTargetListChangedEmitter.event;
+
 	private readonly _terminatedCts = new CancellationTokenSource();
 
 	constructor(
@@ -143,6 +150,7 @@ export abstract class BrowserLauncher<T extends AnyChromiumLaunchConfiguration>
 
 		if (resolvedDataDir) {
 			fs.mkdirSync(resolvedDataDir, { recursive: true });
+
 			resolvedDataDir = fs.realpathSync(resolvedDataDir);
 		}
 
@@ -218,7 +226,9 @@ export abstract class BrowserLauncher<T extends AnyChromiumLaunchConfiguration>
 		const onConnectionFailed = async (err?: Error): Promise<void> => {
 			// cleanup old target manager immediately so sessions are reflected
 			this._targetManager?.dispose();
+
 			this._targetManager = undefined;
+
 			this._onTargetListChangedEmitter.fire();
 
 			if (canRetry()) {
@@ -248,6 +258,7 @@ export abstract class BrowserLauncher<T extends AnyChromiumLaunchConfiguration>
 			}
 
 			launched.process.kill();
+
 			this.fireTerminatedEvent();
 		};
 
@@ -263,7 +274,9 @@ export abstract class BrowserLauncher<T extends AnyChromiumLaunchConfiguration>
 					...ctx,
 					cancellationToken: launchCts.token,
 				});
+
 				await this.finishLaunch(target, params);
+
 				cdp.onDisconnected(() => onConnectionFailed());
 			} catch (e) {
 				if (canRetry()) {
@@ -313,14 +326,17 @@ export abstract class BrowserLauncher<T extends AnyChromiumLaunchConfiguration>
 		this._targetManager.serviceWorkerModel.onDidChange(() =>
 			this._onTargetListChangedEmitter.fire(),
 		);
+
 		this._targetManager.frameModel.onFrameNavigated(() =>
 			this._onTargetListChangedEmitter.fire(),
 		);
+
 		this._disposables.push(this._targetManager);
 
 		this._targetManager.onTargetAdded(() => {
 			this._onTargetListChangedEmitter.fire();
 		});
+
 		this._targetManager.onTargetRemoved(() => {
 			this._onTargetListChangedEmitter.fire();
 		});
@@ -466,6 +482,7 @@ export abstract class BrowserLauncher<T extends AnyChromiumLaunchConfiguration>
 	fireTerminatedEvent() {
 		if (!this._terminatedCts.token.isCancellationRequested) {
 			this._terminatedCts.cancel();
+
 			this._onTerminatedEmitter.fire({ code: 0, killed: true });
 		}
 	}

@@ -45,7 +45,9 @@ import { writeMemory } from "./templates/writeMemory";
 
 const getVariableId = (() => {
 	let last = 0;
+
 	const max = 0x7fffffff - 1;
+
 	return () => (last++ % max) + 1;
 })();
 
@@ -55,6 +57,7 @@ const toCallArgument = (value: string | Cdp.Runtime.RemoteObject) => {
 	}
 
 	const object = value as Cdp.Runtime.RemoteObject;
+
 	if (object.objectId) {
 		return { objectId: object.objectId };
 	}
@@ -76,7 +79,9 @@ export interface IVariableStoreLocationProvider {
 
 export interface IScopeRef {
 	stackFrame: StackFrame;
+
 	callFrameId: Cdp.Debugger.CallFrameId;
+
 	scopeNumber: number;
 }
 
@@ -111,6 +116,7 @@ const extractFunctionFromCustomGenerator = (
 		parseSource(generatorDefinition),
 		catchAndReturnErrors,
 	);
+
 	return generate(code);
 };
 
@@ -122,7 +128,9 @@ const localizeIndescribable = (str: string) => {
 	}
 
 	let error;
+
 	let key;
+
 	try {
 		[error, key] = JSON.parse(str.slice(indescribablePrefix.length));
 	} catch {
@@ -152,6 +160,7 @@ export interface IVariableContainer {
  */
 export interface IVariable extends IVariableContainer {
 	readonly sortOrder: number;
+
 	toDap(
 		context: PreviewContextType,
 		valueFormat?: Dap.ValueFormat,
@@ -160,6 +169,7 @@ export interface IVariable extends IVariableContainer {
 
 interface IMemoryReadable {
 	readMemory(offset: number, count: number): Promise<Buffer | undefined>;
+
 	writeMemory(offset: number, memory: Buffer): Promise<number>;
 }
 
@@ -172,6 +182,7 @@ const isMemoryReadable = (t: unknown): t is IMemoryReadable =>
  */
 export interface IStoreSettings {
 	customDescriptionGenerator?: string;
+
 	customPropertiesGenerator?: string;
 }
 
@@ -184,6 +195,7 @@ type VariableCtor<
 
 interface IContextInit {
 	name: string;
+
 	presentationHint?: Dap.VariablePresentationHint;
 	/** How this variable should be sorted in results, in ascending numeric order. */
 	sortOrder?: number;
@@ -191,7 +203,9 @@ interface IContextInit {
 
 interface IContextSettings {
 	customDescriptionGenerator?: string;
+
 	customPropertiesGenerator?: string;
+
 	descriptionSymbols?: Promise<Cdp.Runtime.CallArgument>;
 }
 
@@ -226,7 +240,9 @@ class VariableContext {
 		public readonly clientCapabilities: IClientCapabilies,
 	) {
 		this.name = ctx.name;
+
 		this.presentationHint = ctx.presentationHint;
+
 		this.sortOrder = ctx.sortOrder || SortOrder.Default;
 	}
 
@@ -237,17 +253,20 @@ class VariableContext {
 		ctor: T,
 		ctx: IContextInit,
 	): InstanceType<T>;
+
 	public createVariable<A, T extends VariableCtor<[A]>>(
 		ctor: T,
 		ctx: IContextInit,
 		a: A,
 	): InstanceType<T>;
+
 	public createVariable<A, B, T extends VariableCtor<[A, B]>>(
 		ctor: T,
 		ctx: IContextInit,
 		a: A,
 		b: B,
 	): InstanceType<T>;
+
 	public createVariable<A, B, C, T extends VariableCtor<[A, B, C]>>(
 		ctor: T,
 		ctx: IContextInit,
@@ -446,9 +465,12 @@ class VariableContext {
 
 			propertiesMap.set(property.name, property);
 		}
+
 		for (const property of ownProperties.result) {
 			if (property.get || property.set) continue;
+
 			if (property.symbol) propertySymbols.push(property);
+
 			else propertiesMap.set(property.name, property);
 		}
 
@@ -486,6 +508,7 @@ class VariableContext {
 			}
 
 			let variable: Variable | undefined;
+
 			if (isFunctionLocation(p)) {
 				variable = this.createFunctionLocationVariable(p);
 			} else if (p.value !== undefined) {
@@ -547,13 +570,16 @@ class VariableContext {
 				// are automatically non-enumerable but not (automatically) considered private (#1215)
 				if (p.enumerable === false && !hasGetter) {
 					ctx.presentationHint.visibility = "internal";
+
 					ctx.sortOrder = SortOrder.Private;
 				}
+
 				if (p.writable === false || (hasGetter && !hasSetter)) {
 					ctx.presentationHint.attributes = ["readOnly"];
 				}
 			} else {
 				ctx.presentationHint.visibility = "private";
+
 				ctx.sortOrder = SortOrder.Private;
 			}
 		}
@@ -594,6 +620,7 @@ class VariableContext {
 		argumentsToEvaluateWith: string[],
 	): Promise<{
 		result?: Cdp.Runtime.RemoteObject;
+
 		errorDescription?: string;
 	}> {
 		try {
@@ -617,6 +644,7 @@ class VariableContext {
 					};
 				}
 			}
+
 			return { errorDescription: l10n.t("Unknown error") };
 		} catch (e) {
 			return { errorDescription: e.stack || e.message || String(e) };
@@ -840,6 +868,7 @@ class FunctionLocationVariable extends Variable {
 		remoteObject: Cdp.Runtime.RemoteObject,
 	) {
 		super(context, remoteObject);
+
 		this.location = remoteObject.value;
 	}
 
@@ -1031,8 +1060,10 @@ class NodeVariable extends Variable {
 		switch (params?.filter) {
 			case "indexed":
 				return this.getNodeChildren(params.start, params.count);
+
 			case "named":
 				return [this.getAttributesVar()];
+
 			default:
 				return [
 					this.getAttributesVar(),
@@ -1106,16 +1137,19 @@ class NodeVariable extends Variable {
 				const key = attributes[i];
 
 				const value = attributes[i + 1];
+
 				str += ` ${styleCheck && AnsiStyles.BrightBlue}${key}${
 					styleCheck && AnsiStyles.Dim
 				}=${styleCheck && AnsiStyles.Yellow}${JSON.stringify(value)}`;
 			}
 		}
+
 		str += (styleCheck && AnsiStyles.Blue) + ">";
 
 		if (childNodeCount) {
 			str += `${styleCheck && AnsiStyles.Dim}...${styleCheck && AnsiStyles.Blue}`;
 		}
+
 		str += `</${localName}>${styleCheck && AnsiStyles.Reset}`;
 
 		return str;
@@ -1150,7 +1184,9 @@ const entriesVariableName = "[[Entries]]";
 
 class SetOrMapVariable extends ObjectVariable {
 	private readonly size?: number;
+
 	public readonly isMap: boolean;
+
 	private readonly baseChildren = once(() =>
 		super.getChildren({ variablesReference: this.id }),
 	);
@@ -1160,12 +1196,14 @@ class SetOrMapVariable extends ObjectVariable {
 		remoteObject: Cdp.Runtime.RemoteObject,
 	) {
 		super(context, remoteObject, NoCustomStringRepr);
+
 		this.isMap = remoteObject.subtype === "map";
 
 		const cast = remoteObject.preview as
 			| MapPreview
 			| SetPreview
 			| undefined;
+
 		this.size =
 			Number(cast?.properties.find((p) => p.name === "size")?.value) ??
 			undefined;
@@ -1212,6 +1250,7 @@ class ArrayVariable extends ObjectVariable {
 		super(context, remoteObject, NoCustomStringRepr);
 
 		const match = String(remoteObject.description).match(/\(([0-9]+)\)/);
+
 		this.length = match ? +match[1] : 0;
 	}
 
@@ -1231,8 +1270,10 @@ class ArrayVariable extends ObjectVariable {
 		switch (params?.filter) {
 			case "indexed":
 				return this.getArraySlots(params);
+
 			case "named":
 				return this.getArrayProperties();
+
 			default:
 				return Promise.all([
 					this.getArrayProperties(),
@@ -1345,7 +1386,9 @@ class GetterVariable extends AccessorVariable {
 		valueFormat?: Dap.ValueFormat,
 	): Promise<Dap.Variable> {
 		const dap = await super.toDap(previewContext, valueFormat);
+
 		dap.variablesReference = this.id;
+
 		dap.presentationHint = { ...dap.presentationHint, lazy: true };
 
 		return dap;
@@ -1581,6 +1624,7 @@ class Scope implements IVariableContainer {
 				errors.createUserError(l10n.t("Invalid expression")),
 			);
 		}
+
 		if (evaluated.exceptionDetails) {
 			throw new ProtocolError(
 				errorFromException(evaluated.exceptionDetails),
@@ -1600,6 +1644,7 @@ class Scope implements IVariableContainer {
 
 export interface IExtraProperty {
 	name: string;
+
 	value: Cdp.Runtime.RemoteObject;
 }
 
@@ -1628,6 +1673,7 @@ class VariablesMap {
 @injectable()
 export class VariableStore {
 	private vars = new VariablesMap();
+
 	private readonly contextSettings: IContextSettings;
 
 	constructor(
@@ -1713,6 +1759,7 @@ export class VariableStore {
 						);
 
 		const container = new OutputVariableContainer(output);
+
 		this.vars.add(container);
 
 		return container;
@@ -1901,6 +1948,7 @@ export class VariableStore {
 				params.name,
 				params.value,
 			);
+
 			return await newVar.toDap(
 				PreviewContextType.PropertyValue,
 				params.format,
@@ -1931,6 +1979,7 @@ function errorFromException(details: Cdp.Runtime.ExceptionDetails): Dap.Error {
 		(details.exception &&
 			objectPreview.previewException(details.exception).title) ||
 		details.text;
+
 	return errors.createUserError(message);
 }
 

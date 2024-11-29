@@ -13,8 +13,11 @@ import { UiProfileSession } from "./uiProfileSession";
  */
 export interface ITerminationConditionFactory {
 	readonly id: string;
+
 	readonly label: string;
+
 	readonly description?: string;
+
 	readonly sortOrder: number;
 
 	/**

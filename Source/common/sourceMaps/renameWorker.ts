@@ -28,6 +28,7 @@ export function extractScopeRangesWithFactory(source: string): FlatTree {
 		}
 
 		output.push({ start: start.start, end: end.end, depth: stack.length });
+
 		stack.push(indexingNode);
 	};
 
@@ -44,6 +45,7 @@ export function extractScopeRangesWithFactory(source: string): FlatTree {
 				case "FunctionDeclaration":
 				case "ArrowFunctionExpression":
 					push(node, node.params[0] || node.body, node.body);
+
 					coveredBlocks.add(node.body);
 
 					break;
@@ -57,6 +59,7 @@ export function extractScopeRangesWithFactory(source: string): FlatTree {
 				case "ForOfStatement":
 				case "ForInStatement":
 					push(node);
+
 					coveredBlocks.add(node.body);
 
 					break;
@@ -65,6 +68,7 @@ export function extractScopeRangesWithFactory(source: string): FlatTree {
 					if (!coveredBlocks.has(node)) {
 						push(node);
 					}
+
 					break;
 			}
 		},

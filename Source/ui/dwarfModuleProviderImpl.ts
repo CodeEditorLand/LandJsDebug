@@ -40,6 +40,7 @@ export class DwarfModuleProvider implements IDwarfModuleProvider {
 		if (!ext) {
 			return undefined;
 		}
+
 		if (!ext.isActive) {
 			await ext.activate();
 		}
@@ -90,6 +91,7 @@ export class DwarfModuleProvider implements IDwarfModuleProvider {
 						"workbench.extensions.installExtension",
 						EXT_ID,
 					);
+
 					vscode.window.showInformationMessage(
 						l10n.t(
 							"Installation complete! The extension will be used after you restart your debug session.",

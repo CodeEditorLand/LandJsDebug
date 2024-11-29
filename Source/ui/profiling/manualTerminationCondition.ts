@@ -15,8 +15,11 @@ export class ManualTerminationConditionFactory
 	implements ITerminationConditionFactory
 {
 	public readonly sortOrder = 0;
+
 	public readonly id = "manual";
+
 	public readonly label = l10n.t("Manual");
+
 	public readonly description = l10n.t("Run until manually stopped");
 
 	public async onPick() {

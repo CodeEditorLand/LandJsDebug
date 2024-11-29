@@ -56,14 +56,21 @@ export type PauseOnExceptionsState = "none" | "uncaught" | "all";
 
 export class BrowserTarget implements ITarget {
 	readonly parentTarget: BrowserTarget | undefined;
+
 	private _cdp: Cdp.Api;
+
 	private _ondispose: (t: BrowserTarget) => void;
+
 	private _waitingForDebugger: boolean;
+
 	private _attached = false;
+
 	private _customNameComputeFn?: (t: BrowserTarget) => string | undefined;
+
 	_onNameChangedEmitter = new EventEmitter<void>();
 
 	public readonly onNameChanged = this._onNameChangedEmitter.event;
+
 	public readonly entryBreakpoint = undefined;
 
 	public get targetInfo(): Readonly<Cdp.Target.TargetInfo> {
@@ -109,11 +116,15 @@ export class BrowserTarget implements ITarget {
 		ondispose: (t: BrowserTarget) => void,
 	) {
 		this._cdp = cdp;
+
 		cdp.pause();
 
 		this.parentTarget = parentTarget;
+
 		this._waitingForDebugger = waitingForDebugger;
+
 		this._updateFromInfo(_targetInfo);
+
 		this._ondispose = ondispose;
 	}
 
@@ -162,6 +173,7 @@ export class BrowserTarget implements ITarget {
 		if (this.parentTarget && !jsTypes.has(this.parentTarget.type())) {
 			return this.parentTarget.parentTarget;
 		}
+
 		return this.parentTarget;
 	}
 
@@ -170,8 +182,10 @@ export class BrowserTarget implements ITarget {
 
 		for (const target of this._children.values()) {
 			if (jsTypes.has(target.type())) result.push(target);
+
 			else result.push(...target.children());
 		}
+
 		return result;
 	}
 
@@ -189,6 +203,7 @@ export class BrowserTarget implements ITarget {
 			this._manager.serviceWorkerModel.stopWorker(this.id());
 
 			if (!this.parentTarget) return;
+
 			this._manager.serviceWorkerModel.stopWorker(this.parentTarget.id());
 		} else {
 			this._cdp.Target.closeTarget({
@@ -215,6 +230,7 @@ export class BrowserTarget implements ITarget {
 
 	async attach(): Promise<Cdp.Api> {
 		this._waitingForDebugger = false;
+
 		this._attached = true;
 
 		return Promise.resolve(this._cdp);
@@ -226,6 +242,7 @@ export class BrowserTarget implements ITarget {
 
 	async detach(): Promise<void> {
 		this._attached = false;
+
 		this._manager._detachedFromTarget(this.sessionId);
 	}
 
@@ -271,6 +288,7 @@ export class BrowserTarget implements ITarget {
 		// Preserve the original type; it should never change (e.g. a page can't
 		// become an iframe or a sevice worker).
 		this._targetInfo = { ...targetInfo, type: this._targetInfo.type };
+
 		this._onNameChangedEmitter.fire();
 	}
 
@@ -281,6 +299,7 @@ export class BrowserTarget implements ITarget {
 	 */
 	public setComputeNameFn(fn: (target: BrowserTarget) => string | undefined) {
 		this._customNameComputeFn = fn;
+
 		this._onNameChangedEmitter.fire();
 	}
 
@@ -290,6 +309,7 @@ export class BrowserTarget implements ITarget {
 		if (custom) {
 			return custom;
 		}
+
 		if (this.type() === BrowserTargetType.ServiceWorker) {
 			const version = this._manager.serviceWorkerModel.version(this.id());
 
@@ -332,6 +352,7 @@ export class BrowserTarget implements ITarget {
 
 	async _detached() {
 		await this._manager.serviceWorkerModel.detached(this._cdp);
+
 		this._ondispose(this);
 	}
 }

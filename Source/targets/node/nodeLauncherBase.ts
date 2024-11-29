@@ -94,10 +94,15 @@ export interface IProcessTelemetry {
  */
 export interface IRunData<T> {
 	server: net.Server;
+
 	serverAddress: string;
+
 	pathResolver: NodeSourcePathResolver;
+
 	context: ILaunchContext;
+
 	logger: ILogger;
+
 	params: T;
 }
 
@@ -219,6 +224,7 @@ export abstract class NodeLauncherBase<T extends AnyNodeConfiguration>
 
 		if (program) {
 			this.program = undefined;
+
 			await program.stop();
 
 			const closeOk = await Promise.race([
@@ -235,6 +241,7 @@ export abstract class NodeLauncherBase<T extends AnyNodeConfiguration>
 					LogTag.RuntimeLaunch,
 					"Timeout waiting for server connections to close",
 				);
+
 				this.closeAllConnections();
 			}
 		}
@@ -287,7 +294,9 @@ export abstract class NodeLauncherBase<T extends AnyNodeConfiguration>
 	 */
 	protected onProgramTerminated(result: IStopMetadata) {
 		this.onTerminatedEmitter.fire(result);
+
 		this._stopServer();
+
 		this.program = undefined;
 	}
 
@@ -414,14 +423,19 @@ export abstract class NodeLauncherBase<T extends AnyNodeConfiguration>
 
 	protected _stopServer() {
 		this.run?.server.close();
+
 		this.run = undefined;
+
 		this.bootloaderFile.value?.then((f) => f.dispose());
+
 		this.bootloaderFile.forget();
+
 		this.closeAllConnections();
 	}
 
 	protected closeAllConnections() {
 		this.serverConnections.forEach((c) => c.close());
+
 		this.serverConnections.clear();
 	}
 
@@ -464,7 +478,9 @@ export abstract class NodeLauncherBase<T extends AnyNodeConfiguration>
 		);
 
 		this.listenToWorkerDomain(cdp, telemetryReporter, target);
+
 		this.targets.add(targetInfo.targetId, target);
+
 		target.onDisconnect(() => this.targets.remove(targetInfo.targetId));
 	}
 
@@ -498,10 +514,15 @@ export abstract class NodeLauncherBase<T extends AnyNodeConfiguration>
 			);
 
 			const disposables = new DisposableList();
+
 			disposables.push(transport);
+
 			disposables.push(parent.onDisconnect(() => disposables.dispose()));
+
 			disposables.push(transport.onEnd(() => disposables.dispose()));
+
 			disposables.callback(() => this.targets.remove(target.id()));
+
 			this.targets.add(target.id(), target);
 		});
 	}
@@ -521,6 +542,7 @@ export abstract class NodeLauncherBase<T extends AnyNodeConfiguration>
 		);
 
 		this.serverConnections.add(connection);
+
 		connection.onDisconnected(() =>
 			this.serverConnections.delete(connection),
 		);
@@ -536,6 +558,7 @@ export abstract class NodeLauncherBase<T extends AnyNodeConfiguration>
 		const portLease = this.portLeaseTracker.register(
 			cast.processInspectorPort,
 		);
+
 		connection.onDisconnected(() => portLease.dispose());
 
 		return {
@@ -578,6 +601,7 @@ export abstract class NodeLauncherBase<T extends AnyNodeConfiguration>
 				os.tmpdir(),
 				"vscode-js-debug-bootloader.js",
 			);
+
 			await fs.promises.writeFile(tmpPath, contents);
 
 			return { interpolatedPath: tmpPath, dispose: () => undefined };
@@ -587,6 +611,7 @@ export abstract class NodeLauncherBase<T extends AnyNodeConfiguration>
 		const nearFilename = ".vscode-js-debug-bootloader.js";
 
 		const nearPath = path.join(cwd, nearFilename);
+
 		await fs.promises.writeFile(nearPath, contents);
 
 		return {
@@ -631,16 +656,19 @@ export abstract class NodeLauncherBase<T extends AnyNodeConfiguration>
 					LogTag.RuntimeTarget,
 					"Process not yet defined, will retry",
 				);
+
 				await delay(50 * 2 ** retries);
 
 				continue;
 			}
 
 			const result = telemetry.result.value as IProcessTelemetry;
+
 			run.context.telemetryReporter.report("nodeRuntime", {
 				version: result.nodeVersion,
 				arch: result.architecture,
 			});
+
 			this.program.gotTelemetery(result);
 
 			return result;
@@ -666,5 +694,6 @@ function stripBOM(s: string): string {
 	if (s && s[0] === "\uFEFF") {
 		s = s.substr(1);
 	}
+
 	return s;
 }

@@ -71,6 +71,7 @@ export abstract class NodeAttacherBase<
 				"Error setting child environment vars",
 				result,
 			);
+
 			await delay(50);
 		}
 	}

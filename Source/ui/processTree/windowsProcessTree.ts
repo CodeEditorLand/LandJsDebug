@@ -64,6 +64,7 @@ export class WindowsProcessTree extends BaseProcessTree {
 
 					if (end > 0) {
 						command = args.substr(1, end - 1);
+
 						args = args.substr(end + 2);
 					}
 				} else {
@@ -71,6 +72,7 @@ export class WindowsProcessTree extends BaseProcessTree {
 
 					if (end > 0) {
 						command = args.substr(0, end);
+
 						args = args.substr(end + 1);
 					} else {
 						args = "";

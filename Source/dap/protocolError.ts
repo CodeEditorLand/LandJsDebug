@@ -13,6 +13,7 @@ export class ProtocolError extends Error {
 
 	constructor(cause: Dap.Message | Dap.Error) {
 		super("__errorMarker" in cause ? cause.error.format : cause.format);
+
 		this._cause = "__errorMarker" in cause ? cause.error : cause;
 	}
 }

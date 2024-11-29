@@ -40,12 +40,15 @@ const revealLocation = async ({ line, column, source }: Dap.CallerLocation) => {
 	const editor = await vscode.window.showTextDocument(doc);
 
 	const position = new vscode.Position(line - 1, column - 1);
+
 	editor.revealRange(new vscode.Range(position, position));
+
 	editor.selection = new vscode.Selection(position, position);
 };
 
 export class ExcludedCaller {
 	public readonly treeItem: vscode.TreeItem;
+
 	public readonly id: string;
 
 	constructor(
@@ -81,7 +84,9 @@ export class ExcludedCallersUI
 	private readonly _onDidChangeTreeData = new vscode.EventEmitter<
 		ExcludedCaller | undefined
 	>();
+
 	private allCallers = new Map<string, ExcludedCaller>();
+
 	private lastHadCallers = false;
 
 	constructor(
@@ -129,6 +134,7 @@ export class ExcludedCallersUI
 					);
 
 					this.allCallers.set(caller.id, caller);
+
 					this.triggerUpdate();
 				},
 			),
@@ -143,11 +149,13 @@ export class ExcludedCallersUI
 				Commands.CallersRemove,
 				async (c) => {
 					this.allCallers.delete(c.id);
+
 					this.triggerUpdate();
 				},
 			),
 			registerCommand(vscode.commands, Commands.CallersRemoveAll, () => {
 				this.allCallers.clear();
+
 				this.triggerUpdate();
 			}),
 			this.sessionTracker.onSessionAdded((e) => {
@@ -192,6 +200,7 @@ export class ExcludedCallersUI
 				ContextKey.HasExcludedCallers,
 				hasCallers,
 			);
+
 			this.lastHadCallers = hasCallers;
 		}
 	}

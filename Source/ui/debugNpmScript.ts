@@ -13,7 +13,9 @@ import { getRunScriptCommand } from "./getRunScriptCommand";
 
 interface IScript {
 	directory: string;
+
 	name: string;
+
 	command: string;
 }
 
@@ -36,6 +38,7 @@ export async function debugNpmScript(
 		const workspaceFolder = vscode.workspace.getWorkspaceFolder(
 			vscode.Uri.file(script.directory),
 		);
+
 		runCommand(
 			vscode.commands,
 			Commands.CreateDebuggerTerminal,
@@ -65,6 +68,7 @@ export async function debugNpmScript(
 				label: path.basename(script.directory),
 				kind: vscode.QuickPickItemKind.Separator,
 			});
+
 			lastDir = script.directory;
 		}
 
@@ -74,11 +78,13 @@ export async function debugNpmScript(
 			description: script.command,
 		});
 	}
+
 	quickPick.items = items;
 
 	quickPick.onDidAccept(async () => {
 		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 		runScript(quickPick.selectedItems[0].script!);
+
 		quickPick.dispose();
 	});
 
@@ -87,6 +93,7 @@ export async function debugNpmScript(
 
 interface IEditCandidate {
 	path?: string;
+
 	score: number;
 }
 
@@ -113,6 +120,7 @@ export async function findScripts(
 				),
 			);
 		}
+
 		return;
 	}
 
@@ -135,6 +143,7 @@ export async function findScripts(
 				l10n.t("No package.json files found in your workspace."),
 			);
 		}
+
 		return;
 	}
 
@@ -203,6 +212,7 @@ export async function findScripts(
 				editCandidate.path,
 			);
 		}
+
 		return;
 	}
 
@@ -230,6 +240,7 @@ async function promptToOpen(
 	// fill it in with some minimal "scripts" section.
 	if (fs.existsSync(file)) {
 		const document = await vscode.workspace.openTextDocument(file);
+
 		await vscode.window.showTextDocument(document);
 
 		return;
@@ -240,10 +251,12 @@ async function promptToOpen(
 	);
 
 	const editor = await vscode.window.showTextDocument(document);
+
 	await editor.edit((e) =>
 		e.insert(new vscode.Position(0, 0), defaultPackageJsonContents),
 	);
 
 	const pos = new vscode.Position(2, 5);
+
 	editor.selection = new vscode.Selection(pos, pos);
 }

@@ -157,6 +157,7 @@ export class UserDefinedBreakpoint extends Breakpoint {
 	 */
 	private async notifyResolved(): Promise<void> {
 		await this.completedSet.promise;
+
 		await this._manager.notifyBreakpointChange(this, true);
 	}
 }

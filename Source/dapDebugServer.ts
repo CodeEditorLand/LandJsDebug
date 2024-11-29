@@ -35,9 +35,13 @@ interface IInitializationCollection {
 	setExceptionBreakpointsParams?: Dap.SetExceptionBreakpointsParams;
 
 	setBreakpointsParams: { params: Dap.SetBreakpointsParams; ids: number[] }[];
+
 	customBreakpoints: string[];
+
 	xhrBreakpoints: string[];
+
 	initializeParams: Dap.InitializeParams;
+
 	launchParams: AnyResolvingConfiguration;
 
 	/** Promise that should be resolved when the launch is finished */
@@ -58,6 +62,7 @@ function collectInitialize(dap: Dap.Api) {
 
 	const setBreakpointsParams: {
 		params: Dap.SetBreakpointsParams;
+
 		ids: number[];
 	}[] = [];
 
@@ -95,6 +100,7 @@ function collectInitialize(dap: Dap.Api) {
 
 	dap.on("setCustomBreakpoints", async (params) => {
 		customBreakpoints = params.ids;
+
 		xhrBreakpoints = params.xhr;
 
 		return {};
@@ -149,7 +155,9 @@ function collectInitialize(dap: Dap.Api) {
 
 			return deferred.promise;
 		};
+
 		dap.on("launch", (p) => handle(p));
+
 		dap.on("attach", handle);
 	});
 }
@@ -188,12 +196,14 @@ class DapSessionManager implements IBinderDelegate {
 					"Expected parent session to have a settled value",
 				);
 			}
+
 			dap = parentCnx.connection.dap();
 		} else {
 			dap = this.dapRoot;
 		}
 
 		const deferred = getDeferred<ISessionInfo>();
+
 		this.sessions.set(target.id(), deferred);
 
 		// don't await on this, otherwise we deadlock since the promise may not
@@ -228,17 +238,22 @@ class DapSessionManager implements IBinderDelegate {
 				init.setExceptionBreakpointsParams,
 			);
 		}
+
 		for (const { params, ids } of init.setBreakpointsParams) {
 			await adapter.breakpointManager.setBreakpoints(params, ids);
 		}
+
 		await adapter.setCustomBreakpoints({
 			xhr: init.xhrBreakpoints,
 			ids: init.customBreakpoints,
 		});
+
 		await adapter.onInitialize(init.initializeParams);
+
 		await adapter.configurationDone();
 
 		await adapter.launchBlocker();
+
 		init.deferred.resolve({});
 
 		return true;
@@ -309,17 +324,22 @@ function startDebugServer(options: net.ListenOptions) {
 							`Cannot find pending target for ${ptId}`,
 						);
 					}
+
 					logger.connectTo(manager.services.get(ILogger));
+
 					manager.handleConnection({ ...initialized, connection });
 				} else {
 					const sessionServices =
 						createTopLevelSessionContainer(services);
 
 					const manager = new DapSessionManager(dap, sessionServices);
+
 					managers.add(manager);
+
 					sessionServices
 						.bind(IInitializeParams)
 						.toConstantValue(initialized.initializeParams);
+
 					logger.connectTo(sessionServices.get(ILogger));
 
 					const binder = new Binder(
@@ -328,10 +348,13 @@ function startDebugServer(options: net.ListenOptions) {
 						sessionServices,
 						new TargetOrigin("targetOrigin"),
 					);
+
 					transport.closed(() => {
 						binder.dispose();
+
 						managers.delete(manager);
 					});
+
 					initialized.deferred.resolve(
 						await binder.boot(initialized.launchParams, dap),
 					);
@@ -344,11 +367,13 @@ function startDebugServer(options: net.ListenOptions) {
 		})
 		.on("error", (err) => {
 			console.error(err);
+
 			process.exit(1);
 		})
 		.listen(options, () => {
 			// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 			const addr = server.address()!;
+
 			console.log(
 				`Debug server listening at ${
 					typeof addr === "string"

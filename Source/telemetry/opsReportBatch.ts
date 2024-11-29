@@ -54,6 +54,7 @@ export class ReporterBatcher {
 
 			for (const t of times) {
 				item.totalTime += t;
+
 				item.max = Math.max(item.max, t);
 			}
 
@@ -64,7 +65,9 @@ export class ReporterBatcher {
 			}
 
 			item.stddev = Math.sqrt(item.stddev / (times.length - 1));
+
 			results[item.operation] = item;
+
 			results[`!${item.operation}.errors`] = errors;
 			// property without excalamation for VS
 			if (!this.isVSCode) {

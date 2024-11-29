@@ -1425,10 +1425,12 @@ export namespace Dap {
 			request: "initialized",
 			handler: (params: InitializedEventParams) => void,
 		): void;
+
 		off(
 			request: "initialized",
 			handler: (params: InitializedEventParams) => void,
 		): void;
+
 		once(
 			request: "initialized",
 			filter?: (event: InitializedEventParams) => boolean,
@@ -1442,10 +1444,12 @@ export namespace Dap {
 			request: "stopped",
 			handler: (params: StoppedEventParams) => void,
 		): void;
+
 		off(
 			request: "stopped",
 			handler: (params: StoppedEventParams) => void,
 		): void;
+
 		once(
 			request: "stopped",
 			filter?: (event: StoppedEventParams) => boolean,
@@ -1460,10 +1464,12 @@ export namespace Dap {
 			request: "continued",
 			handler: (params: ContinuedEventParams) => void,
 		): void;
+
 		off(
 			request: "continued",
 			handler: (params: ContinuedEventParams) => void,
 		): void;
+
 		once(
 			request: "continued",
 			filter?: (event: ContinuedEventParams) => boolean,
@@ -1476,10 +1482,12 @@ export namespace Dap {
 			request: "exited",
 			handler: (params: ExitedEventParams) => void,
 		): void;
+
 		off(
 			request: "exited",
 			handler: (params: ExitedEventParams) => void,
 		): void;
+
 		once(
 			request: "exited",
 			filter?: (event: ExitedEventParams) => boolean,
@@ -1492,10 +1500,12 @@ export namespace Dap {
 			request: "terminated",
 			handler: (params: TerminatedEventParams) => void,
 		): void;
+
 		off(
 			request: "terminated",
 			handler: (params: TerminatedEventParams) => void,
 		): void;
+
 		once(
 			request: "terminated",
 			filter?: (event: TerminatedEventParams) => boolean,
@@ -1508,10 +1518,12 @@ export namespace Dap {
 			request: "thread",
 			handler: (params: ThreadEventParams) => void,
 		): void;
+
 		off(
 			request: "thread",
 			handler: (params: ThreadEventParams) => void,
 		): void;
+
 		once(
 			request: "thread",
 			filter?: (event: ThreadEventParams) => boolean,
@@ -1524,10 +1536,12 @@ export namespace Dap {
 			request: "output",
 			handler: (params: OutputEventParams) => void,
 		): void;
+
 		off(
 			request: "output",
 			handler: (params: OutputEventParams) => void,
 		): void;
+
 		once(
 			request: "output",
 			filter?: (event: OutputEventParams) => boolean,
@@ -1540,10 +1554,12 @@ export namespace Dap {
 			request: "breakpoint",
 			handler: (params: BreakpointEventParams) => void,
 		): void;
+
 		off(
 			request: "breakpoint",
 			handler: (params: BreakpointEventParams) => void,
 		): void;
+
 		once(
 			request: "breakpoint",
 			filter?: (event: BreakpointEventParams) => boolean,
@@ -1556,10 +1572,12 @@ export namespace Dap {
 			request: "module",
 			handler: (params: ModuleEventParams) => void,
 		): void;
+
 		off(
 			request: "module",
 			handler: (params: ModuleEventParams) => void,
 		): void;
+
 		once(
 			request: "module",
 			filter?: (event: ModuleEventParams) => boolean,
@@ -1572,10 +1590,12 @@ export namespace Dap {
 			request: "loadedSource",
 			handler: (params: LoadedSourceEventParams) => void,
 		): void;
+
 		off(
 			request: "loadedSource",
 			handler: (params: LoadedSourceEventParams) => void,
 		): void;
+
 		once(
 			request: "loadedSource",
 			filter?: (event: LoadedSourceEventParams) => boolean,
@@ -1588,10 +1608,12 @@ export namespace Dap {
 			request: "process",
 			handler: (params: ProcessEventParams) => void,
 		): void;
+
 		off(
 			request: "process",
 			handler: (params: ProcessEventParams) => void,
 		): void;
+
 		once(
 			request: "process",
 			filter?: (event: ProcessEventParams) => boolean,
@@ -1607,10 +1629,12 @@ export namespace Dap {
 			request: "capabilities",
 			handler: (params: CapabilitiesEventParams) => void,
 		): void;
+
 		off(
 			request: "capabilities",
 			handler: (params: CapabilitiesEventParams) => void,
 		): void;
+
 		once(
 			request: "capabilities",
 			filter?: (event: CapabilitiesEventParams) => boolean,
@@ -1625,10 +1649,12 @@ export namespace Dap {
 			request: "progressStart",
 			handler: (params: ProgressStartEventParams) => void,
 		): void;
+
 		off(
 			request: "progressStart",
 			handler: (params: ProgressStartEventParams) => void,
 		): void;
+
 		once(
 			request: "progressStart",
 			filter?: (event: ProgressStartEventParams) => boolean,
@@ -1643,10 +1669,12 @@ export namespace Dap {
 			request: "progressUpdate",
 			handler: (params: ProgressUpdateEventParams) => void,
 		): void;
+
 		off(
 			request: "progressUpdate",
 			handler: (params: ProgressUpdateEventParams) => void,
 		): void;
+
 		once(
 			request: "progressUpdate",
 			filter?: (event: ProgressUpdateEventParams) => boolean,
@@ -1660,10 +1688,12 @@ export namespace Dap {
 			request: "progressEnd",
 			handler: (params: ProgressEndEventParams) => void,
 		): void;
+
 		off(
 			request: "progressEnd",
 			handler: (params: ProgressEndEventParams) => void,
 		): void;
+
 		once(
 			request: "progressEnd",
 			filter?: (event: ProgressEndEventParams) => boolean,
@@ -1678,10 +1708,12 @@ export namespace Dap {
 			request: "invalidated",
 			handler: (params: InvalidatedEventParams) => void,
 		): void;
+
 		off(
 			request: "invalidated",
 			handler: (params: InvalidatedEventParams) => void,
 		): void;
+
 		once(
 			request: "invalidated",
 			filter?: (event: InvalidatedEventParams) => boolean,
@@ -1696,10 +1728,12 @@ export namespace Dap {
 			request: "memory",
 			handler: (params: MemoryEventParams) => void,
 		): void;
+
 		off(
 			request: "memory",
 			handler: (params: MemoryEventParams) => void,
 		): void;
+
 		once(
 			request: "memory",
 			filter?: (event: MemoryEventParams) => boolean,
@@ -2058,10 +2092,12 @@ export namespace Dap {
 			request: "revealLocationRequested",
 			handler: (params: RevealLocationRequestedEventParams) => void,
 		): void;
+
 		off(
 			request: "revealLocationRequested",
 			handler: (params: RevealLocationRequestedEventParams) => void,
 		): void;
+
 		once(
 			request: "revealLocationRequested",
 			filter?: (event: RevealLocationRequestedEventParams) => boolean,
@@ -2074,10 +2110,12 @@ export namespace Dap {
 			request: "copyRequested",
 			handler: (params: CopyRequestedEventParams) => void,
 		): void;
+
 		off(
 			request: "copyRequested",
 			handler: (params: CopyRequestedEventParams) => void,
 		): void;
+
 		once(
 			request: "copyRequested",
 			filter?: (event: CopyRequestedEventParams) => boolean,
@@ -2090,10 +2128,12 @@ export namespace Dap {
 			request: "longPrediction",
 			handler: (params: LongPredictionEventParams) => void,
 		): void;
+
 		off(
 			request: "longPrediction",
 			handler: (params: LongPredictionEventParams) => void,
 		): void;
+
 		once(
 			request: "longPrediction",
 			filter?: (event: LongPredictionEventParams) => boolean,
@@ -2106,10 +2146,12 @@ export namespace Dap {
 			request: "launchBrowserInCompanion",
 			handler: (params: LaunchBrowserInCompanionEventParams) => void,
 		): void;
+
 		off(
 			request: "launchBrowserInCompanion",
 			handler: (params: LaunchBrowserInCompanionEventParams) => void,
 		): void;
+
 		once(
 			request: "launchBrowserInCompanion",
 			filter?: (event: LaunchBrowserInCompanionEventParams) => boolean,
@@ -2122,10 +2164,12 @@ export namespace Dap {
 			request: "killCompanionBrowser",
 			handler: (params: KillCompanionBrowserEventParams) => void,
 		): void;
+
 		off(
 			request: "killCompanionBrowser",
 			handler: (params: KillCompanionBrowserEventParams) => void,
 		): void;
+
 		once(
 			request: "killCompanionBrowser",
 			filter?: (event: KillCompanionBrowserEventParams) => boolean,
@@ -2148,10 +2192,12 @@ export namespace Dap {
 			request: "profileStarted",
 			handler: (params: ProfileStartedEventParams) => void,
 		): void;
+
 		off(
 			request: "profileStarted",
 			handler: (params: ProfileStartedEventParams) => void,
 		): void;
+
 		once(
 			request: "profileStarted",
 			filter?: (event: ProfileStartedEventParams) => boolean,
@@ -2164,10 +2210,12 @@ export namespace Dap {
 			request: "profilerStateUpdate",
 			handler: (params: ProfilerStateUpdateEventParams) => void,
 		): void;
+
 		off(
 			request: "profilerStateUpdate",
 			handler: (params: ProfilerStateUpdateEventParams) => void,
 		): void;
+
 		once(
 			request: "profilerStateUpdate",
 			filter?: (event: ProfilerStateUpdateEventParams) => boolean,
@@ -2225,10 +2273,12 @@ export namespace Dap {
 			request: "suggestDisableSourcemap",
 			handler: (params: SuggestDisableSourcemapEventParams) => void,
 		): void;
+
 		off(
 			request: "suggestDisableSourcemap",
 			handler: (params: SuggestDisableSourcemapEventParams) => void,
 		): void;
+
 		once(
 			request: "suggestDisableSourcemap",
 			filter?: (event: SuggestDisableSourcemapEventParams) => boolean,
@@ -2262,10 +2312,12 @@ export namespace Dap {
 			request: "suggestDiagnosticTool",
 			handler: (params: SuggestDiagnosticToolEventParams) => void,
 		): void;
+
 		off(
 			request: "suggestDiagnosticTool",
 			handler: (params: SuggestDiagnosticToolEventParams) => void,
 		): void;
+
 		once(
 			request: "suggestDiagnosticTool",
 			filter?: (event: SuggestDiagnosticToolEventParams) => boolean,
@@ -2278,10 +2330,12 @@ export namespace Dap {
 			request: "openDiagnosticTool",
 			handler: (params: OpenDiagnosticToolEventParams) => void,
 		): void;
+
 		off(
 			request: "openDiagnosticTool",
 			handler: (params: OpenDiagnosticToolEventParams) => void,
 		): void;
+
 		once(
 			request: "openDiagnosticTool",
 			filter?: (event: OpenDiagnosticToolEventParams) => boolean,
@@ -2343,10 +2397,12 @@ export namespace Dap {
 			request: "networkEvent",
 			handler: (params: NetworkEventEventParams) => void,
 		): void;
+
 		off(
 			request: "networkEvent",
 			handler: (params: NetworkEventEventParams) => void,
 		): void;
+
 		once(
 			request: "networkEvent",
 			filter?: (event: NetworkEventEventParams) => boolean,

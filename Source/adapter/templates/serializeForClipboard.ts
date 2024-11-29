@@ -91,6 +91,7 @@ export const serializeForClipboardTmpl = templateFunction(function (
 					})
 					.join(eol);
 			}
+
 			case "number":
 				return `${value}`;
 

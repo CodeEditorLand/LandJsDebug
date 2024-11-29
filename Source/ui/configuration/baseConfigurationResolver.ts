@@ -61,6 +61,7 @@ export abstract class BaseConfigurationResolver<
 		}
 
 		const castConfig = config as ResolvingConfiguration<T>;
+
 		castConfig.sourceMaps ??= sourceMapSteppingEnabled.read(
 			this.extensionContext.workspaceState,
 		);
@@ -83,6 +84,7 @@ export abstract class BaseConfigurationResolver<
 	 */
 	protected applyDefaultRuntimeExecutable(cfg: {
 		type: DebugType;
+
 		runtimeExecutable?: string | null;
 	}) {
 		if (cfg.runtimeExecutable) {
@@ -121,7 +123,9 @@ export abstract class BaseConfigurationResolver<
 			config.trace,
 			this.extensionContext.logPath,
 		);
+
 		config.__workspaceCachePath = this.extensionContext.storagePath;
+
 		config.__breakOnConditionalError =
 			readConfig(
 				vscode.workspace,

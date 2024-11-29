@@ -35,6 +35,7 @@ function findRootSession(session: vscode.DebugSession): vscode.DebugSession {
 	while (root.parentSession) {
 		root = root.parentSession;
 	}
+
 	return root;
 }
 

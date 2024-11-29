@@ -55,6 +55,7 @@ export const ensureWATExtension = (path: string) =>
 @injectable()
 export class WasmWorkerFactory implements IWasmWorkerFactory {
 	private cdpCounter = 0;
+
 	private worker?: Promise<IWasmWorker | null>;
 
 	private readonly cdp = new Map<number, Cdp.Api>();
@@ -106,6 +107,7 @@ export class WasmWorkerFactory implements IWasmWorkerFactory {
 		}
 
 		const cdpId = this.cdpCounter++;
+
 		this.cdp.set(cdpId, cdp);
 
 		return {
@@ -122,6 +124,7 @@ export class WasmWorkerFactory implements IWasmWorkerFactory {
 	/** @inheritdoc */
 	public async dispose() {
 		await this.worker?.then((w) => w?.dispose());
+
 		this.worker = Promise.resolve(null);
 	}
 
@@ -284,8 +287,11 @@ export class WasmSymbolProvider implements IWasmSymbolProvider, IDisposable {
 
 export interface IWasmVariableEvaluation {
 	type: string;
+
 	description: string | undefined;
+
 	linearMemoryAddress?: number;
+
 	linearMemorySize?: number;
 
 	getChildren?: () => Promise<
@@ -301,8 +307,11 @@ export const enum WasmScope {
 
 export interface IWasmVariable {
 	scope: WasmScope;
+
 	name: string;
+
 	type: string;
+
 	evaluate: () => Promise<IWasmVariableEvaluation>;
 }
 
@@ -419,13 +428,16 @@ class DecompiledWasmSymbols implements IWasmSymbols {
 		files: string[],
 	) {
 		this.decompiledUrl = ensureWATExtension(event.url);
+
 		files.push(this.decompiledUrl);
+
 		this.files = files;
 	}
 
 	/** @inheritdoc */
 	public async getDisassembly(): Promise<string> {
 		const { lines } = await this.doDisassemble();
+
 		this.onDidDisassemble?.();
 
 		return lines.join("\n");
@@ -508,11 +520,15 @@ class DecompiledWasmSymbols implements IWasmSymbols {
 				const newOffsets = new Uint32Array(
 					byteOffsetsOfLines.length + chunk.lines.length,
 				);
+
 				start = byteOffsetsOfLines.length;
+
 				newOffsets.set(byteOffsetsOfLines);
+
 				byteOffsetsOfLines = newOffsets;
 			} else {
 				byteOffsetsOfLines = new Uint32Array(chunk.lines.length);
+
 				start = 0;
 			}
 
@@ -545,6 +561,7 @@ class DecompiledWasmSymbols implements IWasmSymbols {
 			if (!r2) {
 				return;
 			}
+
 			yield r2.chunk;
 		}
 	}
@@ -555,6 +572,7 @@ class WasmSymbols extends DecompiledWasmSymbols {
 		/* source URL */ string,
 		Promise<Uint32Array>
 	>();
+
 	private get codeOffset() {
 		return this.event.codeOffset || 0;
 	}
@@ -716,6 +734,7 @@ class WasmSymbols extends DecompiledWasmSymbols {
 			if (!(mappedPosition && sourceUrl)) {
 				return [];
 			}
+
 			return this.worker.rpc.sendMessage("sourceLocationToRawLocation", {
 				lineNumber: mappedPosition.base0.lineNumber,
 				columnNumber: -1,
@@ -736,6 +755,7 @@ class WasmSymbols extends DecompiledWasmSymbols {
 
 				break;
 			}
+
 			case StepDirection.Over: {
 				// step over should both step over inline functions and any
 				// intermediary statements on this line, which may exist
@@ -747,10 +767,12 @@ class WasmSymbols extends DecompiledWasmSymbols {
 					),
 					getOwnLineRanges(),
 				]);
+
 				rawRanges = flatten(ranges);
 
 				break;
 			}
+
 			case StepDirection.In:
 				// Step in should skip over any intermediary statements on this line
 				rawRanges = await getOwnLineRanges();
@@ -833,8 +855,11 @@ const nullType: IWasmVariableEvaluation = {
 
 class WasmVariableEvaluation implements IWasmVariableEvaluation {
 	public readonly type: string;
+
 	public readonly description: string | undefined;
+
 	public readonly linearMemoryAddress: number | undefined;
+
 	public readonly linearMemorySize: number | undefined;
 
 	public readonly getChildren?: () => Promise<
@@ -846,12 +871,16 @@ class WasmVariableEvaluation implements IWasmVariableEvaluation {
 		rpc: IWasmWorker["rpc"],
 	) {
 		this.type = evaluation.type;
+
 		this.description = evaluation.description;
+
 		this.linearMemoryAddress = evaluation.linearMemoryAddress;
+
 		this.linearMemorySize = evaluation.linearMemoryAddress;
 
 		if (evaluation.objectId && evaluation.hasChildren) {
 			const oid = evaluation.objectId;
+
 			this.getChildren = once(() => this._getChildren(rpc, oid));
 		}
 	}

@@ -100,10 +100,15 @@ export interface IBinderDelegate {
  */
 export class Binder implements IDisposable {
 	private readonly _disposables = new DisposableList();
+
 	private _dap: Dap.Api;
+
 	private _targetOrigin: ITargetOrigin;
+
 	private _launchParams?: AnyLaunchConfiguration;
+
 	private _asyncStackPolicy?: IAsyncStackPolicy;
+
 	private _serviceTree = new WeakMap<ITarget, Container>();
 
 	/** Root of the session tree. Undefined until a launch/attach request is received. */
@@ -116,8 +121,11 @@ export class Binder implements IDisposable {
 		targetOrigin: ITargetOrigin,
 	) {
 		this._dap = connection.dap();
+
 		this._targetOrigin = targetOrigin;
+
 		this._disposables.callback(() => disposeContainer(_rootServices));
+
 		this._disposables.push(
 			installUnhandledErrorReporter(
 				_rootServices.get(ILogger),
@@ -149,7 +157,9 @@ export class Binder implements IDisposable {
 
 			return capabilities;
 		});
+
 		dap.on("setExceptionBreakpoints", async () => ({}));
+
 		dap.on("setBreakpoints", async (params) => {
 			if (params.breakpoints?.length) {
 				_rootServices
@@ -166,43 +176,59 @@ export class Binder implements IDisposable {
 					})) ?? [],
 			};
 		});
+
 		dap.on("configurationDone", async () => ({}));
+
 		dap.on("threads", async () => ({ threads: [] }));
+
 		dap.on("loadedSources", async () => ({ sources: [] }));
+
 		dap.on("breakpointLocations", () =>
 			Promise.resolve({ breakpoints: [] }),
 		);
+
 		dap.on("attach", async (params) => {
 			await this.boot(params as AnyResolvingConfiguration, dap);
 
 			return {};
 		});
+
 		dap.on("launch", async (params) => {
 			await this.boot(params as AnyResolvingConfiguration, dap);
 
 			return {};
 		});
+
 		dap.on("pause", async () => {
 			return {};
 		});
+
 		dap.on("terminate", () => this._terminateRoot(true));
+
 		dap.on("disconnect", (args) => this._disconnectRoot(args));
+
 		dap.on("restart", async ({ arguments: params }) => {
 			await this._restart(params as AnyResolvingConfiguration);
 
 			return {};
 		});
+
 		dap.on("startSelfProfile", async ({ file }) => {
 			selfProfile?.dispose();
+
 			selfProfile = new SelfProfile(file);
+
 			await selfProfile.start();
 
 			return {};
 		});
+
 		dap.on("stopSelfProfile", async () => {
 			if (selfProfile) {
 				await selfProfile.stop();
+
 				selfProfile.dispose();
+
 				selfProfile = undefined;
 			}
 
@@ -219,7 +245,9 @@ export class Binder implements IDisposable {
 			this._disposables.push(
 				launcher.onTargetListChanged(() => {
 					const targets = this.targetList();
+
 					this._attachToNewTargets(targets, launcher);
+
 					this._terminateOrphanThreads(targets);
 				}),
 			);
@@ -233,10 +261,13 @@ export class Binder implements IDisposable {
 	 */
 	private async _terminateRoot(terminateDebuggee?: boolean) {
 		this._root.state = TargetState.Terminating;
+
 		await Promise.all(
 			[...this.getLaunchers()].map((l) => l.terminate(terminateDebuggee)),
 		);
+
 		await this._root.waitUntilChildrenAre(TargetState.Terminated);
+
 		this._root.state = TargetState.Terminated;
 
 		return {};
@@ -251,7 +282,9 @@ export class Binder implements IDisposable {
 		}
 
 		this._rootServices.get<ITelemetryReporter>(ITelemetryReporter).flush();
+
 		await this._root.waitUntilChildrenAre(TargetState.Disconnected);
+
 		this._root.state = TargetState.Disconnected;
 
 		return {};
@@ -270,8 +303,11 @@ export class Binder implements IDisposable {
 
 	private async _boot(params: AnyLaunchConfiguration, dap: Dap.Api) {
 		warnNightly(dap);
+
 		this.reportBootTelemetry(params);
+
 		provideLaunchParams(this._rootServices, params, dap);
+
 		this._rootServices
 			.get<ILogger>(ILogger)
 			.setup(resolveLoggerOptions(dap, params.trace));
@@ -285,6 +321,7 @@ export class Binder implements IDisposable {
 			params.rootPath = urlUtils.platformPathToPreferredCase(
 				params.rootPath,
 			);
+
 		this._launchParams = params;
 
 		const boots = await Promise.all(
@@ -295,6 +332,7 @@ export class Binder implements IDisposable {
 
 		Promise.all(boots.map((b) => b.terminated)).then((allMetadata) => {
 			const metadata = allMetadata.find(truthy);
+
 			this._markTargetAsTerminated(this._root, {
 				restart: !!metadata?.restart,
 			});
@@ -356,6 +394,7 @@ export class Binder implements IDisposable {
 				this._rootServices.get<MutableLaunchConfig>(
 					MutableLaunchConfig,
 				);
+
 			resolved = applyDefaults(
 				{
 					__workspaceFolder: currentParams.__workspaceFolder,
@@ -363,6 +402,7 @@ export class Binder implements IDisposable {
 				},
 				this._rootServices.get<ExtensionLocation>(ExtensionLocation),
 			);
+
 			currentParams.update(resolved);
 		}
 
@@ -391,6 +431,7 @@ export class Binder implements IDisposable {
 				const listener = this._disposables.push(
 					launcher.onTerminated((result) => {
 						listener.dispose();
+
 						resolve(result);
 					}),
 				);
@@ -442,6 +483,7 @@ export class Binder implements IDisposable {
 
 	dispose() {
 		this._disposables.dispose();
+
 		this._terminateOrphanThreads([]);
 	}
 
@@ -465,11 +507,13 @@ export class Binder implements IDisposable {
 		if (!target.canAttach()) {
 			return;
 		}
+
 		const cdp = await target.attach();
 
 		if (!cdp) {
 			return;
 		}
+
 		const connection = await this._delegate.acquireDap(target);
 
 		const dap = connection.dap();
@@ -494,7 +538,9 @@ export class Binder implements IDisposable {
 			dap,
 			cdp,
 		);
+
 		connection.attachTelemetry(container.get(ITelemetryReporter));
+
 		this._serviceTree.set(target, parentContainer);
 
 		const debugAdapter = new DebugAdapter(
@@ -519,7 +565,9 @@ export class Binder implements IDisposable {
 
 		const startThread = async () => {
 			await debugAdapter.launchBlocker();
+
 			target.runIfWaitingForDebugger();
+
 			node.threadData.resolve({ thread, debugAdapter });
 
 			return {};
@@ -528,7 +576,9 @@ export class Binder implements IDisposable {
 		// default disconnect/terminate/restart handlers that can be overridden
 		// by the delegate in initAdapter()
 		dap.on("disconnect", (args) => this._disconnectTarget(node, args));
+
 		dap.on("terminate", () => this._terminateTarget(node));
+
 		dap.on("restart", async () => {
 			if (target.canRestart()) {
 				target.restart();
@@ -543,6 +593,7 @@ export class Binder implements IDisposable {
 			startThread();
 		} else {
 			dap.on("attach", startThread);
+
 			dap.on("launch", startThread);
 		}
 
@@ -586,7 +637,9 @@ export class Binder implements IDisposable {
 			}
 
 			const node = new TreeNode(target) as TargetTreeNode;
+
 			parent.add(node);
+
 			this.attach(node, launcher);
 		}
 	}
@@ -626,14 +679,18 @@ export class Binder implements IDisposable {
 
 		if (isTargetTreeNode(node)) {
 			const threadData = await node.threadData.promise;
+
 			await threadData.thread.dispose();
+
 			threadData.debugAdapter.dap.terminated(terminateArgs);
+
 			threadData.debugAdapter.dispose();
 		} else {
 			this._dap.terminated(terminateArgs);
 		}
 
 		await node.waitUntilChildrenAre(TargetState.Terminated);
+
 		node.state = TargetState.Terminated;
 
 		return {};
@@ -685,8 +742,11 @@ export class Binder implements IDisposable {
 		}
 
 		await node.waitUntil(TargetState.Terminated);
+
 		await node.waitUntilChildrenAre(TargetState.Disconnected);
+
 		node.state = TargetState.Disconnected;
+
 		queueMicrotask(() => this._delegate.releaseDap(node.value));
 
 		const parentTarget = node.value.parent();
@@ -694,6 +754,7 @@ export class Binder implements IDisposable {
 		const parentNode = parentTarget
 			? TreeNode.targetNodes.get(parentTarget)
 			: this._root;
+
 		parentNode?.remove(node);
 
 		return {};
@@ -729,10 +790,13 @@ export const isTargetTreeNode = (node: TreeNode): node is TargetTreeNode =>
  */
 class TreeNode {
 	public static targetNodes = new WeakMap<ITarget, TreeNode>();
+
 	public readonly threadData = getDeferred<ThreadData>();
 
 	private _state = TargetState.Running;
+
 	private readonly _children = new Set<TreeNode>();
+
 	private readonly _stateChangeEmitter = new EventEmitter<TargetState>();
 
 	public get state() {
@@ -742,6 +806,7 @@ class TreeNode {
 	public set state(state: TargetState) {
 		if (state > this._state) {
 			this._state = state;
+
 			this._stateChangeEmitter.fire(state);
 		}
 	}
@@ -780,6 +845,7 @@ class TreeNode {
 			const l = this._stateChangeEmitter.event((s) => {
 				if (s >= state) {
 					l.dispose();
+
 					resolve();
 				}
 			});

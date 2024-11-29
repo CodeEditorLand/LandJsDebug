@@ -9,10 +9,13 @@ import { ITransport } from "./transport";
 
 export class NullTransport implements ITransport {
 	public readonly onMessageEmitter = new EventEmitter<[string, HrTime]>();
+
 	public readonly onEndEmitter = new EventEmitter<void>();
+
 	public readonly onDidSendEmitter = new EventEmitter<CdpProtocol.Message>();
 
 	public readonly onMessage = this.onMessageEmitter.event;
+
 	public readonly onEnd = this.onEndEmitter.event;
 
 	/**

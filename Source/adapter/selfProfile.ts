@@ -36,6 +36,7 @@ export class SelfProfile {
 		const { profile } = await this.post<{ profile: object }>(
 			"Profiler.stop",
 		);
+
 		await fs.writeFile(this.file, JSON.stringify(profile));
 	}
 

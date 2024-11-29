@@ -78,6 +78,7 @@ export class NodeConfigurationResolver extends BaseConfigurationResolver<AnyNode
 		if ("port" in config && typeof config.port === "string") {
 			config.port = Number(config.port);
 		}
+
 		if (
 			"attachSimplePort" in config &&
 			typeof config.attachSimplePort === "string"
@@ -169,7 +170,9 @@ export class NodeConfigurationResolver extends BaseConfigurationResolver<AnyNode
 				// If the user manually set up attachSimplePort, do nothing.
 				if (!config.attachSimplePort) {
 					const port = await findOpenPort();
+
 					config.attachSimplePort = port;
+
 					config.continueOnAttach ??= true;
 
 					const runtimeArgs = [
@@ -200,11 +203,13 @@ export class NodeConfigurationResolver extends BaseConfigurationResolver<AnyNode
 			if (typeof nvmVersion === "string" && nvmVersion !== "default") {
 				const { directory, binary } =
 					await this.nvmResolver.resolveNvmVersionPath(nvmVersion);
+
 				config.env = new EnvironmentVars(config.env).addToPath(
 					directory,
 					"prepend",
 					true,
 				).value;
+
 				config.runtimeExecutable =
 					!config.runtimeExecutable ||
 					config.runtimeExecutable === "node"
@@ -235,12 +240,14 @@ export class NodeConfigurationResolver extends BaseConfigurationResolver<AnyNode
 					);
 
 					const arg = `--inspect-brk=${config.attachSimplePort}`;
+
 					config.runtimeArgs = config.runtimeArgs
 						? [...config.runtimeArgs, arg]
 						: [arg];
 				}
 
 				config.continueOnAttach = !config.stopOnEntry;
+
 				config.stopOnEntry = false; // handled by --inspect-brk
 			}
 
@@ -390,7 +397,9 @@ interface ITSConfig {
 
 interface IPartialPackageJson {
 	name?: string;
+
 	main?: string;
+
 	scripts?: { [key: string]: string };
 }
 
@@ -427,6 +436,7 @@ export async function createLaunchConfigFromContext(
 				),
 			);
 		}
+
 		configureMern(config);
 
 		return config;
@@ -452,6 +462,7 @@ export async function createLaunchConfigFromContext(
 			breakpointLanguages.includes(editor.document.languageId)
 		) {
 			useSourceMaps = editor.document.languageId !== "javascript";
+
 			program = folder
 				? path.relative(folder.uri.fsPath, editor.document.uri.fsPath)
 				: editor.document.uri.fsPath;
@@ -465,6 +476,7 @@ export async function createLaunchConfigFromContext(
 
 	if (!program && folder) {
 		const basePath = folder.uri.fsPath;
+
 		program = await some(
 			commonEntrypoints.map(
 				async (file) =>
@@ -515,12 +527,15 @@ export async function createLaunchConfigFromContext(
 				if (dir.indexOf("./") === 0) {
 					dir = dir.substr(2);
 				}
+
 				if (dir[dir.length - 1] !== "/") {
 					dir += "/";
 				}
 			}
+
 			config.preLaunchTask = "tsc: build - tsconfig.json";
 		}
+
 		config["outFiles"] = ["${workspaceFolder}/" + dir + "**/*.js"];
 	}
 
@@ -541,10 +556,15 @@ function configureMern(config: ResolvingNodeConfiguration) {
 	}
 
 	config.runtimeExecutable = "nodemon";
+
 	config.program = "${workspaceFolder}/index.js";
+
 	config.restart = true;
+
 	config.env = { BABEL_DISABLE_CACHE: "1", NODE_ENV: "development" };
+
 	config.console = "integratedTerminal";
+
 	config.internalConsoleOptions = "neverOpen";
 }
 
@@ -568,6 +588,7 @@ async function loadJSON<T>(
 			// silently ignore
 		}
 	}
+
 	return undefined;
 }
 /*
@@ -600,8 +621,10 @@ async function guessProgramFromPackage(
 				targetPath = folder
 					? path.join(folder.uri.fsPath, program)
 					: undefined;
+
 				program = path.join("${workspaceFolder}", program);
 			}
+
 			if (
 				resolve &&
 				targetPath &&

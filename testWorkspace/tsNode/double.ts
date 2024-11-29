@@ -9,7 +9,9 @@ export function triple(n: number) {
 
 export interface ISomeStuffToMakeLinesNotMatch {
 	some: true;
+
 	properties: false;
+
 	here: string;
 }
 

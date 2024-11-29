@@ -37,6 +37,7 @@ export const getNodeLaunchArgs = (
 
 	if (program && path.isAbsolute(program)) {
 		const maybeRel = path.relative(config.cwd, program);
+
 		program = path.isAbsolute(maybeRel)
 			? maybeRel
 			: `.${path.sep}${maybeRel}`;

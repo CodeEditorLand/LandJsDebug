@@ -56,6 +56,7 @@ export interface IRootSourceMapFactory extends IDisposable {
 		resourceProvider: IResourceProvider,
 		metadata: ISourceMapMetadata,
 	): Promise<SourceMap>;
+
 	guardSourceMapFn<T>(
 		sourceMap: SourceMap,
 		fn: () => T,
@@ -89,6 +90,7 @@ export class SourceMapFactory implements ISourceMapFactory {
 
 interface RawExternalSection {
 	offset: { line: number; column: number };
+
 	url: string;
 }
 
@@ -145,6 +147,7 @@ export class RootSourceMapFactory implements IRootSourceMapFactory {
 
 		if ("sourceRoot" in basic) {
 			actualRoot = basic.sourceRoot;
+
 			basic.sourceRoot = undefined;
 		}
 
@@ -162,13 +165,18 @@ export class RootSourceMapFactory implements IRootSourceMapFactory {
 
 			for (const section of basic.sections) {
 				const map = section.map as EncodedSourceMap;
+
 				actualSources.push(...map.sources);
+
 				map.sources = map.sources.map(() => `source${i++}.js`);
+
 				hasNames ||= !!map.names?.length;
 			}
 		} else if ("sources" in basic && Array.isArray(basic.sources)) {
 			actualSources = basic.sources;
+
 			basic.sources = basic.sources.map((_, i) => `source${i}.js`);
+
 			hasNames = !!basic.names?.length;
 		}
 
@@ -275,10 +283,12 @@ export class RootSourceMapFactory implements IRootSourceMapFactory {
 					sourceMap.metadata.compiledPath,
 					e.message,
 				).error;
+
 				this.dap.output({
 					output: message.format + "\n",
 					category: "stderr",
 				});
+
 				this.hasWarnedAboutMaps.add(sourceMap);
 			}
 
@@ -331,7 +341,9 @@ export class CachingSourceMapFactory extends RootSourceMapFactory {
 		string,
 		{
 			metadata: ISourceMapMetadata;
+
 			reloadIfNoMtime: boolean;
+
 			prom: Promise<SourceMap>;
 		}
 	>((s) => s.toLowerCase());
@@ -376,6 +388,7 @@ export class CachingSourceMapFactory extends RootSourceMapFactory {
 		metadata: ISourceMapMetadata,
 	) {
 		const created = super.load(resourceProvider, metadata);
+
 		this.knownMaps.set(metadata.sourceMapUrl, {
 			metadata,
 			reloadIfNoMtime: false,

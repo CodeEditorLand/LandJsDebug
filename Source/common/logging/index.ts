@@ -67,9 +67,13 @@ export const allLogTags = Object.keys(logTabObj) as ReadonlyArray<LogTag>;
 
 export interface ILogItem<T = unknown> {
 	timestamp: number;
+
 	message?: string;
+
 	metadata?: T;
+
 	tag: LogTag;
+
 	level: LogLevel;
 }
 
@@ -80,11 +84,17 @@ export const ILogger = Symbol("ILogger");
  */
 export interface ILogger extends IDisposable {
 	setup(options: ILoggerSetupOptions): Promise<void>;
+
 	log(item: ILogItem<unknown>): void;
+
 	info(tag: LogTag, msg?: string, metadata?: unknown): void;
+
 	verbose(tag: LogTag, msg?: string, metadata?: unknown): void;
+
 	warn(tag: LogTag, msg?: string, metadata?: unknown): void;
+
 	error(tag: LogTag, msg?: string, metadata?: unknown): void;
+
 	fatal(tag: LogTag, msg?: string, metadata?: unknown): void;
 
 	/**
@@ -127,6 +137,7 @@ export interface ILogSink extends IDisposable {
  */
 export interface ILoggerSetupOptions {
 	showWelcome?: boolean;
+
 	sinks: ReadonlyArray<ILogSink>;
 }
 

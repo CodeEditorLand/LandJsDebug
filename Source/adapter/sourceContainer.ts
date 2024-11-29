@@ -121,6 +121,7 @@ const isOriginalSourceOf = (compiled: Source, original: Source) =>
 
 export interface IPreferredUiLocation extends IUiLocation {
 	isMapped: boolean;
+
 	unmappedReason?: UnmappedReason;
 }
 
@@ -162,13 +163,19 @@ export class SourceContainer {
 	> = new Map();
 
 	private onSourceMappedSteppingChangeEmitter = new EventEmitter<boolean>();
+
 	private onScriptEmitter = new EventEmitter<Script>();
+
 	private _dap: Dap.Api;
+
 	private _sourceByOriginalUrl: Map<string, Source> = new MapUsingProjection(
 		(s) => s.toLowerCase(),
 	);
+
 	private _sourceByReference: Map<number, Source> = new Map();
+
 	private _sourceMapSourcesByUrl: Map<string, SourceFromMap> = new Map();
+
 	private _sourceByAbsolutePath: Map<string, Source> =
 		utils.caseNormalizedMap();
 
@@ -226,6 +233,7 @@ export class SourceContainer {
 	public set doSourceMappedStepping(enabled: boolean) {
 		if (enabled !== this._doSourceMappedStepping) {
 			this._doSourceMappedStepping = enabled;
+
 			this.onSourceMappedSteppingChangeEmitter.fire(enabled);
 		}
 	}
@@ -269,6 +277,7 @@ export class SourceContainer {
 		}
 
 		scriptSkipper.setSourceContainer(this);
+
 		this.setSourceMapTimeouts({
 			...this.sourceMapTimeouts(),
 			...launchConfig.timeouts,
@@ -286,6 +295,7 @@ export class SourceContainer {
 	setFileContentOverrideForTest(absolutePath: string, content?: string) {
 		if (content === undefined)
 			this._fileContentOverridesForTest.delete(absolutePath);
+
 		else this._fileContentOverridesForTest.set(absolutePath, content);
 	}
 
@@ -416,7 +426,9 @@ export class SourceContainer {
 			}
 
 			uiLocation = next;
+
 			isMapped = true;
+
 			unmappedReason = undefined;
 		}
 
@@ -489,6 +501,7 @@ export class SourceContainer {
 		}
 
 		const r = await this.getSourceMapUiLocations(sourceMapUiLocation);
+
 		r.push(sourceMapUiLocation);
 
 		return r;
@@ -619,6 +632,7 @@ export class SourceContainer {
 				if (!entry) {
 					continue;
 				}
+
 				locations = entry.map((l) => ({
 					lineNumber: l.base1.lineNumber,
 					columnNumber: l.base1.columnNumber,
@@ -650,6 +664,7 @@ export class SourceContainer {
 
 				// recurse for nested sourcemaps:
 				const location = { lineNumber, columnNumber, source: compiled };
+
 				locations = [
 					location,
 					...(await this.getCompiledLocations(location)),
@@ -677,6 +692,7 @@ export class SourceContainer {
 				),
 			);
 		}
+
 		const value = this.sourceMapFactory.guardSourceMapFn(
 			sourceMap,
 			() => {
@@ -781,6 +797,7 @@ export class SourceContainer {
 		}
 
 		this._sourceByOriginalUrl.set(source.url, source);
+
 		this._sourceByReference.set(source.sourceReference, source);
 
 		if (source instanceof SourceFromMap) {
@@ -830,15 +847,19 @@ export class SourceContainer {
 
 			if (url === symbols.decompiledUrl) {
 				absolutePath = ensureWATExtension(compiled.absolutePath);
+
 				resolvedUrl = ensureWATExtension(compiled.url);
+
 				contentGetter = () => symbols.getDisassembly();
 			} else {
 				absolutePath = await this.sourcePathResolver.urlToAbsolutePath({
 					url,
 				});
+
 				resolvedUrl = absolutePath
 					? utils.absolutePathToFileUrl(absolutePath)
 					: url;
+
 				contentGetter = () =>
 					this.resourceProvider
 						.fetch(resolvedUrl)
@@ -861,8 +882,11 @@ export class SourceContainer {
 				absolutePath,
 				contentGetter,
 			);
+
 			source.compiledToSourceUrl.set(compiled, url);
+
 			compiled.sourceMap.sourceByUrl.set(url, source);
+
 			todo.push(this._addSource(source));
 		}
 
@@ -900,6 +924,7 @@ export class SourceContainer {
 					value = await this.sourceMapFactory.load(
 						source.sourceMap.metadata,
 					);
+
 					this._statistics.fallbackSourceMapCount++;
 
 					this.logger.info(
@@ -965,6 +990,7 @@ export class SourceContainer {
 			source === existing,
 			"Expected source to be the same as the existing reference",
 		);
+
 		this._sourceByReference.delete(source.sourceReference);
 
 		// check for overwrites:
@@ -984,6 +1010,7 @@ export class SourceContainer {
 
 		if (isSourceWithMap(source)) {
 			this._permanentlyDisabledSourceMaps.delete(source);
+
 			this._temporarilyDisabledSourceMaps.delete(source);
 		}
 
@@ -1047,6 +1074,7 @@ export class SourceContainer {
 					this.removeSource(existing);
 				} else {
 					existing.compiledToSourceUrl.set(compiled, url);
+
 					compiled.sourceMap.sourceByUrl.set(url, existing);
 
 					continue;
@@ -1133,8 +1161,11 @@ export class SourceContainer {
 				undefined,
 				compiled.runtimeScriptOffset,
 			);
+
 			source.compiledToSourceUrl.set(compiled, url);
+
 			compiled.sourceMap.sourceByUrl.set(url, source);
+
 			todo.push(this._addSource(source));
 		}
 
@@ -1153,9 +1184,11 @@ export class SourceContainer {
 			}
 
 			compiled.sourceMap.sourceByUrl.delete(url);
+
 			source.compiledToSourceUrl.delete(compiled);
 
 			if (source.compiledToSourceUrl.size) continue;
+
 			this.removeSource(source, silent);
 		}
 	}

@@ -44,7 +44,9 @@ import type { SourceContainer } from "./sourceContainer";
 
 export class Source {
 	public readonly sourceReference: number;
+
 	private readonly _name: string;
+
 	private readonly _fqname: string;
 
 	/**
@@ -64,6 +66,7 @@ export class Source {
 	// This is the same as |_absolutePath|, but additionally checks that file exists to
 	// avoid errors when page refers to non-existing paths/urls.
 	private readonly _existingAbsolutePath: Promise<string | undefined>;
+
 	private _scripts: ISourceScript[] = [];
 
 	/**
@@ -101,11 +104,17 @@ export class Source {
 		public readonly contentHash?: string,
 	) {
 		this.sourceReference = container.getSourceReference(url);
+
 		this._contentGetter = once(contentGetter);
+
 		this._container = container;
+
 		this.absolutePath = absolutePath || "";
+
 		this._fqname = this._fullyQualifiedName();
+
 		this._name = this._humanName();
+
 		this.setSourceMapUrl(sourceMapMetadata);
 
 		this._existingAbsolutePath = this.checkContentHash(contentHash);
@@ -293,6 +302,7 @@ export class Source {
 		(this.sourceMap as ISourceMapLocationProvider).value.resolve(map);
 
 		const asCompiled = this as ISourceWithMap;
+
 		await this._container._addSourceMapSources(asCompiled, map);
 		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 		return {
@@ -320,11 +330,13 @@ export class Source {
 
 		if (existingAbsolutePath) {
 			dap.sourceReference = 0;
+
 			dap.path = existingAbsolutePath;
 		}
 
 		if (!this.hasBeenAnnounced) {
 			this.hasBeenAnnounced = true;
+
 			this._container.emitLoadedSource(this);
 		}
 
@@ -441,6 +453,7 @@ export class Source {
 				this.inlineScriptOffset.columnOffset + 1
 			}`;
 		}
+
 		return fqname;
 	}
 
@@ -454,13 +467,18 @@ export class Source {
 
 export interface IWasmLocationProvider extends ISourceLocationProvider {
 	type: SourceLocationType.WasmSymbols;
+
 	value: IDeferred<IWasmSymbols>;
 }
 export interface ISourceScript {
 	executionContextId: Cdp.Runtime.ExecutionContextId;
+
 	scriptId: Cdp.Runtime.ScriptId;
+
 	embedderName?: string;
+
 	hasSourceURL: boolean;
+
 	url: string;
 }
 

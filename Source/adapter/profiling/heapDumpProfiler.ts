@@ -17,11 +17,15 @@ import { EventEmitter } from "../../common/events";
 @injectable()
 export class HeapDumpProfiler implements IProfiler<void> {
 	public static readonly type = "memory";
+
 	public static readonly extension = ".heapsnapshot";
+
 	public static readonly label = l10n.t("Heap Snapshot");
+
 	public static readonly description = l10n.t(
 		"Generates a .heapsnapshot file you can open in VS Code or the Edge/Chrome devtools",
 	);
+
 	public static readonly instant = true;
 
 	public static canApplyTo() {
@@ -30,6 +34,7 @@ export class HeapDumpProfiler implements IProfiler<void> {
 
 	private currentWriter?: {
 		stream: WriteStream;
+
 		promise: Promise<unknown>;
 	};
 
@@ -52,7 +57,9 @@ export class HeapDumpProfiler implements IProfiler<void> {
 			dispose: () => undefined,
 			stop: async () => {
 				await this.cdp.HeapProfiler.enable({});
+
 				await this.dumpToFile(file);
+
 				await this.cdp.HeapProfiler.disable({});
 			},
 		};
@@ -65,7 +72,9 @@ export class HeapDumpProfiler implements IProfiler<void> {
 		});
 
 		await promise;
+
 		stream.end();
+
 		this.currentWriter = undefined;
 	}
 }

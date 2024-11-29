@@ -10,8 +10,11 @@ import { EventEmitter } from "../events";
  */
 export class ObservableMap<K, V> {
 	private readonly changeEmitter = new EventEmitter<void>();
+
 	private readonly addEmitter = new EventEmitter<[K, V]>();
+
 	private readonly removeEmitter = new EventEmitter<[K, V]>();
+
 	private readonly targetMap = new Map<K, V>();
 
 	/**
@@ -41,7 +44,9 @@ export class ObservableMap<K, V> {
 	 */
 	public add(key: K, target: V) {
 		this.targetMap.set(key, target);
+
 		this.addEmitter.fire([key, target]);
+
 		this.changeEmitter.fire();
 	}
 
@@ -64,7 +69,9 @@ export class ObservableMap<K, V> {
 		}
 
 		this.targetMap.delete(key);
+
 		this.removeEmitter.fire([key, previous]);
+
 		this.changeEmitter.fire();
 
 		return true;

@@ -56,7 +56,9 @@ export class ExtensionHostAttacher extends NodeAttacherBase<IExtensionHostAttach
 	 */
 	public async restart() {
 		this.restarting = true;
+
 		this.onProgramTerminated({ code: 0, killed: true, restart: true });
+
 		this.program?.stop();
 	}
 
@@ -96,6 +98,7 @@ export class ExtensionHostAttacher extends NodeAttacherBase<IExtensionHostAttach
 			wd,
 			this.logger,
 		));
+
 		this.program.stopped.then((result) => {
 			if (program === this.program) {
 				this.onProgramTerminated(result);
@@ -139,7 +142,9 @@ export class ExtensionHostAttacher extends NodeAttacherBase<IExtensionHostAttach
 				this.logger,
 				KillBehavior.Forceful,
 			);
+
 			code.stopped.then(() => watchdog.stop());
+
 			watchdog.stopped.then(() => {
 				if (!this.restarting) {
 					code.stop();

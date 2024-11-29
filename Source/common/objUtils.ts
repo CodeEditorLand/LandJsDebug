@@ -68,6 +68,7 @@ export function mapValues<T, R>(
 
 	for (const key of Object.keys(obj)) {
 		const value = obj[key];
+
 		next[key] = generator(value, key);
 	}
 
@@ -177,6 +178,7 @@ export function caseInsensitiveMerge<V>(
 				out[caseMapping[normalized]] = obj[key];
 			} else {
 				caseMapping[normalized] = key;
+
 				out[key] = obj[key];
 			}
 		}
@@ -228,6 +230,7 @@ export function once<T, Args extends unknown[]>(
 
 	onced.forget = () => {
 		value = unset;
+
 		onced.value = undefined;
 	};
 
@@ -251,6 +254,7 @@ export function memoize<T, R>(
 		}
 
 		const value = fn(arg);
+
 		cached.set(arg, value);
 
 		return value;
@@ -299,6 +303,7 @@ export function memoizeWeak<T extends object, R>(
 		}
 
 		const value = fn(arg);
+
 		cached.set(arg, value);
 
 		return value;
@@ -323,6 +328,7 @@ export function debounce(
 
 		timeout = setTimeout(() => {
 			timeout = undefined;
+
 			fn();
 		}, duration);
 	};
@@ -330,6 +336,7 @@ export function debounce(
 	debounced.clear = () => {
 		if (timeout) {
 			clearTimeout(timeout);
+
 			timeout = undefined;
 		}
 	};
@@ -354,6 +361,7 @@ export function trailingEdgeThrottle(
 
 		timeout = setTimeout(() => {
 			timeout = undefined;
+
 			fn();
 		}, duration);
 	};
@@ -363,6 +371,7 @@ export function trailingEdgeThrottle(
 	debounced.clear = () => {
 		if (timeout) {
 			clearTimeout(timeout);
+
 			timeout = undefined;
 		}
 	};

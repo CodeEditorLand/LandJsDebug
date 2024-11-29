@@ -10,7 +10,9 @@ import { extractScopeRangesWithFactory as extractScopeFlatTree } from "./renameW
 
 export type FlatTree = {
 	start: ESTreePosition;
+
 	end: ESTreePosition;
+
 	depth: number;
 }[];
 
@@ -44,6 +46,7 @@ export class ScopeNode<T> {
 
 			while (node.depth < stackLen) {
 				stackLen--;
+
 				stack[stackLen].data = depthFirstHydration(stack[stackLen]);
 			}
 
@@ -55,8 +58,11 @@ export class ScopeNode<T> {
 			);
 
 			const parent = stack[stackLen - 1];
+
 			parent.children ??= [];
+
 			parent.children.push(hydrated);
+
 			stack[stackLen++] = hydrated;
 		}
 
@@ -124,11 +130,14 @@ export class ScopeNode<T> {
 
 		for (let i = 0; i < this.children.length; i++) {
 			const child = this.children[i];
+
 			child.filterHoist(predicate);
 
 			if (!predicate(child)) {
 				const grandChildren = child.children || [];
+
 				this.children.splice(i, 1, ...grandChildren);
+
 				i--;
 			}
 		}
@@ -137,12 +146,14 @@ export class ScopeNode<T> {
 	/** Runs the function on each node in the tree, breadth-first. */
 	public forEach(fn: (node: ScopeNode<T>) => void) {
 		fn(this);
+
 		this.children?.forEach((c) => c.forEach(fn));
 	}
 
 	/** Runs the function on each node in the tree, depth-first */
 	public forEachDepthFirst(fn: (node: ScopeNode<T>) => void) {
 		this.children?.forEach((c) => c.forEach(fn));
+
 		fn(this);
 	}
 
@@ -183,7 +194,9 @@ export function extractScopeRanges<T>(
 		worker.on("message", (msg) =>
 			resolve(ScopeNode.hydrate<T>(msg, depthFirstHydration)),
 		);
+
 		worker.on("error", reject);
+
 		worker.on("exit", () => reject("rename worker exited"));
 	});
 }

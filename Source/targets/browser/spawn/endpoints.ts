@@ -24,6 +24,7 @@ export async function getWSEndpoint(
 	remoteHostHeader?: string,
 ): Promise<string> {
 	const provider = new BasicResourceProvider(fs);
+
 	const [jsonVersion, jsonList] = await Promise.all([
 		fetchJsonWithLocalhostFallback<{ webSocketDebuggerUrl?: string }>(
 			provider,
@@ -57,6 +58,7 @@ export async function getWSEndpoint(
 			jsonVersion.url,
 			jsonVersion.body.webSocketDebuggerUrl,
 		);
+
 		logger.verbose(
 			LogTag.RuntimeLaunch,
 			"Discovered target URL from /json/version",
@@ -82,6 +84,7 @@ export async function getWSEndpoint(
 			jsonList.url,
 			jsonList.body[0].webSocketDebuggerUrl,
 		);
+
 		logger.verbose(
 			LogTag.RuntimeLaunch,
 			"Discovered target URL from /json/list",
@@ -116,11 +119,15 @@ async function fetchJsonWithLocalhostFallback<T>(
 	}
 
 	url.hostname = "127.0.0.1";
+
 	const urlA = url.toString();
+
 	url.hostname = "[::1]";
+
 	const urlB = url.toString();
 
 	const cts = new CancellationTokenSource(cancellationToken);
+
 	try {
 		let lastResponse: Response<T>;
 
@@ -186,7 +193,10 @@ export const retryGetBrowserEndpoint = makeRetryGetWSEndpoint(false);
 
 function fixRemoteUrl(rawBrowserUrl: string, rawWebSocketUrl: string) {
 	const browserUrl = new URL(rawBrowserUrl);
+
 	const websocketUrl = new URL(rawWebSocketUrl);
+
 	websocketUrl.host = browserUrl.host;
+
 	return websocketUrl.toString();
 }

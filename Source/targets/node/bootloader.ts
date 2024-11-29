@@ -42,7 +42,9 @@ const jsDebugRegisteredToken = "$jsDebugIsRegistered";
 		const env = new BootloaderEnvironment(process.env);
 
 		const inspectorOptions = env.inspectorOptions;
+
 		bootloaderLogger.enabled = !!inspectorOptions?.verbose;
+
 		bootloaderLogger.info(LogTag.RuntimeLaunch, "Bootloader imported", {
 			env: inspectorOptions,
 			args: process.argv,
@@ -149,15 +151,18 @@ function inspectOrQueue(env: IBootloaderInfo, ownId: string): boolean {
       console.error('timeout');
       process.exit(1);
     }, 10000);
+
     c.on('error', err => {
       console.error(err);
       process.exit(1);
     });
+
     c.on('connect', () => {
       c.write(process.env.NODE_INSPECTOR_INFO, 'utf-8');
       c.write(Buffer.from([0]));
       c.on('data', c => {
         console.error('read byte', c[0]);
+
         process.exit(c[0]);
       });
     });
@@ -182,6 +187,7 @@ function inspectOrQueue(env: IBootloaderInfo, ownId: string): boolean {
 
 		if (status) {
 			console.error(stderr.toString());
+
 			console.error(
 				`Error activating auto attach, please report to https://aka.ms/js-dbg-issue`,
 			);
@@ -317,6 +323,7 @@ function spawnWatchdog(execPath: string, watchdogInfo: IWatchdogInfo) {
 		stdio: "ignore",
 		detached: true,
 	});
+
 	p.unref();
 
 	return p;

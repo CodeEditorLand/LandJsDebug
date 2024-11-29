@@ -15,6 +15,7 @@ export class BrowserPerformanceProvider implements IPerformanceProvider {
 	public async retrieve(cdp: Cdp.Api): Promise<Dap.GetPerformanceResult> {
 		if (!this.didEnable.has(cdp)) {
 			this.didEnable.add(cdp);
+
 			await cdp.Performance.enable({});
 		}
 

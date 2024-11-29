@@ -19,6 +19,7 @@ export interface IEvent<T> {
 
 type ListenerData<T, A> = {
 	listener: (this: A, e: T) => void;
+
 	thisArg?: A;
 };
 
@@ -42,6 +43,7 @@ export class EventEmitter<T> implements IDisposable {
 			disposables?: IDisposable[],
 		) => {
 			const data: ListenerData<T, ThisArg> = { listener, thisArg };
+
 			this._listeners.add(data);
 
 			const result = {
@@ -49,6 +51,7 @@ export class EventEmitter<T> implements IDisposable {
 					result.dispose = () => {
 						/* no-op */
 					};
+
 					this._listeners.delete(data);
 				},
 			};
@@ -71,8 +74,10 @@ export class EventEmitter<T> implements IDisposable {
 
 		for (let index = 0; index < this._deliveryQueue.length; index++) {
 			const { data, event } = this._deliveryQueue[index];
+
 			data.listener.call(data.thisArg, event);
 		}
+
 		this._deliveryQueue = undefined;
 	}
 
@@ -88,6 +93,7 @@ export class EventEmitter<T> implements IDisposable {
  */
 export class ListenerMap<K, V> {
 	private readonly map = new Map<K, EventEmitter<V>>();
+
 	public readonly listeners: ReadonlyMap<K, EventEmitter<V>> = this.map;
 
 	/**
@@ -98,6 +104,7 @@ export class ListenerMap<K, V> {
 
 		if (!emitter) {
 			emitter = new EventEmitter<V>();
+
 			this.map.set(key, emitter);
 		}
 

@@ -80,13 +80,16 @@ export const isStackFrameElement = (
 
 export class StackTrace {
 	public readonly frames: FrameElement[] = [];
+
 	private _frameById: Map<number, StackFrame | InlinedFrame> = new Map();
 	/**
 	 * Frame index that was last checked for inline expansion.
 	 * @see https://github.com/ChromeDevTools/devtools-frontend/blob/c9f204731633fd2e2b6999a2543e99b7cc489b4b/docs/language_extension_api.md#dealing-with-inlined-functions
 	 */
 	private _lastInlineWasmExpanded = Promise.resolve(0);
+
 	private _asyncStackTraceId?: Cdp.Runtime.StackTraceId;
+
 	private _lastFrameThread?: Thread;
 
 	public static fromRuntime(
@@ -105,6 +108,7 @@ export class StackTrace {
 
 		if (stack.parentId) {
 			result._asyncStackTraceId = stack.parentId;
+
 			console.assert(!stack.parent);
 		} else {
 			result._appendStackTrace(thread, stack.parent);
@@ -124,12 +128,15 @@ export class StackTrace {
 		for (const callFrame of frames) {
 			result._appendFrame(StackFrame.fromDebugger(thread, callFrame));
 		}
+
 		if (parentId) {
 			result._asyncStackTraceId = parentId;
+
 			console.assert(!parent);
 		} else {
 			result._appendStackTrace(thread, parent);
 		}
+
 		return result;
 	}
 
@@ -142,6 +149,7 @@ export class StackTrace {
 		noFuncEval?: boolean,
 	): Promise<FrameElement[]> {
 		await this.expandAsyncStack(limit, noFuncEval);
+
 		await this.expandWasmFrames();
 
 		return this.frames;
@@ -175,6 +183,7 @@ export class StackTrace {
 				.Debugger.getStackTrace({
 					stackTraceId: this._asyncStackTraceId,
 				});
+
 			this._asyncStackTraceId = undefined;
 
 			if (response) {
@@ -226,11 +235,14 @@ export class StackTrace {
 							name: stack[i].name,
 							root: frame,
 						});
+
 						this._frameById.set(inlinedFrame.frameId, inlinedFrame);
+
 						newFrames.push(inlinedFrame);
 					}
 
 					this._spliceFrames(last, 1, ...newFrames);
+
 					last += stack.length - 1;
 				}
 
@@ -270,6 +282,7 @@ export class StackTrace {
 
 			if (stackTrace.parentId) {
 				this._asyncStackTraceId = stackTrace.parentId;
+
 				console.assert(!stackTrace.parent);
 			}
 
@@ -317,6 +330,7 @@ export class StackTrace {
 				break;
 			}
 		}
+
 		const promises = stackFrames.map(mapper);
 
 		return (await Promise.all(promises)).join("\n") + "\n";
@@ -330,6 +344,7 @@ export class StackTrace {
 		let to = (params.levels || 50) + from;
 
 		const frames = await this.loadFrames(to, params.noFuncEval);
+
 		to = Math.min(frames.length, params.levels ? to : frames.length);
 
 		const result: Promise<Dap.StackFrame>[] = [];
@@ -347,11 +362,13 @@ export class StackTrace {
 
 interface IScope {
 	chain: Cdp.Debugger.Scope[];
+
 	thisObject: Cdp.Runtime.RemoteObject;
 
 	returnValue?: Cdp.Runtime.RemoteObject;
 
 	variables: (IVariableContainer | undefined)[];
+
 	callFrameId: string;
 }
 
@@ -411,6 +428,7 @@ async function getEnhancedName(
 			objectId: callFrame.this.objectId,
 			returnByValue: true,
 		});
+
 		objName = ret?.result.value;
 	}
 
@@ -424,6 +442,7 @@ async function getEnhancedName(
 			objName = classCtor[1];
 		}
 	}
+
 	if (!objName) {
 		return callFrame.functionName;
 	}
@@ -463,8 +482,11 @@ export class StackFrame implements IStackFrameElement {
 		| Promise<IPreferredUiLocation | undefined>
 		| IPreferredUiLocation
 		| undefined;
+
 	private _scope: IScope | undefined;
+
 	private _thread: Thread;
+
 	public readonly isReplEval: boolean;
 
 	public get rawPosition() {
@@ -502,6 +524,7 @@ export class StackFrame implements IStackFrameElement {
 			callFrame,
 			thread.rawLocation(callFrame),
 		);
+
 		result._scope = {
 			chain: callFrame.scopeChain,
 			thisObject: callFrame.this,
@@ -523,14 +546,17 @@ export class StackFrame implements IStackFrameElement {
 		private readonly isAsync = false,
 	) {
 		this._rawLocation = rawLocation;
+
 		this.uiLocation = once(() =>
 			thread.rawLocationToUiLocation(rawLocation),
 		);
+
 		this._thread = thread;
 
 		const script = rawLocation.scriptId
 			? thread.getScriptById(rawLocation.scriptId)
 			: undefined;
+
 		this.isReplEval = script
 			? script.url.endsWith(SourceConstants.ReplExtension)
 			: false;
@@ -604,30 +630,35 @@ export class StackFrame implements IStackFrameElement {
 
 					case "local":
 						name = l10n.t("Local");
+
 						presentationHint = "locals";
 
 						break;
 
 					case "with":
 						name = l10n.t("With Block");
+
 						presentationHint = "locals";
 
 						break;
 
 					case "closure":
 						name = l10n.t("Closure");
+
 						presentationHint = "arguments";
 
 						break;
 
 					case "catch":
 						name = l10n.t("Catch Block");
+
 						presentationHint = "locals";
 
 						break;
 
 					case "block":
 						name = l10n.t("Block");
+
 						presentationHint = "locals";
 
 						break;
@@ -655,6 +686,7 @@ export class StackFrame implements IStackFrameElement {
 
 						break;
 				}
+
 				if (scope.name && scope.type === "closure") {
 					name = l10n.t("Closure ({0})", scope.name);
 				} else if (scope.name) {
@@ -683,7 +715,9 @@ export class StackFrame implements IStackFrameElement {
 						await this._thread.rawLocationToUiLocation(
 							startRawLocation,
 						);
+
 					dap.line = (startUiLocation || startRawLocation).lineNumber;
+
 					dap.column = (
 						startUiLocation || startRawLocation
 					).columnNumber;
@@ -700,14 +734,17 @@ export class StackFrame implements IStackFrameElement {
 							await this._thread.rawLocationToUiLocation(
 								endRawLocation,
 							);
+
 						dap.endLine = (
 							endUiLocation || endRawLocation
 						).lineNumber;
+
 						dap.endColumn = (
 							endUiLocation || endRawLocation
 						).columnNumber;
 					}
 				}
+
 				return dap;
 			}),
 		);
@@ -880,7 +917,9 @@ export class StackFrame implements IStackFrameElement {
 
 			for (
 				let scopeNumber = 0;
+
 				scopeNumber < this._scope.chain.length;
+
 				scopeNumber++
 			) {
 				const scopeVariable = this._scopeVariable(
@@ -905,6 +944,7 @@ export class StackFrame implements IStackFrameElement {
 						),
 				);
 			}
+
 			const completions = await Promise.all(promises);
 
 			return ([] as Dap.CompletionItem[]).concat(...completions);
@@ -927,8 +967,11 @@ export class InlinedFrame implements IStackFrameElement {
 	public readonly inlineFrameIndex: number;
 
 	private readonly wasmPosition: Base0Position;
+
 	private readonly name: string;
+
 	private readonly thread: Thread;
+
 	private readonly source: ISourceWithMap<IWasmLocationProvider>;
 
 	constructor(opts: {
@@ -943,14 +986,20 @@ export class InlinedFrame implements IStackFrameElement {
 		root: StackFrame;
 	}) {
 		this.name = opts.name;
+
 		this.root = opts.root;
+
 		this.thread = opts.thread;
+
 		this.source = opts.source;
+
 		this.inlineFrameIndex = opts.inlineFrameIndex;
+
 		this.wasmPosition = new Base0Position(
 			this.inlineFrameIndex,
 			this.root.rawPosition.base0.columnNumber,
 		);
+
 		this.uiLocation = once(() =>
 			opts.thread._sourceContainer.preferredUiLocation({
 				columnNumber: opts.root.rawPosition.base1.columnNumber,

@@ -57,10 +57,12 @@ class VSDebugSession implements IDebugSessionLike {
 
 	set name(newName: string) {
 		this._name = newName;
+
 		this.childConnection
 			.then((conn) => conn.initializedBlocker)
 			.then((conn) => conn.dap().process({ name: newName }));
 	}
+
 	get name() {
 		return this._name;
 	}
@@ -68,7 +70,9 @@ class VSDebugSession implements IDebugSessionLike {
 
 class VSSessionManager {
 	private services = createGlobalContainer({ storagePath, isVsCode: false });
+
 	private sessionManager: SessionManager<VSDebugSession>;
+
 	private rootTransport: IDapTransport;
 
 	constructor(inputStream: Readable, outputStream: Writable) {
@@ -76,7 +80,9 @@ class VSSessionManager {
 			this.services,
 			this.buildVSSessionLauncher(),
 		);
+
 		this.rootTransport = new StreamDapTransport(inputStream, outputStream);
+
 		this.createSession(undefined, "rootSession", {
 			type: DebugType.Chrome,
 			name: "javascript debugger root session",
@@ -135,6 +141,7 @@ class VSSessionManager {
 					transport,
 				)
 			: this.sessionManager.createNewRootSession(vsSession, transport);
+
 		deferredConnection.resolve(newSession.connection);
 
 		return newSession;
@@ -148,6 +155,7 @@ if (debugServerPort !== undefined) {
 			new VSSessionManager(socket, socket);
 		})
 		.listen(debugServerPort);
+
 	console.log(`Listening at ${(server.address() as net.AddressInfo).port}`);
 } else {
 	new VSSessionManager(process.stdin, process.stdout);

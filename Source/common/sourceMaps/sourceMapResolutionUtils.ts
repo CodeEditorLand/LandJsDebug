@@ -72,6 +72,7 @@ export async function getComputedSourceRoot(
 			);
 
 			const mappedDirname = path.dirname(mappedPath);
+
 			absSourceRoot = properJoin(mappedDirname, sourceRoot);
 		}
 
@@ -81,6 +82,7 @@ export async function getComputedSourceRoot(
 		});
 	} else if (path.isAbsolute(generatedPath)) {
 		absSourceRoot = path.dirname(generatedPath);
+
 		logger.verbose(
 			LogTag.SourceMapParsing,
 			`no sourceRoot specified, using script dirname`,
@@ -95,7 +97,9 @@ export async function getComputedSourceRoot(
 		const mappedPath = await resolver(urlPathname, pathMapping, logger);
 
 		const scriptPathDirname = mappedPath ? path.dirname(mappedPath) : "";
+
 		absSourceRoot = scriptPathDirname;
+
 		logger.verbose(
 			LogTag.SourceMapParsing,
 			`no sourceRoot specified, using webRoot + script path dirname`,
@@ -104,6 +108,7 @@ export async function getComputedSourceRoot(
 	}
 
 	absSourceRoot = utils.stripTrailingSlash(absSourceRoot);
+
 	absSourceRoot = fixDriveLetterAndSlashes(absSourceRoot);
 
 	return absSourceRoot;
@@ -152,6 +157,7 @@ export const defaultPathMappingResolver: PathMappingResolver = async (
 				LogTag.SourceMapParsing,
 				`Keys should be absolute: ${pattern}`,
 			);
+
 			pattern = "/" + pattern;
 		}
 

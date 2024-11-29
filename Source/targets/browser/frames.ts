@@ -10,18 +10,24 @@ import { EventEmitter } from "../../common/events";
 
 export class FrameModel {
 	private _mainFrame?: Frame;
+
 	private _onFrameAddedEmitter = new EventEmitter<Frame>();
+
 	_onFrameRemovedEmitter = new EventEmitter<Frame>();
+
 	private _onFrameNavigatedEmitter = new EventEmitter<Frame>();
 
 	readonly onFrameAdded = this._onFrameAddedEmitter.event;
+
 	readonly onFrameRemoved = this._onFrameRemovedEmitter.event;
+
 	readonly onFrameNavigated = this._onFrameNavigatedEmitter.event;
 
 	_frames: Map<string, Frame> = new Map();
 
 	attached(cdp: Cdp.Api, targetId: Cdp.Target.TargetID) {
 		cdp.Page.enable({});
+
 		cdp.Page.getResourceTree({}).then((result) => {
 			this._processCachedResources(
 				cdp,
@@ -48,6 +54,7 @@ export class FrameModel {
 				targetId,
 			);
 		}
+
 		cdp.Page.on("frameAttached", (event) => {
 			this._frameAttached(
 				cdp,
@@ -56,9 +63,11 @@ export class FrameModel {
 				event.parentFrameId,
 			);
 		});
+
 		cdp.Page.on("frameNavigated", (event) => {
 			this._frameNavigated(cdp, targetId, event.frame);
 		});
+
 		cdp.Page.on("frameDetached", (event) => {
 			this._frameDetached(cdp, targetId, event.frameId);
 		});
@@ -70,9 +79,11 @@ export class FrameModel {
 		parentFrameId?: Cdp.Page.FrameId,
 	): Frame {
 		const frame = new Frame(this, cdp, frameId, parentFrameId);
+
 		this._frames.set(frame.id, frame);
 
 		if (frame.isMainFrame()) this._mainFrame = frame;
+
 		this._onFrameAddedEmitter.fire(frame);
 
 		return frame;
@@ -87,6 +98,7 @@ export class FrameModel {
 		let frame = this._frames.get(frameId);
 
 		if (!frame) frame = this._addFrame(cdp, frameId, parentFrameId);
+
 		frame._ref(targetId);
 
 		return frame;
@@ -108,7 +120,9 @@ export class FrameModel {
 				framePayload.parentId,
 			);
 		}
+
 		frame._navigate(framePayload, targetId);
+
 		this._onFrameNavigatedEmitter.fire(frame);
 	}
 
@@ -120,6 +134,7 @@ export class FrameModel {
 		const frame = this._frames.get(frameId);
 
 		if (!frame) return;
+
 		frame._unref(targetId);
 	}
 
@@ -143,13 +158,17 @@ export class FrameModel {
 
 		if (frame) {
 			frame._navigate(framePayload, targetId);
+
 			this._onFrameNavigatedEmitter.fire(frame);
 		} else {
 			frame = this._addFrame(cdp, framePayload.id, parentFrameId);
+
 			frame._navigate(framePayload, targetId);
 		}
+
 		for (
 			let i = 0;
+
 			frameTreePayload.childFrames &&
 			i < frameTreePayload.childFrames.length;
 			++i
@@ -166,14 +185,21 @@ export class FrameModel {
 
 export class Frame {
 	readonly cdp: Cdp.Api;
+
 	readonly id: Cdp.Page.FrameId;
+
 	readonly model: FrameModel;
 
 	private _url: string;
+
 	private _name: string | undefined;
+
 	private _securityOrigin: string | undefined;
+
 	private _unreachableUrl: string | undefined;
+
 	private _parentFrameId?: Cdp.Page.FrameId;
+
 	private _targets = new Set<Cdp.Target.TargetID>();
 
 	constructor(
@@ -183,9 +209,13 @@ export class Frame {
 		parentFrameId?: Cdp.Page.FrameId,
 	) {
 		this.cdp = cdp;
+
 		this.model = model;
+
 		this._parentFrameId = parentFrameId;
+
 		this.id = frameId;
+
 		this._url = "";
 	}
 
@@ -195,10 +225,15 @@ export class Frame {
 
 	_navigate(payload: Cdp.Page.Frame, targetId: Cdp.Target.TargetID) {
 		this._name = payload.name;
+
 		this._url = payload.url;
+
 		this._securityOrigin = payload.securityOrigin;
+
 		this._unreachableUrl = payload.unreachableUrl || "";
+
 		this._ref(targetId);
+
 		this._unrefChildFrames(targetId);
 	}
 
@@ -242,8 +277,11 @@ export class Frame {
 		this._targets.delete(targetId);
 
 		if (this._targets.size) return;
+
 		this._unrefChildFrames(targetId);
+
 		this.model._frames.delete(this.id);
+
 		this.model._onFrameRemovedEmitter.fire(this);
 	}
 

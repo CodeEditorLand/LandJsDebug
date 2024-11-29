@@ -24,19 +24,31 @@ import { IBrowserProcess } from "./spawn/browserProcess";
 
 export class BrowserTargetManager implements IDisposable {
 	private _connection: CdpConnection;
+
 	private _targets: Map<Cdp.Target.SessionID, BrowserTarget> = new Map();
+
 	protected readonly _browser: Cdp.Api;
+
 	private readonly _detachedTargets = new Set();
+
 	readonly frameModel = new FrameModel();
+
 	readonly serviceWorkerModel = new ServiceWorkerModel(this.frameModel);
+
 	private _lifecycleQueue = Promise.resolve();
+
 	_sourcePathResolver: ISourcePathResolver;
+
 	_targetOrigin: ITargetOrigin;
+
 	_scriptSkipper?: ScriptSkipper;
 
 	private _onTargetAddedEmitter = new EventEmitter<BrowserTarget>();
+
 	private _onTargetRemovedEmitter = new EventEmitter<BrowserTarget>();
+
 	readonly onTargetAdded = this._onTargetAddedEmitter.event;
+
 	readonly onTargetRemoved = this._onTargetRemovedEmitter.event;
 
 	static async connect(
@@ -79,9 +91,13 @@ export class BrowserTargetManager implements IDisposable {
 		targetOrigin: ITargetOrigin,
 	) {
 		this._connection = connection;
+
 		this._sourcePathResolver = sourcePathResolver;
+
 		this._browser = browserSession;
+
 		this._targetOrigin = targetOrigin;
+
 		this.serviceWorkerModel.onDidChange(() => {
 			for (const target of this._targets.values()) {
 				if (target.type() === BrowserTargetType.ServiceWorker) {
@@ -123,12 +139,14 @@ export class BrowserTargetManager implements IDisposable {
 		if (this.launchParams.request === "launch") {
 			if (this.launchParams.cleanUp === "wholeBrowser") {
 				await this._browser.Browser.close({});
+
 				this.process?.kill();
 			} else {
 				for (const target of this._targets.values()) {
 					await this._browser.Target.closeTarget({
 						targetId: target.targetId,
 					});
+
 					this._connection.close();
 				}
 			}
@@ -258,9 +276,11 @@ export class BrowserTargetManager implements IDisposable {
 			this.logger,
 			() => {
 				this._connection.disposeSession(sessionId);
+
 				this._detachedFromTarget(sessionId);
 			},
 		);
+
 		this._targets.set(sessionId, target);
 
 		if (parentTarget)
@@ -274,6 +294,7 @@ export class BrowserTargetManager implements IDisposable {
 				target,
 			);
 		});
+
 		cdp.Target.on("detachedFromTarget", async (event) => {
 			if (event.targetId) {
 				this._detachedFromTarget(event.sessionId, false);
@@ -305,6 +326,7 @@ export class BrowserTargetManager implements IDisposable {
 
 		if (domDebuggerTypes.has(type))
 			this.frameModel.attached(cdp, targetInfo.targetId);
+
 		this.serviceWorkerModel.attached(cdp);
 
 		this._onTargetAddedEmitter.fire(target);
@@ -349,6 +371,7 @@ export class BrowserTargetManager implements IDisposable {
 			if (parts.length === 2) {
 				// Currently response.product looks like "Chrome/65.0.3325.162" so we split the project and the actual version number
 				properties.targetProject = parts[0];
+
 				properties.targetVersion = parts[1];
 			} else {
 				// If for any reason that changes, we submit the entire product as-is
@@ -376,6 +399,7 @@ export class BrowserTargetManager implements IDisposable {
 		}
 
 		this._targets.delete(sessionId);
+
 		target.parentTarget?._children.delete(sessionId);
 
 		try {
@@ -388,6 +412,7 @@ export class BrowserTargetManager implements IDisposable {
 
 		if (isStillAttachedInternally) {
 			this._detachedTargets.add(target.targetId);
+
 			await this._browser.Target.detachFromTarget({ sessionId });
 		}
 
@@ -399,6 +424,7 @@ export class BrowserTargetManager implements IDisposable {
 					await this._browser.Target.closeTarget({
 						targetId: target.id(),
 					});
+
 					this._connection.close();
 				}
 			} catch {

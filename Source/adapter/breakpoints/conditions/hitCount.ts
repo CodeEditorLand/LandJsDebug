@@ -21,6 +21,7 @@ const hitConditionRe = /^(>|>=|={1,3}|<|<=|%)?\s*([0-9]+)$/;
  */
 export class HitCondition implements IBreakpointCondition {
 	private hits = 0;
+
 	public readonly breakCondition = undefined;
 
 	constructor(private readonly predicate: (n: number) => boolean) {}

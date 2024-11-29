@@ -19,10 +19,13 @@ const maxRetryInterval = 50;
 
 export class WebSocketTransport implements ITransport {
 	private _ws: WebSocket | undefined;
+
 	private readonly messageEmitter = new EventEmitter<[string, HrTime]>();
+
 	private readonly endEmitter = new EventEmitter<void>();
 
 	public readonly onMessage = this.messageEmitter.event;
+
 	public readonly onEnd = this.endEmitter.event;
 
 	/**
@@ -56,6 +59,7 @@ export class WebSocketTransport implements ITransport {
 						ws.addEventListener("open", () =>
 							resolve(new WebSocketTransport(ws)),
 						);
+
 						ws.addEventListener("error", (errorEvent) => {
 							// Check for invalid http redirects for compatibility with old cdp proxies
 							const redirectUrl =
@@ -99,16 +103,20 @@ export class WebSocketTransport implements ITransport {
 
 	constructor(ws: WebSocket) {
 		this._ws = ws;
+
 		this._ws.addEventListener("message", (event) => {
 			this.messageEmitter.fire([
 				event.data.toString("utf-8"),
 				new HrTime(),
 			]);
 		});
+
 		this._ws.addEventListener("close", () => {
 			this.endEmitter.fire();
+
 			this._ws = undefined;
 		});
+
 		this._ws.addEventListener("error", () => {
 			// Silently ignore all errors - we don't know what to do with them.
 		});
@@ -131,6 +139,7 @@ export class WebSocketTransport implements ITransport {
 			}
 
 			this._ws.addEventListener("close", () => resolve());
+
 			this._ws.close();
 		});
 	}

@@ -8,17 +8,22 @@ import { SourceContainer } from "../sourceContainer";
 
 interface IEmbeddedLocation {
 	lineNumber: number;
+
 	columnNumber: number;
+
 	source: Dap.Source;
 }
 
 export class SourceAnnotationHelper {
 	private locationIdCounter = 0;
+
 	private readonly locationsByRef = new Map<
 		string,
 		{
 			id: number;
+
 			callFrame: Cdp.Runtime.CallFrame;
+
 			locations: Promise<IEmbeddedLocation[]>;
 		}
 	>();
@@ -41,6 +46,7 @@ export class SourceAnnotationHelper {
 		}
 
 		const id = this.locationIdCounter++;
+
 		this.locationsByRef.set(ref, {
 			id,
 			callFrame,

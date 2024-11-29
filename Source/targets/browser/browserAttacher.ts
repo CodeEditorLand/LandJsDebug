@@ -44,13 +44,21 @@ export class BrowserAttacher<
 > implements ILauncher
 {
 	private _attemptTimer: NodeJS.Timeout | undefined;
+
 	private _connection: CdpConnection | undefined;
+
 	private _targetManager: BrowserTargetManager | undefined;
+
 	private _disposables: IDisposable[] = [];
+
 	protected _lastLaunchParams?: T;
+
 	private _onTerminatedEmitter = new EventEmitter<IStopMetadata>();
+
 	readonly onTerminated = this._onTerminatedEmitter.event;
+
 	private _onTargetListChangedEmitter = new EventEmitter<void>();
+
 	readonly onTargetListChanged = this._onTargetListChangedEmitter.event;
 
 	constructor(
@@ -67,6 +75,7 @@ export class BrowserAttacher<
 	 */
 	public dispose() {
 		for (const disposable of this._disposables) disposable.dispose();
+
 		this._disposables = [];
 
 		if (this._attemptTimer) clearTimeout(this._attemptTimer);
@@ -113,6 +122,7 @@ export class BrowserAttacher<
 	private _scheduleAttach(params: T, context: ILaunchContext) {
 		this._attemptTimer = setTimeout(() => {
 			this._attemptTimer = undefined;
+
 			this.attemptToAttach(params, {
 				...context,
 				cancellationToken: NeverCancelled,
@@ -150,13 +160,16 @@ export class BrowserAttacher<
 		);
 
 		this._connection = connection;
+
 		connection.onDisconnected(
 			() => {
 				this._connection = undefined;
 
 				if (this._targetManager) {
 					this._targetManager.dispose();
+
 					this._targetManager = undefined;
+
 					this._onTargetListChangedEmitter.fire();
 				}
 
@@ -180,18 +193,22 @@ export class BrowserAttacher<
 		targetManager.serviceWorkerModel.onDidChange(() =>
 			this._onTargetListChangedEmitter.fire(),
 		);
+
 		targetManager.frameModel.onFrameNavigated(() =>
 			this._onTargetListChangedEmitter.fire(),
 		);
+
 		targetManager.onTargetAdded(() => {
 			this._onTargetListChangedEmitter.fire();
 		});
+
 		targetManager.onTargetRemoved(() => {
 			this._onTargetListChangedEmitter.fire();
 
 			if (!targetManager.targetList().length) {
 				// graceful exit
 				this._onTerminatedEmitter.fire({ killed: true, code: 0 });
+
 				this._connection?.close();
 			}
 		});
@@ -314,6 +331,7 @@ export class BrowserAttacher<
 
 	async terminate(): Promise<void> {
 		this._lastLaunchParams = undefined;
+
 		this._connection?.close();
 	}
 

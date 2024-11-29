@@ -176,7 +176,9 @@ function renderArrayPreview(
 
 	if (description.startsWith("Array("))
 		description = description.substring("Array".length);
+
 	builder.append(stringUtils.trimEnd(description, builder.budget()));
+
 	builder.append(" ");
 
 	const propsBuilder = new BudgetStringBuilder(builder.budget() - 2, ", "); // for []
@@ -192,9 +194,12 @@ function renderArrayPreview(
 		const index = parseInt(prop.name, 10);
 
 		if (index > lastIndex + 1) propsBuilder.appendEllipsis();
+
 		lastIndex = index;
+
 		propsBuilder.append(renderPropertyPreview(prop, propsBuilder.budget()));
 	}
+
 	if (arrayLength > lastIndex + 1) propsBuilder.appendEllipsis();
 
 	// Named
@@ -202,11 +207,14 @@ function renderArrayPreview(
 		if (!propsBuilder.checkBudget()) break;
 
 		if (!isNaN(prop.name as unknown as number)) continue;
+
 		propsBuilder.append(
 			renderPropertyPreview(prop, propsBuilder.budget(), prop.name),
 		);
 	}
+
 	if (preview.overflow) propsBuilder.appendEllipsis();
+
 	builder.append("[" + propsBuilder.build() + "]");
 
 	return builder.build();
@@ -252,6 +260,7 @@ function renderObjectPreview(
 	if (promiseStatus && promiseValue) {
 		if (promiseStatus.value === "pending")
 			builder.append(`{<${promiseStatus.value}>}`);
+
 		else {
 			builder.append(
 				`{${renderPropertyPreview(
@@ -261,6 +270,7 @@ function renderObjectPreview(
 				)}}`,
 			);
 		}
+
 		return builder.build();
 	}
 
@@ -276,6 +286,7 @@ function renderObjectPreview(
 	const propsBuilder = new BudgetStringBuilder(builder.budget() - 2, ", "); // for '{}'
 	for (const prop of properties) {
 		if (!propsBuilder.checkBudget()) break;
+
 		propsBuilder.append(
 			renderPropertyPreview(prop, propsBuilder.budget(), prop.name),
 		);
@@ -301,6 +312,7 @@ function renderObjectPreview(
 				),
 				format,
 			);
+
 			propsBuilder.append(
 				appendKeyValue(key, " => ", value, propsBuilder.budget()),
 			);
@@ -362,6 +374,7 @@ function renderPrimitivePreview(
 		if (valueFormat?.hex) {
 			str = Buffer.from(str, "utf8").toString("hex");
 		}
+
 		return stringUtils.trimMiddle(str, characterBudget);
 	}
 
@@ -384,6 +397,7 @@ function appendKeyValue(
 	if (key.length + separator.length > characterBudget) {
 		return stringUtils.trimEnd(key, characterBudget);
 	}
+
 	return escapeAnsiInString(
 		`${key}${separator}${stringUtils.trimMiddle(
 			value,
@@ -404,9 +418,11 @@ function renderPropertyPreview(
 	if (prop.type === "object" && prop.value === "Object") {
 		return appendKeyValue(name, ": ", "{\u2026}", characterBudget);
 	}
+
 	if (typeof prop.value === "undefined") {
 		return appendKeyValue(name, ": ", `<${prop.type}>`, characterBudget);
 	}
+
 	if (prop.type === "string") {
 		return appendKeyValue(
 			name,
@@ -415,6 +431,7 @@ function renderPropertyPreview(
 			characterBudget,
 		);
 	}
+
 	return appendKeyValue(name, ": ", prop.value ?? "unknown", characterBudget);
 }
 
@@ -448,8 +465,10 @@ function renderValue(
 
 		if (format?.hex) {
 			stringValue = Buffer.from(stringValue, "utf8").toString("hex");
+
 			quoted = false;
 		}
+
 		let value = stringUtils.trimMiddle(
 			stringValue,
 			quoted ? budget - 2 : budget,
@@ -458,6 +477,7 @@ function renderValue(
 		if (quoted) {
 			value = quoteStringValue(value);
 		}
+
 		return ansi ? value : escapeAnsiInString(value);
 	}
 
@@ -528,18 +548,23 @@ function formatFunctionDescription(
 		let className = "";
 
 		if (classNameMatch) className = classNameMatch[0].trim() || "";
+
 		addToken("class", textAfterPrefix, className);
 	} else if (asyncMatch) {
 		textAfterPrefix = text.substring(asyncMatch[1].length);
+
 		addToken("async ƒ", textAfterPrefix, nameAndArguments(textAfterPrefix));
 	} else if (isGenerator) {
 		textAfterPrefix = text.substring("function*".length);
+
 		addToken("ƒ*", textAfterPrefix, nameAndArguments(textAfterPrefix));
 	} else if (isGeneratorShorthand) {
 		textAfterPrefix = text.substring("*".length);
+
 		addToken("ƒ*", textAfterPrefix, nameAndArguments(textAfterPrefix));
 	} else if (isBasic) {
 		textAfterPrefix = text.substring("function".length);
+
 		addToken("ƒ", textAfterPrefix, nameAndArguments(textAfterPrefix));
 	} else if (isArrow) {
 		let abbreviation = text;
@@ -547,10 +572,12 @@ function formatFunctionDescription(
 		if (text.length > maxArrowFunctionCharacterLength) {
 			abbreviation = text.substring(0, firstArrowIndex + 2) + " {\u2026}";
 		}
+
 		addToken("", text, abbreviation);
 	} else {
 		addToken("ƒ", text, nameAndArguments(text));
 	}
+
 	return builder.build();
 
 	function nameAndArguments(contents: string): string {
@@ -576,6 +603,7 @@ function formatFunctionDescription(
 
 			return name + args;
 		}
+
 		return "()";
 	}
 
@@ -583,12 +611,15 @@ function formatFunctionDescription(
 		if (!builder.checkBudget()) return;
 
 		if (prefix.length) builder.append(prefix + " ");
+
 		body = body.trim();
 
 		if (body.endsWith(" { [native code] }")) {
 			body = body.substring(0, body.length - " { [native code] }".length);
 		}
+
 		if (builder.budget() >= body.length) builder.append(body);
+
 		else builder.append(abbreviation.replace(/\n/g, " "));
 	}
 }
@@ -691,6 +722,7 @@ export function formatAsTable(param: Cdp.Runtime.ObjectPreview): string {
 	// Measure entries.
 	for (const row of param.properties.filter((r) => r.valuePreview)) {
 		const value = new Map<string | undefined, string>();
+
 		value.set(undefined, row.name); // row index is a first column
 		colLengths.set(
 			undefined,
@@ -698,10 +730,14 @@ export function formatAsTable(param: Cdp.Runtime.ObjectPreview): string {
 		);
 
 		rows.push(value);
+
 		row.valuePreview?.properties.map((prop) => {
 			if (!prop.value) return;
+
 			colNames.add(prop.name);
+
 			value.set(prop.name, prop.value);
+
 			colLengths.set(
 				prop.name,
 				Math.max(colLengths.get(prop.name) || 0, prop.value.length),
@@ -735,6 +771,7 @@ export function formatAsTable(param: Cdp.Runtime.ObjectPreview): string {
 				minTableCellWidth,
 				(colLengths.get(name)! * ratio) | 0,
 			);
+
 			colLengths.set(name, newWidth);
 		}
 	}
@@ -748,6 +785,7 @@ export function formatAsTable(param: Cdp.Runtime.ObjectPreview): string {
 	const rowTemplate = "[-" + colTemplates.join("-|-") + "-]";
 
 	const table: string[] = [];
+
 	table.push(
 		rowTemplate
 			.replace("[", "╭")
@@ -760,7 +798,9 @@ export function formatAsTable(param: Cdp.Runtime.ObjectPreview): string {
 	// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 	for (const name of colNames.values())
 		header.push(pad(name || "", colLengths.get(name)!));
+
 	table.push("┊ " + header.join(" ┊ ") + " ┊");
+
 	table.push(
 		rowTemplate
 			.replace("[", "├")
@@ -776,8 +816,10 @@ export function formatAsTable(param: Cdp.Runtime.ObjectPreview): string {
 			// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 			row.push(pad(value.get(colName) || "", colLengths.get(colName)!));
 		}
+
 		table.push("┊ " + row.join(" ┊ ") + " ┊");
 	}
+
 	table.push(
 		rowTemplate
 			.replace("[", "╰")

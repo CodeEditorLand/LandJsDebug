@@ -21,6 +21,7 @@ import { ISourceMapFactory } from "./sourceMapFactory";
 
 export interface IRename {
 	original: string;
+
 	compiled: string;
 }
 
@@ -144,6 +145,7 @@ export class RenameProvider implements IRenameProvider {
 		}
 
 		const end = Date.now();
+
 		this.logger.info(
 			LogTag.Runtime,
 			`renames calculated in ${end - start}ms`,

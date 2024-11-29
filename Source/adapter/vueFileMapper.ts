@@ -78,6 +78,7 @@ export class VueFileMapper implements IVueFileMapper {
 
 	private readonly getMapping = once(async () => {
 		const basenameToPath = new Map<string, string>();
+
 		await this.search.streamAllChildren(this.files, (file) =>
 			basenameToPath.set(basename(file), file),
 		);

@@ -43,6 +43,7 @@ class VSCodeTerminalProcess implements IProgram {
 			const disposable = vscode.window.onDidCloseTerminal((t) => {
 				if (t === terminal) {
 					resolve({ code: 0, killed: true });
+
 					disposable.dispose();
 				}
 			});
@@ -80,6 +81,7 @@ export interface ITerminalLauncherLike
 @injectable()
 export class TerminalNodeLauncher extends NodeLauncherBase<ITerminalLaunchConfiguration> {
 	private terminalCreatedEmitter = new EventEmitter<vscode.Terminal>();
+
 	protected callbackFile = path.join(
 		tmpdir(),
 		`node-debug-callback-${randomBytes(8).toString("hex")}`,
@@ -171,7 +173,9 @@ export class TerminalNodeLauncher extends NodeLauncherBase<ITerminalLaunchConfig
 			env: hideDebugInfoFromConsole(binary, env).defined(),
 			isTransient: true,
 		});
+
 		this.terminalLinkProvider?.enableHandlingInTerminal(terminal);
+
 		this.terminalCreatedEmitter.fire(terminal);
 
 		terminal.show();
@@ -182,6 +186,7 @@ export class TerminalNodeLauncher extends NodeLauncherBase<ITerminalLaunchConfig
 			// Add wait for #1642
 			// "There's a known issue that processId can not resolve... to be safe could you have a race timeout"
 			await Promise.race([terminal.processId, delay(1000)]);
+
 			terminal.sendText(runData.params.command, true);
 		}
 
@@ -204,6 +209,7 @@ export class TerminalNodeLauncher extends NodeLauncherBase<ITerminalLaunchConfig
 	 */
 	public dispose() {
 		super.dispose();
+
 		this.fs.unlink(this.callbackFile).catch(() => undefined);
 	}
 }

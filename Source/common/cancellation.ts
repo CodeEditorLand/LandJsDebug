@@ -20,6 +20,7 @@ export class TaskCancelledError extends ProtocolError {
 			format: message,
 			showUser: true,
 		});
+
 		this._cause = {
 			id: ErrorCodes.TaskCancelled,
 			format: message,
@@ -112,6 +113,7 @@ export const Cancelled: CancellationToken = Object.freeze({
  */
 export class CancellationTokenSource {
 	private _token?: CancellationToken = undefined;
+
 	private _parentListener?: IDisposable = undefined;
 
 	constructor(parent?: CancellationToken) {
@@ -128,6 +130,7 @@ export class CancellationTokenSource {
 		const token = (cts._token = new MutableToken());
 
 		const timer = setTimeout(() => token.cancel(), timeout);
+
 		token.onCancellationRequested(() => clearTimeout(timer));
 
 		return cts;
@@ -139,6 +142,7 @@ export class CancellationTokenSource {
 			// actually needed
 			this._token = new MutableToken();
 		}
+
 		return this._token;
 	}
 
@@ -158,9 +162,11 @@ export class CancellationTokenSource {
 		if (cancel) {
 			this.cancel();
 		}
+
 		if (this._parentListener) {
 			this._parentListener.dispose();
 		}
+
 		if (!this._token) {
 			// ensure to initialize with an empty token if we had none
 			this._token = NeverCancelled;
@@ -173,6 +179,7 @@ export class CancellationTokenSource {
 
 class MutableToken implements CancellationToken {
 	private _isCancelled = false;
+
 	private _emitter: EventEmitter<void> | null = null;
 
 	public cancel() {
@@ -181,6 +188,7 @@ class MutableToken implements CancellationToken {
 
 			if (this._emitter) {
 				this._emitter.fire(undefined);
+
 				this.dispose();
 			}
 		}
@@ -194,15 +202,18 @@ class MutableToken implements CancellationToken {
 		if (this._isCancelled) {
 			return shortcutEvent;
 		}
+
 		if (!this._emitter) {
 			this._emitter = new EventEmitter<void>();
 		}
+
 		return this._emitter.event;
 	}
 
 	public dispose(): void {
 		if (this._emitter) {
 			this._emitter.dispose();
+
 			this._emitter = null;
 		}
 	}

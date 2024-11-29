@@ -33,9 +33,13 @@ import { SourceMapOverrides } from "./sourceMapOverrides";
 
 export interface ISourcePathResolverOptions {
 	workspaceFolder: string;
+
 	resolveSourceMapLocations: ReadonlyArray<string> | null;
+
 	sourceMapOverrides: { [key: string]: string };
+
 	localRoot: string | null;
+
 	remoteRoot: string | null;
 }
 
@@ -79,9 +83,11 @@ export abstract class SourcePathResolverBase<
 
 			for (
 				let i = 0;
+
 				i < wfParts.length &&
 				i < suffixParts.length &&
 				suffixParts[i].toLowerCase() === wfParts[i].toLowerCase();
+
 				i++
 			) {
 				sharedPrefixLen += wfParts[i].length + 1;
@@ -201,6 +207,7 @@ export abstract class SourcePathResolverBase<
 		let localPath = properJoin(this.options.localRoot, relativePath);
 
 		localPath = fixDriveLetter(localPath);
+
 		this.logger.verbose(
 			LogTag.RuntimeSourceMap,
 			`Mapped remoteToLocal: ${remotePath} -> ${localPath}`,
@@ -230,6 +237,7 @@ export abstract class SourcePathResolverBase<
 			remotePath,
 			/*uppercaseDriveLetter=*/ true,
 		);
+
 		this.logger.verbose(
 			LogTag.RuntimeSourceMap,
 			`Mapped localToRemote: ${localPath} -> ${remotePath}`,

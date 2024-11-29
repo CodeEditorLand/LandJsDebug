@@ -35,6 +35,7 @@ export class PatternEntryBreakpoint extends EntryBreakpoint {
 			contains: true,
 			lookbehinds: false,
 		});
+
 		await this._setAny(thread, {
 			// fix case sensitivity on drive letter:
 			urlRegex: re.source.replace(

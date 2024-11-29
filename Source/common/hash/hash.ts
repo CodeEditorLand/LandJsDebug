@@ -24,22 +24,33 @@ export type HashRequest =
 	| { type: MessageType.HashFile; id: number; file: string; mode: HashMode }
 	| {
 			type: MessageType.HashBytes;
+
 			id: number;
+
 			data: string | Buffer;
+
 			mode: HashMode;
 	  }
 	| {
 			type: MessageType.VerifyFile;
+
 			id: number;
+
 			file: string;
+
 			expected: string;
+
 			checkNode: boolean;
 	  }
 	| {
 			type: MessageType.VerifyBytes;
+
 			id: number;
+
 			data: string | Buffer;
+
 			expected: string;
+
 			checkNode: boolean;
 	  };
 
@@ -150,12 +161,14 @@ async function handle(
 			} catch (e) {
 				return { id: message.id };
 			}
+
 		case MessageType.HashBytes:
 			try {
 				return { id: message.id, hash: hash(toBuffer(message.data)) };
 			} catch (e) {
 				return { id: message.id };
 			}
+
 		case MessageType.VerifyFile:
 			try {
 				const data = await fs.readFile(message.file);
@@ -171,6 +184,7 @@ async function handle(
 			} catch (e) {
 				return { id: message.id, matches: false };
 			}
+
 		case MessageType.VerifyBytes:
 			try {
 				return {

@@ -10,22 +10,31 @@ import { FrameModel } from "./frames";
 
 export class ServiceWorkerRegistration {
 	readonly versions = new Map<string, ServiceWorkerVersion>();
+
 	readonly id: string;
+
 	readonly scopeURL: string;
 
 	constructor(payload: Cdp.ServiceWorker.ServiceWorkerRegistration) {
 		this.id = payload.registrationId;
+
 		this.scopeURL = payload.scopeURL;
 	}
 }
 
 export class ServiceWorkerVersion {
 	readonly registration: ServiceWorkerRegistration;
+
 	readonly revisions: Cdp.ServiceWorker.ServiceWorkerVersion[] = [];
+
 	readonly id: string;
+
 	readonly scriptURL: string;
+
 	private _targetId: string | undefined;
+
 	private _status: Cdp.ServiceWorker.ServiceWorkerVersionStatus;
+
 	private _runningStatus: Cdp.ServiceWorker.ServiceWorkerVersionRunningStatus;
 
 	constructor(
@@ -33,10 +42,15 @@ export class ServiceWorkerVersion {
 		payload: Cdp.ServiceWorker.ServiceWorkerVersion,
 	) {
 		this.registration = registration;
+
 		this.id = payload.versionId;
+
 		this.scriptURL = payload.scriptURL;
+
 		this._targetId = payload.targetId;
+
 		this._status = payload.status;
+
 		this._runningStatus = payload.runningStatus;
 	}
 
@@ -48,9 +62,13 @@ export class ServiceWorkerVersion {
 		) {
 			console.error(`${this._targetId} !== ${payload.targetId}`);
 		}
+
 		if (payload.targetId) this._targetId = payload.targetId;
+
 		this._status = payload.status;
+
 		this._runningStatus = payload.runningStatus;
+
 		this.revisions.unshift(payload);
 	}
 
@@ -91,17 +109,26 @@ export class ServiceWorkerModel implements IDisposable {
 		Cdp.ServiceWorker.RegistrationID,
 		ServiceWorkerRegistration
 	>();
+
 	private _versions = new Map<Cdp.Target.TargetID, ServiceWorkerVersion>();
+
 	private _frameModel: FrameModel;
+
 	private _cdp: Cdp.Api | undefined;
+
 	private _onDidChangeUpdater = new EventEmitter<void>();
+
 	readonly onDidChange = this._onDidChangeUpdater.event;
+
 	private _targets = new Set<Cdp.Api>();
+
 	private static _mode: ServiceWorkerMode;
+
 	private static _instances = new Set<ServiceWorkerModel>();
 
 	constructor(frameModel: FrameModel) {
 		this._frameModel = frameModel;
+
 		ServiceWorkerModel._instances.add(this);
 	}
 
@@ -115,10 +142,13 @@ export class ServiceWorkerModel implements IDisposable {
 		if (this._cdp) return;
 		// Use first available target connection.
 		this._cdp = cdp;
+
 		cdp.ServiceWorker.enable({});
+
 		cdp.ServiceWorker.on("workerRegistrationUpdated", (event) =>
 			this._workerRegistrationsUpdated(event.registrations),
 		);
+
 		cdp.ServiceWorker.on("workerVersionUpdated", (event) =>
 			this._workerVersionsUpdated(event.versions),
 		);
@@ -149,6 +179,7 @@ export class ServiceWorkerModel implements IDisposable {
 				}
 			}
 		}
+
 		return result;
 	}
 
@@ -174,9 +205,12 @@ export class ServiceWorkerModel implements IDisposable {
 
 			if (!version) {
 				version = new ServiceWorkerVersion(registration, payload);
+
 				registration.versions.set(payload.versionId, version);
 			}
+
 			if (payload.targetId) this._versions.set(payload.targetId, version);
+
 			version.addRevision(payload);
 
 			if (
@@ -184,9 +218,11 @@ export class ServiceWorkerModel implements IDisposable {
 				version.runningStatus() === "stopped"
 			) {
 				if (payload.targetId) this._versions.delete(payload.targetId);
+
 				registration.versions.delete(version.id);
 			}
 		}
+
 		this._onDidChangeUpdater.fire();
 	}
 
@@ -196,15 +232,18 @@ export class ServiceWorkerModel implements IDisposable {
 		for (const payload of payloads) {
 			if (payload.isDeleted) {
 				if (!this._registrations.has(payload.registrationId)) debugger;
+
 				this._registrations.delete(payload.registrationId);
 			} else {
 				if (this._registrations.has(payload.registrationId)) return;
+
 				this._registrations.set(
 					payload.registrationId,
 					new ServiceWorkerRegistration(payload),
 				);
 			}
 		}
+
 		this._onDidChangeUpdater.fire();
 	}
 
@@ -217,6 +256,7 @@ export class ServiceWorkerModel implements IDisposable {
 
 	setMode(mode: ServiceWorkerMode) {
 		if (!this._cdp) return;
+
 		this._cdp.ServiceWorker.setForceUpdateOnPageLoad({
 			forceUpdateOnPageLoad: mode === "force",
 		});
@@ -224,6 +264,7 @@ export class ServiceWorkerModel implements IDisposable {
 		for (const cdp of this._targets.values()) {
 			if (mode === "bypass") {
 				cdp.Network.enable({});
+
 				cdp.Network.setBypassServiceWorker({ bypass: true });
 			} else {
 				cdp.Network.disable({});
@@ -237,6 +278,7 @@ export class ServiceWorkerModel implements IDisposable {
 		const version = this.version(targetId);
 
 		if (!version) return;
+
 		await this._cdp.ServiceWorker.stopWorker({
 			versionId: version.id,
 		});

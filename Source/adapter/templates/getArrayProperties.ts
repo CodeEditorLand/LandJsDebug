@@ -28,5 +28,6 @@ export const getArrayProperties = remoteFunction(function (this: unknown[]) {
 			Object.defineProperty(result, name, descriptor);
 		}
 	}
+
 	return result;
 });

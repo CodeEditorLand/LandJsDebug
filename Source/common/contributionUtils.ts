@@ -215,10 +215,14 @@ export interface IConfigurationTypes {
 
 export interface IStackFrameContext {
 	sessionId: string;
+
 	frameName: string;
+
 	frameId: string;
+
 	frameLocation: {
 		range: { startLineNumber: number; startColumn: number };
+
 		source: Dap.Source;
 	};
 }
@@ -299,8 +303,11 @@ export const runCommand = async <K extends keyof ICommandTypes>(
  */
 export const asCommand = <K extends keyof ICommandTypes>(command: {
 	title: string;
+
 	command: K;
+
 	tooltip?: string;
+
 	arguments: Parameters<ICommandTypes[K]>;
 }): Command => command;
 

@@ -69,6 +69,7 @@ import { IVariableStoreLocationProvider, VariableStore } from "./variableStore";
 
 export class ExecutionContext {
 	public readonly sourceMapLoads = new Map<string, Promise<IUiLocation[]>>();
+
 	public readonly scripts: Script[] = [];
 	/** Script ID paused in after WASM is initialized, from {@link breakOnWasmInit} */
 	public breakOnWasmScriptId?: string;
@@ -88,6 +89,7 @@ export class ExecutionContext {
 		await Promise.all(
 			this.scripts.map(async (s) => {
 				const source = await s.source;
+
 				source.filterScripts(
 					(s) => s.executionContextId !== this.description.id,
 				);
@@ -102,6 +104,7 @@ export class ExecutionContext {
 
 export type Script = ISourceScript & {
 	source: Promise<Source>;
+
 	resolvedSource?: Source;
 };
 
@@ -150,7 +153,9 @@ const getReplSourceSuffix = () =>
 /** Auxillary data present in Cdp.Debugger.Paused events in recent Chrome versions */
 interface IInstrumentationPauseAuxData {
 	scriptId: string;
+
 	url: string;
+
 	sourceMapURL: string;
 }
 
@@ -174,6 +179,7 @@ class StateQueue {
 
 		if (!this.queue || this.queue.operation !== operation) {
 			const promise = this.queue?.result.then(fn, fn) ?? fn();
+
 			const queued = (this.queue = {
 				operation,
 				result: promise.finally(() => {
@@ -195,30 +201,50 @@ const enum CustomBreakpointPrefix {
 
 export class Thread implements IVariableStoreLocationProvider {
 	private static _lastThreadId = 0;
+
 	public readonly id: number;
+
 	private _cdp: Cdp.Api;
+
 	private _pausedDetails?: IPausedDetails;
+
 	private _pausedVariables?: VariableStore;
+
 	private _pausedForSourceMapScriptId?: string;
+
 	private _executionContexts: Map<number, ExecutionContext> = new Map();
+
 	readonly replVariables: VariableStore;
+
 	readonly _sourceContainer: SourceContainer;
+
 	private _pauseOnSourceMapBreakpointIds?: Cdp.Debugger.BreakpointId[];
+
 	private _selectedContext: ExecutionContext | undefined;
+
 	static _allThreadsByDebuggerId = new Map<
 		Cdp.Runtime.UniqueDebuggerId,
 		Thread
 	>();
+
 	private _scriptWithSourceMapHandler?: ScriptWithSourceMapHandler;
+
 	private _sourceMapDisabler?: SourceMapDisabler;
+
 	private _expectedPauseReason?: ExpectedPauseReason;
+
 	private _excludedCallers: readonly Dap.ExcludedCaller[] = [];
+
 	private _enabledCustomBreakpoints?: ReadonlySet<string>;
 	/** Last parsed WASM script ID. Set immediately before breaking in {@link _breakOnWasmScriptId} */
 	private _lastParsedWasmScriptIds?: string[];
+
 	private readonly stateQueue = new StateQueue();
+
 	private readonly _onPausedEmitter = new EventEmitter<IPausedDetails>();
+
 	private readonly _dap: DeferredContainer<Dap.Api>;
+
 	private disposed = false;
 
 	public debuggerReady = getDeferred<void>();
@@ -255,9 +281,13 @@ export class Thread implements IVariableStoreLocationProvider {
 		clientCapabilities: IClientCapabilies,
 	) {
 		this._dap = new DeferredContainer(dap);
+
 		this._sourceContainer = sourceContainer;
+
 		this._cdp = cdp;
+
 		this.id = Thread._lastThreadId++;
+
 		this.replVariables = new VariableStore(
 			renameProvider,
 			this._cdp,
@@ -266,9 +296,11 @@ export class Thread implements IVariableStoreLocationProvider {
 			clientCapabilities,
 			this,
 		);
+
 		sourceContainer.onSourceMappedSteppingChange(() =>
 			this.refreshStackTrace(),
 		);
+
 		this._initialize();
 	}
 
@@ -301,12 +333,14 @@ export class Thread implements IVariableStoreLocationProvider {
 	public resume(): Promise<Dap.ContinueResult | Dap.Error> {
 		return this.stateQueue.enqueue("resume", async () => {
 			this._sourceContainer.clearDisabledSourceMaps();
+
 			if (!(await this._cdp.Debugger.resume({}))) {
 				// We don't report the failure if the target wasn't paused. VS relies on this behavior.
 				if (this._pausedDetails !== undefined) {
 					return errors.createSilentError(l10n.t("Unable to resume"));
 				}
 			}
+
 			return { allThreadsContinued: false };
 		});
 	}
@@ -329,7 +363,9 @@ export class Thread implements IVariableStoreLocationProvider {
 				reason: "step",
 				direction: StepDirection.Over,
 			};
+
 			const skipList = await this.getCurrentSkipList(StepDirection.Over);
+
 			if (await this._cdp.Debugger.stepOver({ skipList })) {
 				return {};
 			}
@@ -341,6 +377,7 @@ export class Thread implements IVariableStoreLocationProvider {
 	public stepInto(targetId?: number): Promise<Dap.StepInResult | Dap.Error> {
 		return this.stateQueue.enqueue("stepInto", async () => {
 			this._waitingForStepIn = { lastDetails: this._pausedDetails };
+
 			this._expectedPauseReason = {
 				reason: "step",
 				direction: StepDirection.In,
@@ -348,10 +385,12 @@ export class Thread implements IVariableStoreLocationProvider {
 
 			const stepInTarget =
 				this._pausedDetails?.stepInTargets?.[targetId as number];
+
 			if (stepInTarget) {
 				const breakpoint = await this._cdp.Debugger.setBreakpoint({
 					location: stepInTarget.breakLocation,
 				});
+
 				this._waitingForStepIn.intoTargetBreakpoint =
 					breakpoint?.breakpointId;
 
@@ -538,7 +577,9 @@ export class Thread implements IVariableStoreLocationProvider {
 			stackFrame = this._pausedDetails
 				? this._pausedDetails.stackTrace.frame(params.frameId)?.root
 				: undefined;
+
 			if (!stackFrame) return this._stackFrameNotFoundError();
+
 			if (!stackFrame.callFrameId())
 				return this._evaluateOnAsyncFrameError();
 		}
@@ -661,6 +702,7 @@ export class Thread implements IVariableStoreLocationProvider {
 			params.expression = sourceUtils.wrapObjectLiteral(
 				params.expression,
 			);
+
 			if (params.expression.indexOf("await") !== -1) {
 				const rewritten = sourceUtils.rewriteTopLevelAwait(
 					params.expression,
@@ -668,9 +710,11 @@ export class Thread implements IVariableStoreLocationProvider {
 
 				if (rewritten) {
 					params.expression = rewritten;
+
 					params.awaitPromise = true;
 				}
 			}
+
 			params.expression += getReplSourceSuffix();
 		}
 
@@ -685,7 +729,9 @@ export class Thread implements IVariableStoreLocationProvider {
 
 		if (args.source && args.line && args.column) {
 			const variables = this._pausedVariables;
+
 			const source = this._sourceContainer.source(args.source);
+
 			if (source && variables) {
 				location = {
 					source,
@@ -721,13 +767,16 @@ export class Thread implements IVariableStoreLocationProvider {
 				errors.createSilentError(l10n.t("Unable to evaluate")),
 			);
 		}
+
 		if (response.exceptionDetails) {
 			let text = response.exceptionDetails.exception
 				? objectPreview.previewException(
 						response.exceptionDetails.exception,
 					).title
 				: response.exceptionDetails.text;
+
 			if (!text.startsWith("Uncaught")) text = "Uncaught " + text;
+
 			throw new ProtocolError(errors.createSilentError(text));
 		}
 
@@ -753,6 +802,7 @@ export class Thread implements IVariableStoreLocationProvider {
 			}
 
 			callFrameId = stackFrame.root.callFrameId();
+
 			if (!callFrameId) {
 				throw new ProtocolError(this._evaluateOnAsyncFrameError());
 			}
@@ -760,12 +810,14 @@ export class Thread implements IVariableStoreLocationProvider {
 
 		if (args.context === "repl" && args.expression.startsWith("cd ")) {
 			const contextName = args.expression.substring("cd ".length).trim();
+
 			for (const ec of this._executionContexts.values()) {
 				if (
 					this.target.executionContextName(ec.description) ===
 					contextName
 				) {
 					this._selectedContext = ec;
+
 					return {
 						result: `[${contextName}]`,
 						variablesReference: 0,
@@ -805,9 +857,11 @@ export class Thread implements IVariableStoreLocationProvider {
 		if (configuredTimeout === undefined) {
 			return 500;
 		}
+
 		if (configuredTimeout <= 0) {
 			return undefined;
 		}
+
 		return configuredTimeout;
 	}
 
@@ -831,6 +885,7 @@ export class Thread implements IVariableStoreLocationProvider {
 			const formattedException = await new ExceptionMessage(
 				response.exceptionDetails,
 			).toDap(this);
+
 			throw new ProtocolError(
 				errors.replError(formattedException.output),
 			);
@@ -874,14 +929,19 @@ export class Thread implements IVariableStoreLocationProvider {
 		this._cdp.Runtime.on("executionContextCreated", (event) => {
 			this._executionContextCreated(event.context);
 		});
+
 		this._cdp.Runtime.on("executionContextDestroyed", (event) => {
 			this._executionContextDestroyed(event.executionContextId);
 		});
+
 		this._cdp.Runtime.on("executionContextsCleared", () => {
 			this._ensureDebuggerEnabledAndRefreshDebuggerId();
+
 			this.replVariables.clear();
+
 			this._executionContextsCleared();
 		});
+
 		this._cdp.Inspector.on("targetReloadedAfterCrash", () => {
 			// It was reported that crashing targets sometimes loses breakpoints.
 			// I could not reproduce this by calling `Page.crash()`, but put this fix
@@ -893,6 +953,7 @@ export class Thread implements IVariableStoreLocationProvider {
 			this._cdp.Runtime.on("consoleAPICalled", (event) => {
 				this.console.dispatch(this, event);
 			});
+
 			this._cdp.Runtime.on("exceptionThrown", (event) => {
 				this.console.enqueue(
 					this,
@@ -900,6 +961,7 @@ export class Thread implements IVariableStoreLocationProvider {
 				);
 			});
 		}
+
 		this._cdp.Runtime.on("inspectRequested", (event) => {
 			if (event.hints["copyToClipboard"]) {
 				this._copyObjectToClipboard(event.object);
@@ -912,13 +974,17 @@ export class Thread implements IVariableStoreLocationProvider {
 		});
 
 		this._cdp.Debugger.on("paused", async (event) => this._onPaused(event));
+
 		this._cdp.Debugger.on("resumed", () => this.onResumed());
+
 		this._cdp.Debugger.on("scriptParsed", (event) =>
 			this._onScriptParsed(event),
 		);
+
 		this._cdp.Debugger.on("scriptFailedToParse", (event) =>
 			this._onScriptParsed(event),
 		);
+
 		this._cdp.Runtime.enable({});
 
 		// The profilder domain is required to be always on in order to support
@@ -984,8 +1050,11 @@ export class Thread implements IVariableStoreLocationProvider {
 	public async getStepInTargets(frameId: number): Promise<
 		(Dap.StepInTarget & {
 			line?: number;
+
 			column?: number;
+
 			endLine?: number;
+
 			endColumn?: number;
 		})[]
 	> {
@@ -1039,6 +1108,7 @@ export class Thread implements IVariableStoreLocationProvider {
 		// location. Instead, look over the source content manually to build ranges.
 
 		const idStart = pausedDetails.stepInTargets?.length || 0;
+
 		pausedDetails.stepInTargets =
 			pausedDetails.stepInTargets?.concat(locations) || locations;
 
@@ -1095,7 +1165,9 @@ export class Thread implements IVariableStoreLocationProvider {
 		this._pausedDetails = await this._createPausedDetails(
 			this._pausedDetails.event,
 		);
+
 		this._onThreadResumed();
+
 		await this._onThreadPaused(this._pausedDetails);
 	}
 
@@ -1103,6 +1175,7 @@ export class Thread implements IVariableStoreLocationProvider {
 		description: Cdp.Runtime.ExecutionContextDescription,
 	) {
 		const context = new ExecutionContext(description);
+
 		this._executionContexts.set(description.id, context);
 
 		if (this._scriptWithSourceMapHandler) {
@@ -1138,8 +1211,11 @@ export class Thread implements IVariableStoreLocationProvider {
 		const context = this._executionContexts.get(contextId);
 
 		if (!context) return;
+
 		this._executionContexts.delete(contextId);
+
 		await this.shutdown.shutdownContext();
+
 		context.remove(this._sourceContainer);
 	}
 
@@ -1147,6 +1223,7 @@ export class Thread implements IVariableStoreLocationProvider {
 		const removedContexts = [...this._executionContexts.values()];
 
 		const pausedDetails = this._pausedDetails;
+
 		this._executionContexts.clear();
 
 		await this.shutdown.shutdownContext();
@@ -1154,6 +1231,7 @@ export class Thread implements IVariableStoreLocationProvider {
 		for (const context of removedContexts) {
 			context.remove(this._sourceContainer);
 		}
+
 		this._breakpointManager.executionContextWasCleared();
 
 		if (pausedDetails && pausedDetails === this._pausedDetails) {
@@ -1170,10 +1248,12 @@ export class Thread implements IVariableStoreLocationProvider {
 		// across cross-process navigations. Refresh it upon clearing contexts.
 		this._cdp.Debugger.enable({}).then((response) => {
 			this.debuggerReady.resolve();
+
 			if (response) {
 				Thread._allThreadsByDebuggerId.set(response.debuggerId, this);
 			}
 		});
+
 		this.exceptionPause.apply(this._cdp);
 	}
 
@@ -1211,6 +1291,7 @@ export class Thread implements IVariableStoreLocationProvider {
 					this._pauseOnSourceMapBreakpointIds?.includes(bp),
 				) ||
 				isWasmBreak);
+
 		this.evaluator.setReturnedValue(event.callFrames[0]?.returnValue);
 
 		if (isSourceMapPause) {
@@ -1227,9 +1308,11 @@ export class Thread implements IVariableStoreLocationProvider {
 			}
 
 			const expectedPauseReason = this._expectedPauseReason;
+
 			if (isWasmBreak) {
 				// Resolve all pending WASM symbols when we've just initialized something
 				const ids = this._lastParsedWasmScriptIds;
+
 				this._lastParsedWasmScriptIds = undefined;
 				// In theory `ids` should always have something, but it seems like we
 				// can see (and ignore) multiple scriptParsed events with the same ID
@@ -1241,6 +1324,7 @@ export class Thread implements IVariableStoreLocationProvider {
 						),
 					);
 				}
+
 				return this.resume();
 			} else if (
 				scriptId &&
@@ -1298,9 +1382,11 @@ export class Thread implements IVariableStoreLocationProvider {
 			if (event.hitBreakpoints?.includes(stepInBreakpoint)) {
 				// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 				this._waitingForStepIn!.intoTargetBreakpoint = undefined;
+
 				await this._cdp.Debugger.removeBreakpoint({
 					breakpointId: stepInBreakpoint,
 				});
+
 				await this._cdp.Debugger.stepInto({ breakOnAsyncCall: false });
 			} else {
 				this.resume();
@@ -1339,6 +1425,7 @@ export class Thread implements IVariableStoreLocationProvider {
 					LogTag.Runtime,
 					"Skipping pause due to excluded caller",
 				);
+
 				this.resume();
 
 				return;
@@ -1359,15 +1446,19 @@ export class Thread implements IVariableStoreLocationProvider {
 		switch (smartStepDirection) {
 			case StepDirection.In:
 				return this.stepInto();
+
 			case StepDirection.Out:
 				return this.stepOut();
+
 			case StepDirection.Over:
 				return this.stepOver();
+
 			default:
 			// continue
 		}
 
 		this._waitingForStepIn = undefined;
+
 		this._pausedVariables = this.replVariables.createDetached();
 
 		await this._onThreadPaused(pausedDetails);
@@ -1410,6 +1501,7 @@ export class Thread implements IVariableStoreLocationProvider {
 			}
 
 			firstSource ??= await first.source.toDap();
+
 			if (!sourcesEqual(firstSource, target.source)) {
 				continue;
 			}
@@ -1427,6 +1519,7 @@ export class Thread implements IVariableStoreLocationProvider {
 								.map((f) => f.uiLocation()),
 						),
 					);
+
 				stackLocations = x;
 			}
 
@@ -1460,8 +1553,11 @@ export class Thread implements IVariableStoreLocationProvider {
 	 */
 	onResumed() {
 		this._pausedDetails = undefined;
+
 		this._pausedVariables = undefined;
+
 		this.evaluator.setReturnedValue(undefined);
+
 		this._onThreadResumed();
 	}
 
@@ -1470,6 +1566,7 @@ export class Thread implements IVariableStoreLocationProvider {
 	 */
 	async dispose() {
 		await this.shutdown.shutdownAll();
+
 		this.disposed = true;
 
 		for (const [debuggerId, thread] of Thread._allThreadsByDebuggerId) {
@@ -1478,6 +1575,7 @@ export class Thread implements IVariableStoreLocationProvider {
 		}
 
 		this._removeAllScripts(true /* silent */);
+
 		this._executionContextsCleared();
 
 		// Send 'exited' after all other thread-releated events
@@ -1500,12 +1598,14 @@ export class Thread implements IVariableStoreLocationProvider {
 		// project was observed to emit source locations at (-1, -1) in its callframe.
 		if ("location" in location) {
 			const loc = location as Cdp.Debugger.CallFrame;
+
 			return {
 				lineNumber: Math.max(0, loc.location.lineNumber) + 1,
 				columnNumber: Math.max(0, loc.location.columnNumber || 0) + 1,
 				scriptId: loc.location.scriptId,
 			};
 		}
+
 		return {
 			lineNumber: Math.max(0, location.lineNumber) + 1,
 			columnNumber: Math.max(0, location.columnNumber || 0) + 1,
@@ -1599,13 +1699,16 @@ export class Thread implements IVariableStoreLocationProvider {
 			const listener = this._sourceContainer.onScript((script) => {
 				if (script.scriptId === scriptId) {
 					resolve(script);
+
 					listener.dispose();
+
 					clearTimeout(timeout);
 				}
 			});
 
 			const timeout = setTimeout(() => {
 				resolve(undefined);
+
 				listener.dispose();
 			}, maxTime);
 		});
@@ -1626,6 +1729,7 @@ export class Thread implements IVariableStoreLocationProvider {
 		events: string[],
 	): Promise<void> {
 		if (!this.target.supportsCustomBreakpoints()) return;
+
 		this._enabledCustomBreakpoints ??= new Set();
 
 		// Do not fail for custom breakpoints, to account for
@@ -1635,14 +1739,17 @@ export class Thread implements IVariableStoreLocationProvider {
 		for (const x of xhr) {
 			newIds.add(CustomBreakpointPrefix.XHR + x);
 		}
+
 		for (const e of events) {
 			newIds.add(CustomBreakpointPrefix.Event + e);
 		}
+
 		const todo: (Promise<unknown> | undefined)[] = [];
 
 		for (const newId of newIds) {
 			if (!this._enabledCustomBreakpoints.has(newId)) {
 				const id = newId.slice(CustomBreakpointPrefix.XHR.length);
+
 				todo.push(
 					newId.startsWith(CustomBreakpointPrefix.XHR)
 						? this._cdp.DOMDebugger.setXHRBreakpoint({ url: id })
@@ -1650,9 +1757,11 @@ export class Thread implements IVariableStoreLocationProvider {
 				);
 			}
 		}
+
 		for (const oldId of this._enabledCustomBreakpoints) {
 			if (!newIds.has(oldId)) {
 				const id = oldId.slice(CustomBreakpointPrefix.XHR.length);
+
 				todo.push(
 					oldId.startsWith(CustomBreakpointPrefix.XHR)
 						? this._cdp.DOMDebugger.removeXHRBreakpoint({ url: id })
@@ -1662,6 +1771,7 @@ export class Thread implements IVariableStoreLocationProvider {
 		}
 
 		this._enabledCustomBreakpoints = newIds;
+
 		await Promise.all(todo);
 	}
 
@@ -1733,6 +1843,7 @@ export class Thread implements IVariableStoreLocationProvider {
 					reason: "exception",
 					description: l10n.t("Paused on assert"),
 				};
+
 			case "debugCommand":
 				return {
 					thread: this,
@@ -1741,6 +1852,7 @@ export class Thread implements IVariableStoreLocationProvider {
 					reason: "pause",
 					description: l10n.t("Paused on debug() call"),
 				};
+
 			case "DOM":
 				return {
 					thread: this,
@@ -1749,11 +1861,13 @@ export class Thread implements IVariableStoreLocationProvider {
 					reason: "data breakpoint",
 					description: l10n.t("Paused on DOM breakpoint"),
 				};
+
 			case "EventListener":
 				return this._resolveEventListenerBreakpointDetails(
 					stackTrace,
 					event,
 				);
+
 			case "exception":
 				return {
 					thread: this,
@@ -1765,6 +1879,7 @@ export class Thread implements IVariableStoreLocationProvider {
 						| Cdp.Runtime.RemoteObject
 						| undefined,
 				};
+
 			case "promiseRejection":
 				return {
 					thread: this,
@@ -1776,6 +1891,7 @@ export class Thread implements IVariableStoreLocationProvider {
 						| Cdp.Runtime.RemoteObject
 						| undefined,
 				};
+
 			case "instrumentation":
 				if (event.data && event.data["scriptId"]) {
 					return {
@@ -1786,6 +1902,7 @@ export class Thread implements IVariableStoreLocationProvider {
 						description: l10n.t("Paused"),
 					};
 				}
+
 				return {
 					thread: this,
 					event,
@@ -1793,6 +1910,7 @@ export class Thread implements IVariableStoreLocationProvider {
 					reason: "function breakpoint",
 					description: l10n.t("Paused on instrumentation breakpoint"),
 				};
+
 			case "XHR":
 				return {
 					thread: this,
@@ -1801,6 +1919,7 @@ export class Thread implements IVariableStoreLocationProvider {
 					reason: "data breakpoint",
 					description: l10n.t("Paused on XMLHttpRequest or fetch"),
 				};
+
 			case "OOM":
 				return {
 					thread: this,
@@ -1811,10 +1930,12 @@ export class Thread implements IVariableStoreLocationProvider {
 						"Paused before Out Of Memory exception",
 					),
 				};
+
 			default:
 				if (hitBreakpoints.length) {
 					let isStopOnEntry = false; // By default we assume breakpoints aren't stop on entry
 					const userEntryBp = this.target.entryBreakpoint;
+
 					if (
 						userEntryBp &&
 						hitBreakpoints.includes(userEntryBp.cdpId)
@@ -1854,6 +1975,7 @@ export class Thread implements IVariableStoreLocationProvider {
 							hitBreakpoints,
 						);
 					}
+
 					return {
 						thread: this,
 						event,
@@ -1863,6 +1985,7 @@ export class Thread implements IVariableStoreLocationProvider {
 						description: l10n.t("Paused on breakpoint"),
 					};
 				}
+
 				if (this._expectedPauseReason) {
 					return {
 						thread: this,
@@ -1872,6 +1995,7 @@ export class Thread implements IVariableStoreLocationProvider {
 						...this._expectedPauseReason,
 					};
 				}
+
 				return {
 					thread: this,
 					event,
@@ -1894,6 +2018,7 @@ export class Thread implements IVariableStoreLocationProvider {
 
 		if (breakpoint) {
 			const details = breakpoint.details(data);
+
 			return {
 				thread: this,
 				event,
@@ -1903,6 +2028,7 @@ export class Thread implements IVariableStoreLocationProvider {
 				text: details.long,
 			};
 		}
+
 		return {
 			thread: this,
 			event,
@@ -1972,6 +2098,7 @@ export class Thread implements IVariableStoreLocationProvider {
 				"Creating missing execution context id",
 				event,
 			);
+
 			executionContext = this._executionContextCreated({
 				id: event.executionContextId,
 				name: "<autofilled>",
@@ -1984,6 +2111,7 @@ export class Thread implements IVariableStoreLocationProvider {
 			const prevSource = this._sourceContainer.getSourceByOriginalUrl(
 				event.url,
 			);
+
 			if (event.hash && prevSource?.contentHash === event.hash) {
 				prevSource.addScript({
 					scriptId: event.scriptId,
@@ -2018,6 +2146,7 @@ export class Thread implements IVariableStoreLocationProvider {
 				: undefined;
 
 			let resolvedSourceMapUrl: string | undefined;
+
 			if (event.sourceMapURL) {
 				// Note: we should in theory refetch source maps with relative urls, if the base url has changed,
 				// but in practice that usually means new scripts with new source maps anyway.
@@ -2042,6 +2171,7 @@ export class Thread implements IVariableStoreLocationProvider {
 
 			if (event.scriptLanguage === "WebAssembly") {
 				this._lastParsedWasmScriptIds ??= [];
+
 				this._lastParsedWasmScriptIds.push(event.scriptId);
 			}
 
@@ -2072,7 +2202,9 @@ export class Thread implements IVariableStoreLocationProvider {
 		};
 
 		const script: Script = { ...sourceScript, source: createSource() };
+
 		script.source.then((s) => (script.resolvedSource = s));
+
 		executionContext.scripts.push(script);
 
 		this._sourceContainer.addScriptById(script);
@@ -2106,6 +2238,7 @@ export class Thread implements IVariableStoreLocationProvider {
 
 		if (!script) {
 			this._pausedForSourceMapScriptId = undefined;
+
 			return false;
 		}
 
@@ -2124,10 +2257,12 @@ export class Thread implements IVariableStoreLocationProvider {
 		const sourceMapCumulativePause =
 			this._sourceContainer.sourceMapTimeouts().sourceMapCumulativePause -
 			Math.max(timeSpentWallClockInMs - perScriptTimeout, 0);
+
 		this._sourceContainer.setSourceMapTimeouts({
 			...this._sourceContainer.sourceMapTimeouts(),
 			sourceMapCumulativePause,
 		});
+
 		this.logger.verbose(
 			LogTag.Internal,
 			`Blocked execution waiting for source-map`,
@@ -2151,7 +2286,9 @@ export class Thread implements IVariableStoreLocationProvider {
 		}
 
 		console.assert(this._pausedForSourceMapScriptId === scriptId);
+
 		this._pausedForSourceMapScriptId = undefined;
+
 		await disableProm;
 
 		const bLine = brokenOn?.lineNumber || 0;
@@ -2218,10 +2355,13 @@ export class Thread implements IVariableStoreLocationProvider {
 			) {
 				continue;
 			}
+
 			const uiLocation = await this.rawLocationToUiLocation(
 				this.rawLocation(p.value.value as Cdp.Debugger.Location),
 			);
+
 			if (uiLocation) this._sourceContainer.revealUiLocation(uiLocation);
+
 			break;
 		}
 	}
@@ -2233,6 +2373,7 @@ export class Thread implements IVariableStoreLocationProvider {
 					text: objectPreview.previewRemoteObject(object, "copy"),
 				}),
 			);
+
 			return;
 		}
 
@@ -2257,6 +2398,7 @@ export class Thread implements IVariableStoreLocationProvider {
 
 	private async _onThreadPaused(details: IPausedDetails) {
 		this._expectedPauseReason = undefined;
+
 		this._onPausedEmitter.fire(details);
 
 		let hitBreakpointIds: number[] | undefined;
@@ -2376,12 +2518,15 @@ export class Thread implements IVariableStoreLocationProvider {
 					instrumentation: "beforeScriptWithSourceMapExecution",
 				}),
 			]);
+
 			this._pauseOnSourceMapBreakpointIds = result
 				.map((r) => r?.breakpointId)
 				.filter(truthy);
 		} else if (!needsPause && this._pauseOnSourceMapBreakpointIds?.length) {
 			const breakpointIds = this._pauseOnSourceMapBreakpointIds;
+
 			this._pauseOnSourceMapBreakpointIds = undefined;
+
 			await Promise.all(
 				breakpointIds.map((breakpointId) =>
 					this._cdp.Debugger.removeBreakpoint({ breakpointId }),
@@ -2397,6 +2542,7 @@ export class Thread implements IVariableStoreLocationProvider {
 					this._installWasmPauseHandler(id),
 				),
 			);
+
 			await Promise.race([installed, delay(100)]);
 		}
 
@@ -2425,6 +2571,7 @@ export class Thread implements IVariableStoreLocationProvider {
 			this,
 			EntryBreakpointMode.Greedy,
 		);
+
 		await this.setScriptSourceMapHandler(
 			false,
 			this._scriptWithSourceMapHandler,
@@ -2481,6 +2628,7 @@ export class Thread implements IVariableStoreLocationProvider {
 				this._sourceContainer.getSourceByOriginalUrl(
 					urlUtils.absolutePathToFileUrl(chunk.path),
 				) || this._sourceContainer.getSourceByOriginalUrl(chunk.path);
+
 			if (!compiledSource) {
 				todo.push(chunk.toString());
 

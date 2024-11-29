@@ -51,19 +51,33 @@ export interface ITarget {
 	readonly sourcePathResolver?: ISourcePathResolver;
 
 	id(): string;
+
 	name(): string;
+
 	onNameChanged: IEvent<void>;
+
 	fileName(): string | undefined;
+
 	type(): string;
+
 	parent(): ITarget | undefined;
+
 	canStop(): boolean;
+
 	stop(): void;
+
 	canRestart(): boolean;
+
 	restart(): void;
+
 	canAttach(): boolean;
+
 	attach(): Promise<Cdp.Api | undefined>;
+
 	canDetach(): boolean;
+
 	detach(): Promise<void>;
+
 	targetOrigin(): ITargetOrigin;
 	/**
 	 * Lifecycle callback invoked after attaching and the target's events are
@@ -78,26 +92,37 @@ export interface ITarget {
 	runIfWaitingForDebugger(): Promise<void>;
 
 	initialize(): Promise<void>;
+
 	waitingForDebugger(): boolean;
+
 	supportsCustomBreakpoints(): boolean;
+
 	supportsXHRBreakpoints(): boolean;
+
 	scriptUrlToUrl(url: string): string;
+
 	executionContextName(
 		context: Cdp.Runtime.ExecutionContextDescription,
 	): string;
+
 	entryBreakpoint?: IBreakpointPathAndId | undefined;
+
 	logger: ILogger;
 }
 
 export interface IBreakpointPathAndId {
 	path: string;
+
 	cdpId: string;
 }
 
 export interface ILaunchContext {
 	dap: Dap.Api;
+
 	cancellationToken: CancellationToken;
+
 	targetOrigin: ITargetOrigin;
+
 	telemetryReporter: ITelemetryReporter;
 }
 
@@ -173,10 +198,16 @@ export interface ILauncher extends IDisposable {
 
 export interface IWebViewConnectionInfo {
 	description: string;
+
 	faviconUrl: string;
+
 	id: string;
+
 	title: string;
+
 	type: string;
+
 	url: string;
+
 	devtoolsActivePort?: string;
 }

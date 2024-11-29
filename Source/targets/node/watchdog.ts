@@ -25,6 +25,7 @@ installUnhandledErrorReporter(logger, new NullTelemetryReporter());
 (async () => {
 	process.on("exit", () => {
 		logger.info(LogTag.Runtime, "Process exiting");
+
 		logger.dispose();
 
 		if (info.pid && !info.dynamicAttach && (!wd || wd.isTargetAlive)) {
@@ -33,5 +34,6 @@ installUnhandledErrorReporter(logger, new NullTelemetryReporter());
 	});
 
 	const wd = await WatchDog.attach(info);
+
 	wd.onEnd(() => process.exit());
 })();

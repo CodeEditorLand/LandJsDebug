@@ -156,14 +156,19 @@ export class EdgeLauncher extends BrowserLauncher<IEdgeLaunchConfiguration> {
 					this.logger,
 					telemetryReporter,
 				);
+
 				await connection
 					.rootSession()
 					.Runtime.runIfWaitingForDebugger({});
+
 				connection.close();
 			});
 		});
+
 		server.on("error", promisedPort.reject);
+
 		server.on("close", () => promisedPort.resolve(params.port));
+
 		server.listen(serverName);
 
 		// We must set a user data directory so the DevToolsActivePort file will be written.
@@ -175,10 +180,14 @@ export class EdgeLauncher extends BrowserLauncher<IEdgeLaunchConfiguration> {
 		// Web views are indirectly configured for debugging with environment variables.
 		// See the WebView2 documentation for more details.
 		params.env = params.env || {};
+
 		params.env["WEBVIEW2_USER_DATA_FOLDER"] = params.userDataDir.toString();
+
 		params.env["WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS"] =
 			`--remote-debugging-port=${params.port}`;
+
 		params.env["WEBVIEW2_WAIT_FOR_SCRIPT_DEBUGGER"] = "true";
+
 		params.env["WEBVIEW2_PIPE_FOR_SCRIPT_DEBUGGER"] = pipeName;
 
 		return promisedPort.promise;

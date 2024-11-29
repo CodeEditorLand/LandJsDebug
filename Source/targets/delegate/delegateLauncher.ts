@@ -19,8 +19,11 @@ import {
 
 export interface IDelegateRef {
 	id: number;
+
 	dap: IPendingDapApi;
+
 	target: ITarget;
+
 	parent?: IDelegateRef;
 }
 
@@ -129,6 +132,7 @@ export class DelegateLauncher implements ILauncher {
 
 		setTimeout(() => {
 			this.targets.add(params.delegateId, delegate.target);
+
 			delegate.dap.connect(context.dap);
 		}, 0);
 

@@ -30,6 +30,7 @@ export class LongPredictionUI implements IExtensionContribution {
 			}),
 		);
 	}
+
 	private async promptLongBreakpoint(
 		workspaceFolder?: vscode.WorkspaceFolder,
 	) {
@@ -76,6 +77,7 @@ export class LongPredictionUI implements IExtensionContribution {
 		const doc = await vscode.workspace.openTextDocument(
 			join(workspaceFolder.uri.fsPath, ".vscode", "launch.json"),
 		);
+
 		await vscode.window.showTextDocument(doc);
 	}
 }

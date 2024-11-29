@@ -29,6 +29,7 @@ import { logPerf } from "../telemetry/performance";
 
 export interface IWorkspaceLocation {
 	absolutePath: string;
+
 	lineNumber: number; // 1-based
 	columnNumber: number; // 1-based
 }
@@ -40,7 +41,9 @@ const InlineSourceMapUrl = Symbol("InlineSourceMapUrl");
 
 type DiscoveredMetadata = Omit<ISourceMapMetadata, "sourceMapUrl"> & {
 	sourceMapUrl: { [InlineSourceMapUrl]: string } | string;
+
 	sourceUrl: string;
+
 	resolvedPath: string;
 };
 type MetadataMap = Map<string, Set<DiscoveredMetadata>>;
@@ -50,6 +53,7 @@ const longPredictionWarning = 10 * 1000;
 @injectable()
 export class BreakpointPredictorCachedState<T> {
 	private value: T | undefined;
+
 	private readonly path?: string;
 
 	constructor(
@@ -82,6 +86,7 @@ export class BreakpointPredictorCachedState<T> {
 
 		if (this.path) {
 			await fs.mkdir(path.dirname(this.path), { recursive: true });
+
 			await fs.writeFile(this.path, JSON.stringify(value));
 		}
 	}
@@ -178,6 +183,7 @@ export abstract class BreakpointSearch {
 
 						if (!set) {
 							set = new Set();
+
 							sourcePathToCompiled.set(
 								discovery.resolvedPath,
 								set,
@@ -275,6 +281,7 @@ export class TargetedBreakpointSearch extends BreakpointSearch {
 
 			for (const i of toFind) {
 				this.sourcePathToCompiled.set(sourcePaths[i], entry);
+
 				existing[i] = entry;
 			}
 		}
@@ -331,6 +338,7 @@ export class BreakpointsPredictor implements IBreakpointsPredictor {
 		string,
 		IWorkspaceLocation[]
 	>();
+
 	private readonly longParseEmitter = new EventEmitter<void>();
 
 	/**
@@ -444,6 +452,7 @@ export class BreakpointsPredictor implements IBreakpointsPredictor {
 			}
 
 			const locations: IWorkspaceLocation[] = [];
+
 			this.predictedLocations.set(key, locations);
 
 			for (const metadata of topLevel) {
@@ -468,6 +477,7 @@ export class BreakpointsPredictor implements IBreakpointsPredictor {
 	private async getMetadataForPaths(sourcePaths: readonly string[]) {
 		const warnLongRuntime = setTimeout(() => {
 			this.longParseEmitter.fire();
+
 			this.logger.warn(
 				LogTag.RuntimeSourceMap,
 				"Long breakpoint predictor runtime",

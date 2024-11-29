@@ -84,12 +84,16 @@ export interface IProfileCallbackArguments {
 @injectable()
 export class UiProfileManager implements IDisposable {
 	private statusBarItem?: vscode.StatusBarItem;
+
 	private lastChosenType: string | undefined;
+
 	private lastChosenTermination: string | undefined;
+
 	private readonly activeSessions = new Map<
 		string,
 		/* debug session id */ UiProfileSession
 	>();
+
 	private readonly disposables = new DisposableList();
 
 	constructor(
@@ -119,6 +123,7 @@ export class UiProfileManager implements IDisposable {
 						) || ProfilerFactory.ctors[0],
 						new ManualTerminationCondition(),
 					);
+
 					this.registerSession(session);
 				}
 
@@ -180,6 +185,7 @@ export class UiProfileManager implements IDisposable {
 		}
 
 		this.registerSession(uiSession, args.onCompleteCommand);
+
 		await uiSession.start();
 
 		if (impl.instant) {
@@ -199,6 +205,7 @@ export class UiProfileManager implements IDisposable {
 			const session = await this.pickSession(
 				[...this.activeSessions.values()].map((s) => s.session),
 			);
+
 			uiSession = session && this.activeSessions.get(session.id);
 		}
 
@@ -207,6 +214,7 @@ export class UiProfileManager implements IDisposable {
 		}
 
 		this.sessionStates.remove(uiSession.session.id);
+
 		await uiSession.stop();
 	}
 
@@ -219,6 +227,7 @@ export class UiProfileManager implements IDisposable {
 		}
 
 		this.activeSessions.clear();
+
 		this.disposables.dispose();
 	}
 
@@ -230,8 +239,11 @@ export class UiProfileManager implements IDisposable {
 		onCompleteCommand?: string,
 	) {
 		this.activeSessions.set(uiSession.session.id, uiSession);
+
 		this.sessionStates.add(uiSession.session.id, l10n.t("Profiling"));
+
 		uiSession.onStatusChange(() => this.updateStatusBar());
+
 		uiSession.onStop((file) => {
 			if (file) {
 				this.openProfileFile(
@@ -243,9 +255,12 @@ export class UiProfileManager implements IDisposable {
 			}
 
 			this.activeSessions.delete(uiSession.session.id);
+
 			uiSession.dispose();
+
 			this.updateStatusBar();
 		});
+
 		this.updateStatusBar();
 	}
 
@@ -277,6 +292,7 @@ export class UiProfileManager implements IDisposable {
 		const filename = getDefaultProfileName() + uiSession.impl.extension;
 		// todo: open as untitled, see: https://github.com/microsoft/vscode/issues/93441
 		const fileUri = vscode.Uri.file(join(directory, filename));
+
 		await moveFile(this.fs, sourceFile, fileUri.fsPath);
 
 		await vscode.commands.executeCommand(
@@ -302,6 +318,7 @@ export class UiProfileManager implements IDisposable {
 				vscode.StatusBarAlignment.Right,
 				500,
 			);
+
 			this.statusBarItem.command = Commands.StopProfile;
 		}
 
@@ -442,7 +459,9 @@ export class UiProfileManager implements IDisposable {
 		}
 
 		const quickpick = vscode.window.createQuickPick();
+
 		quickpick.title = title;
+
 		quickpick.items = items
 			.slice()
 			.sort((a, b) => {
@@ -462,7 +481,9 @@ export class UiProfileManager implements IDisposable {
 			quickpick.onDidAccept(() =>
 				resolve(quickpick.selectedItems[0]?.label),
 			);
+
 			quickpick.onDidHide(() => resolve(undefined));
+
 			quickpick.show();
 		});
 

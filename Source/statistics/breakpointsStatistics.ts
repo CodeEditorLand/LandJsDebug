@@ -13,7 +13,9 @@ class BreakpointStatistic {
 
 export interface IManyBreakpointsStatistics {
 	set: number;
+
 	verified: number;
+
 	hit: number;
 }
 
@@ -46,6 +48,7 @@ export class BreakpointsStatisticsCalculator {
 			return statistic;
 		} else {
 			const newStatistic = new BreakpointStatistic();
+
 			this._statisticsById.set(breakpointId, newStatistic);
 
 			return newStatistic;

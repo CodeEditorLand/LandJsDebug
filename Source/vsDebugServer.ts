@@ -48,10 +48,12 @@ class VSDebugSession implements IDebugSessionLike {
 
 	set name(newName: string) {
 		this._name = newName;
+
 		this.childConnection
 			.then((conn) => conn.initializedBlocker)
 			.then((conn) => conn.dap().process({ name: newName }));
 	}
+
 	get name() {
 		return this._name;
 	}
@@ -69,6 +71,7 @@ class VsDebugServer implements ISessionLauncher<VSDebugSession> {
 			storagePath,
 			isVsCode: false,
 		});
+
 		this.sessionServer = new ServerSessionManager(services, this, host);
 
 		const deferredConnection: IDeferred<DapConnection> = getDeferred();
@@ -103,6 +106,7 @@ class VsDebugServer implements ISessionLauncher<VSDebugSession> {
 			inputStream,
 			outputStream,
 		);
+
 		deferredConnection.resolve(newSession.connection);
 	}
 
@@ -114,7 +118,9 @@ class VsDebugServer implements ISessionLauncher<VSDebugSession> {
 			session,
 			debugServerPort ?? 0,
 		);
+
 		result.connectionPromise.then((x) => deferredConnection.resolve(x));
+
 		console.log(
 			(result.server.address() as net.AddressInfo).port.toString(),
 		);
@@ -144,6 +150,7 @@ class VsDebugServer implements ISessionLauncher<VSDebugSession> {
 			.createChildDebugServer(session, 0)
 			.then(({ server, connectionPromise }) => {
 				connectionPromise.then((x) => deferredConnection.resolve(x));
+
 				childAttachConfig.__jsDebugChildServer = (
 					server.address() as net.AddressInfo
 				).port.toString();

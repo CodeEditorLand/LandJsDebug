@@ -35,8 +35,11 @@ export const INvmResolver = Symbol("INvmResolver");
 
 interface IVersionStringData {
 	nvsFormat: boolean;
+
 	remoteName: string;
+
 	semanticVersion: string;
+
 	arch: string;
 }
 
@@ -85,6 +88,7 @@ export class NvmResolver implements INvmResolver {
 			if (!directory && versionData.nvsFormat) {
 				throw new ProtocolError(nvmVersionNotFound(version, "nvs"));
 			}
+
 			versionManagers.push("nvs");
 		}
 
@@ -92,6 +96,7 @@ export class NvmResolver implements INvmResolver {
 			if (this.platform === "win32") {
 				if (this.env[Vars.WindowsNvmHome]) {
 					directory = await this.resolveWindowsNvm(version);
+
 					versionManagers.push("nvm-windows");
 				}
 			} else {
@@ -101,6 +106,7 @@ export class NvmResolver implements INvmResolver {
 
 				if (await this.fsUtils.exists(nvmDir)) {
 					directory = await this.resolveUnixNvm(version);
+
 					versionManagers.push("nvm");
 				}
 			}
@@ -115,6 +121,7 @@ export class NvmResolver implements INvmResolver {
 
 			if (await this.fsUtils.exists(fnmDir)) {
 				directory = await this.resolveFnm(version, fnmDir);
+
 				versionManagers.push("fnm");
 			}
 		}
@@ -186,9 +193,11 @@ export class NvmResolver implements INvmResolver {
 				nvmHome = nvmDir;
 			}
 		}
+
 		if (!nvmHome) {
 			throw new ProtocolError(nvmNotFound());
 		}
+
 		const directory = this.findBinFolderForVersion(
 			path.join(nvmHome, "versions", "node"),
 			`v${version}`,

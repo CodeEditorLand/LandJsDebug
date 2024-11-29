@@ -12,8 +12,11 @@ import { HashMode, HashRequest, HashResponse, MessageType } from "./hash";
 
 export class Hasher implements IDisposable {
 	private idCounter = 0;
+
 	private instance: Worker | undefined;
+
 	private failureCount = 0;
+
 	private readonly deferredMap = new Map<
 		number,
 		{ deferred: IDeferred<HashResponse<HashRequest>>; request: {} }
@@ -95,6 +98,7 @@ export class Hasher implements IDisposable {
 	 */
 	public dispose() {
 		this.cleanup();
+
 		this.deferCleanup.clear();
 	}
 
@@ -109,7 +113,9 @@ export class Hasher implements IDisposable {
 
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const deferred = getDeferred<any>();
+
 		this.deferredMap.set(req.id, { deferred, request: req });
+
 		cp.postMessage(req);
 
 		return deferred.promise;
@@ -118,8 +124,11 @@ export class Hasher implements IDisposable {
 	private cleanup() {
 		if (this.instance) {
 			this.instance.removeAllListeners("exit");
+
 			this.instance.terminate();
+
 			this.instance = undefined;
+
 			this.failureCount = 0;
 		}
 	}
@@ -136,6 +145,7 @@ export class Hasher implements IDisposable {
 		const instance = (this.instance = new Worker(this.hasherScriptPath));
 
 		instance.setMaxListeners(Infinity);
+
 		instance.on("message", (raw) => {
 			const msg = raw as HashResponse<HashRequest>;
 
@@ -146,11 +156,13 @@ export class Hasher implements IDisposable {
 			}
 
 			pending.deferred.resolve(msg);
+
 			this.deferredMap.delete(msg.id);
 		});
 
 		instance.on("exit", () => {
 			this.instance = undefined;
+
 			this.failureCount++;
 
 			const newInstance = this.getProcess();
@@ -161,7 +173,9 @@ export class Hasher implements IDisposable {
 						new Error("hash.js process unexpectedly exited"),
 					);
 				}
+
 				this.deferredMap.clear();
+
 				this.deferCleanup.clear();
 			} else {
 				this.deferCleanup();

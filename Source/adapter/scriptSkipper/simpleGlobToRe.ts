@@ -62,6 +62,7 @@ function globToRe(glob: string, processPart = escapeRegexSpecialChars) {
 		} else {
 			if (p.includes("*")) {
 				const wildcards = p.split("*");
+
 				regexParts.push(
 					wildcards.map((s) => processPart(s)).join("[^\\/]*"),
 				);

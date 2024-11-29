@@ -72,6 +72,7 @@ export class SubprocessProgramLauncher implements IProgramLauncher {
 				dap.output({ category: "stdout", output: output.toString() }),
 			)
 			.resume();
+
 		child.stderr
 			.pipe(new EtxSplitter())
 			.on("data", (output) =>
@@ -102,6 +103,7 @@ export class SubprocessProgramLauncher implements IProgramLauncher {
 		const errLineReader = (data: Buffer) => {
 			if (data.includes(delimiter)) {
 				preLaunchBuffer = undefined;
+
 				child.stderr.removeListener("data", errLineReader);
 			} else if (preLaunchBuffer) {
 				preLaunchBuffer.push(data);
@@ -112,6 +114,7 @@ export class SubprocessProgramLauncher implements IProgramLauncher {
 
 		child.on("error", (err) => {
 			dumpFilter();
+
 			dap.output({
 				category: "stderr",
 				output: err.stack || err.message,
@@ -121,6 +124,7 @@ export class SubprocessProgramLauncher implements IProgramLauncher {
 		child.on("exit", (code) => {
 			if (code !== null && code > 0) {
 				dumpFilter();
+
 				dap.output({
 					category: "stderr",
 					output: `Process exited with code ${code}\r\n`,
@@ -130,6 +134,7 @@ export class SubprocessProgramLauncher implements IProgramLauncher {
 
 		// must be called for https://github.com/microsoft/vscode/issues/102254
 		child.stdout.resume();
+
 		child.stderr.resume();
 	}
 }
@@ -150,6 +155,7 @@ export class EtxSplitter extends StreamSplitter {
 
 	constructor() {
 		super(Char.ETX);
+
 		this.splitSuffix = Buffer.from("\n");
 	}
 

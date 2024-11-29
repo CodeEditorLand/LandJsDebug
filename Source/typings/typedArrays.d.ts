@@ -12,5 +12,6 @@ type TypedArray =
 
 interface TypedArrayConstructor {
 	new (): TypedArray;
+
 	new (values: ArrayBuffer): TypedArray;
 }

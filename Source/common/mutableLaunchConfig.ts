@@ -7,6 +7,7 @@ import { EventEmitter, IEvent } from "./events";
 
 export type MutableLaunchConfig = AnyLaunchConfiguration & {
 	update(newValue: AnyLaunchConfiguration): void;
+
 	onChange: IEvent<void>;
 };
 
@@ -26,6 +27,7 @@ export const createMutableLaunchConfig = (source: AnyLaunchConfiguration) => {
 					case "update":
 						return (value: AnyLaunchConfiguration) => {
 							source = value;
+
 							change.fire();
 						};
 

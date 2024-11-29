@@ -25,6 +25,7 @@ const neverRemindKey = "neverRemind";
 @injectable()
 export class DiagnosticsUI implements IExtensionContribution {
 	private dismissedForSession = false;
+
 	private isPrompting = false;
 
 	constructor(
@@ -162,6 +163,7 @@ export class DiagnosticsUI implements IExtensionContribution {
 		const { file } = await session.customRequest("createDiagnostics", {
 			fromSuggestion,
 		});
+
 		await this.openDiagnosticTool(file);
 	}
 

@@ -32,8 +32,10 @@ export const readMemory = remoteFunction(function (
 
 		for (let i = 0; i < buffer.length; i++) {
 			const b = buffer[i];
+
 			output += dictionary[b >>> 4] + dictionary[b & 0b1111];
 		}
+
 		return output;
 	}
 });

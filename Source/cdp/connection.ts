@@ -14,8 +14,11 @@ import { ITransport } from "./transport";
 
 interface IProtocolCallback {
 	resolve: (o: object) => void;
+
 	reject: (e: Error) => void;
+
 	from: ProtocolError;
+
 	method: string;
 }
 
@@ -32,7 +35,9 @@ export class ProtocolError extends Error {
 
 	public setCause(code: number, message: string) {
 		this.cause = { code, message };
+
 		this.message = `CDP error ${code} calling method ${this.method}: ${message}`;
+
 		this.stack = this.stack?.replace("<<message>>", this.message);
 
 		return this;
@@ -41,14 +46,23 @@ export class ProtocolError extends Error {
 
 export default class Connection {
 	private _connectionId = connectionId++;
+
 	private _lastId = 1000;
+
 	private _transport: ITransport;
+
 	private _sessions: Map<string, CDPSession>;
+
 	private _disposedSessions = new Map<string, Date>();
+
 	private _closed: boolean;
+
 	private _rootSession: CDPSession;
+
 	private _onDisconnectedEmitter = new EventEmitter<void>();
+
 	public readonly waitWrapper = makeWaitForNextTask();
+
 	readonly onDisconnected = this._onDisconnectedEmitter.event;
 
 	constructor(
@@ -57,13 +71,19 @@ export default class Connection {
 		private readonly telemetryReporter: ITelemetryReporter,
 	) {
 		this._transport = transport;
+
 		this._transport.onMessage(([message, time]) =>
 			this._onMessage(message, time),
 		);
+
 		this._transport.onEnd(() => this._onTransportClose());
+
 		this._sessions = new Map();
+
 		this._closed = false;
+
 		this._rootSession = new CDPSession(this, "", this.logger);
+
 		this._sessions.set("", this._rootSession);
 	}
 
@@ -83,10 +103,12 @@ export default class Connection {
 		if (sessionId) message.sessionId = sessionId;
 
 		const messageString = JSON.stringify(message);
+
 		this.logger.verbose(LogTag.CdpSend, undefined, {
 			connectionId: this._connectionId,
 			message,
 		});
+
 		this._transport.send(messageString);
 
 		return id;
@@ -134,6 +156,7 @@ export default class Connection {
 			} else {
 				const secondsAgo =
 					(Date.now() - disposedDate.getTime()) / 1000.0;
+
 				this.logger.warn(
 					LogTag.Internal,
 					`Got message for a session disposed ${secondsAgo} seconds ago`,
@@ -167,14 +190,19 @@ export default class Connection {
 
 	private _onTransportClose() {
 		if (this._closed) return;
+
 		this._closed = true;
+
 		this._transport.dispose();
+
 		this.logger.info(LogTag.CdpReceive, "Connection closed", {
 			connectionId: this._connectionId,
 		});
 
 		for (const session of this._sessions.values()) session._onClose();
+
 		this._sessions.clear();
+
 		this._onDisconnectedEmitter.fire();
 	}
 
@@ -188,6 +216,7 @@ export default class Connection {
 
 	public createSession(sessionId: Cdp.Target.SessionID): Cdp.Api {
 		const session = new CDPSession(this, sessionId, this.logger);
+
 		this._sessions.set(sessionId, session);
 
 		return session.cdp();
@@ -197,8 +226,11 @@ export default class Connection {
 		const session = this._sessions.get(sessionId);
 
 		if (!session) return;
+
 		session._onClose();
+
 		this._disposedSessions.set(session.sessionId(), new Date());
+
 		this._sessions.delete(session.sessionId());
 	}
 }
@@ -209,12 +241,19 @@ const needsReordering = +process.version.substring(1).split(".")[0] < 11;
 
 export class CDPSession {
 	private _connection?: Connection;
+
 	private _callbacks: Map<number, IProtocolCallback>;
+
 	private _sessionId: string;
+
 	private _cdp: Cdp.Api;
+
 	private _queue: CdpProtocol.Message[] = [];
+
 	private _prefixListeners = new ListenerMap<string, CdpProtocol.ICommand>();
+
 	private _directListeners = new ListenerMap<string, object>();
+
 	private paused = false;
 
 	constructor(
@@ -223,8 +262,11 @@ export class CDPSession {
 		private readonly logger: ILogger,
 	) {
 		this._callbacks = new Map();
+
 		this._connection = connection;
+
 		this._sessionId = sessionId;
+
 		this._cdp = this._createApi();
 	}
 
@@ -240,7 +282,9 @@ export class CDPSession {
 		this.paused = false;
 
 		const toSend = this._queue;
+
 		this._queue = [];
+
 		this.logger.verbose(LogTag.CdpReceive, "Dequeue messages", {
 			message: toSend,
 		});
@@ -285,6 +329,7 @@ export class CDPSession {
 											listener,
 										);
 								}
+
 								return (params: object | undefined) =>
 									this.send(
 										`${agentName}.${methodName}`,
@@ -409,6 +454,7 @@ export class CDPSession {
 			// for some reason, TS doesn't narrow this even though CdpProtocol.ICommand
 			// is the only type of the tuple where id can be undefined.
 			const asCommand = object as CdpProtocol.ICommand;
+
 			this._directListeners.emit(asCommand.method, asCommand.params);
 
 			// May eventually be useful to use a trie here if
@@ -462,6 +508,7 @@ export class CDPSession {
 		}
 
 		this._callbacks.clear();
+
 		this._connection = undefined;
 	}
 }
@@ -490,6 +537,7 @@ function makeWaitForNextTask() {
 
 			return;
 		}
+
 		setImmediate(loop);
 		// Make sure to call callback() as the last thing since it's
 		// untrusted code that might throw.

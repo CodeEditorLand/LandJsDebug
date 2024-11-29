@@ -15,6 +15,7 @@ import { debuggers, DescribedAttribute } from "./generate-contributions.js";
 
 	for (const dbg of debuggers) {
 		out += `### ${getPreferredOrDebugType(dbg.type)}: ${dbg.request}\n\n`;
+
 		out += `<details>`;
 
 		const entries = Object.entries(dbg.configurationAttributes).sort(
@@ -49,14 +50,20 @@ import { debuggers, DescribedAttribute } from "./generate-contributions.js";
 				value.docDefault ??
 				JSON.stringify(defaultValue, null, 2) ??
 				"undefined";
+
 			out += `<h4>${key}</h4>`;
+
 			out += `${marked(description)}`;
+
 			out += `<h5>Default value:</h4>`;
+
 			out += `<pre><code>${docDefault}</pre></code>`;
 		}
+
 		out += `</details>\n\n`;
 	}
 
 	await fs.writeFile("OPTIONS.md", out);
+
 	await execa("node_modules/.bin/dprint", ["fmt", "OPTIONS.md"]);
 })().catch(console.error);

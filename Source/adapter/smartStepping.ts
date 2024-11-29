@@ -78,6 +78,7 @@ export class SmartStepper {
 				LogTag.Internal,
 				`smartStep: skipped ${this._smartStepCount} steps`,
 			);
+
 			this._smartStepCount = 0;
 		}
 	}

@@ -11,6 +11,7 @@ export interface ITransport extends IDisposable {
 	readonly onMessage: Event<
 		[/* contents */ string, /* receivedTime */ HrTime]
 	>;
+
 	readonly onEnd: Event<void>;
 
 	/**

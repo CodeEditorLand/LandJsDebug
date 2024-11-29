@@ -27,6 +27,7 @@ export const stubbedDapApi = (): StubDapApi => {
 
 				if (!s) {
 					s = stub();
+
 					stubs.set(methodName, s);
 				}
 

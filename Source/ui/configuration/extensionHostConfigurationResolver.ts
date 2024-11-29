@@ -44,6 +44,7 @@ export class ExtensionHostConfigurationResolver
 		if (config.debugWebWorkerHost === undefined) {
 			const extensionKind =
 				pkgJson?.value.extensionKind ?? defaultExtensionKind;
+
 			config = {
 				...config,
 				debugWebWorkerHost:
@@ -59,6 +60,7 @@ export class ExtensionHostConfigurationResolver
 
 		if (!config.outFiles && pkgJson && folder) {
 			const outFiles = await guessOutFiles(folder, pkgJson);
+
 			if (outFiles) {
 				config.outFiles = outFiles;
 				// Ensure the default resolution paths (the entire workspace folder)
@@ -88,8 +90,10 @@ export class ExtensionHostConfigurationResolver
 
 		try {
 			const testCfg = await resolveTestConfiguration(config);
+
 			if (testCfg) {
 				config.env = { ...config.env, ...testCfg.env };
+
 				config.args = [
 					...(config.args || []),
 					...(testCfg.config.launchArgs || []),
@@ -101,6 +105,7 @@ export class ExtensionHostConfigurationResolver
 			if (e instanceof TaskCancelledError) {
 				return undefined;
 			}
+
 			throw e;
 		}
 
@@ -124,14 +129,17 @@ const guessOutFiles = async (
 		path.dirname(pkgJson.path),
 		pkgJson.value.main,
 	);
+
 	const relativeToExt = path.relative(
 		wf.uri.fsPath,
 		path.dirname(pkgJson.path),
 	);
+
 	const relativeToMain = path.relative(
 		path.dirname(pkgJson.path),
 		extensionMain,
 	);
+
 	const subdirOfMain = relativeToMain.split(path.sep)[0];
 
 	return [
@@ -145,8 +153,10 @@ const devPathArg = "--extensionDevelopmentPath";
 
 interface IPackageJsonInfo {
 	path: string;
+
 	value: {
 		main?: string;
+
 		extensionKind?: string;
 	};
 }
@@ -157,6 +167,7 @@ const readExtensionPackageJson = async (
 	args: ProcessArgs,
 ): Promise<IPackageJsonInfo | undefined> => {
 	const arg = args.get(devPathArg);
+
 	if (!arg) {
 		return undefined;
 	}
@@ -182,7 +193,9 @@ const resolveTestConfiguration = async (
 	config: ResolvingExtensionHostConfiguration,
 ) => {
 	const { testConfiguration } = config;
+
 	let { testConfigurationLabel } = config;
+
 	if (!testConfiguration) {
 		return;
 	}
@@ -194,6 +207,7 @@ const resolveTestConfiguration = async (
 		"out",
 		"bin.mjs",
 	);
+
 	const dirWithModules = await nearestDirectoryWhere(
 		testConfiguration,
 		async (dir) => {
@@ -228,8 +242,11 @@ const resolveTestConfiguration = async (
 
 	const configs: {
 		config: { label?: string; launchArgs?: string[] };
+
 		extensionTestsPath: string;
+
 		extensionDevelopmentPath: string;
+
 		env: Record<string, string>;
 	}[] = JSON.parse(result.stdout);
 
@@ -255,6 +272,7 @@ const resolveTestConfiguration = async (
 			c.config.label === testConfigurationLabel ||
 			String(i) === testConfigurationLabel,
 	);
+
 	if (!found) {
 		throw new Error(
 			l10n.t(

@@ -19,6 +19,7 @@ const warnedKey = "breakpointTerminationWarnedSlow";
 
 type BreakpointPickItem = {
 	id: number;
+
 	location: vscode.Location;
 } & vscode.QuickPickItem;
 
@@ -27,8 +28,11 @@ export class BreakpointTerminationConditionFactory
 	implements ITerminationConditionFactory
 {
 	public readonly sortOrder = 2;
+
 	public readonly id = "breakpoint";
+
 	public readonly label = l10n.t("Pick Breakpoint");
+
 	public readonly description = l10n.t(
 		"Run until a specific breakpoint is hit",
 	);
@@ -48,15 +52,20 @@ export class BreakpointTerminationConditionFactory
 		}
 
 		const quickPick = vscode.window.createQuickPick<BreakpointPickItem>();
+
 		quickPick.canSelectMany = true;
+
 		quickPick.matchOnDescription = true;
+
 		quickPick.busy = true;
 
 		const chosen = await new Promise<
 			ReadonlyArray<BreakpointPickItem> | undefined
 		>((resolve) => {
 			quickPick.onDidAccept(() => resolve(quickPick.selectedItems));
+
 			quickPick.onDidHide(() => resolve(undefined));
+
 			quickPick.onDidChangeActive(async (active) => {
 				if (!active.length) {
 					return;
@@ -67,6 +76,7 @@ export class BreakpointTerminationConditionFactory
 				const document = await vscode.workspace.openTextDocument(
 					location.uri,
 				);
+
 				vscode.window.showTextDocument(document, {
 					selection: location.range,
 					preview: true,
@@ -91,7 +101,9 @@ export class BreakpointTerminationConditionFactory
 				);
 
 				quickPick.items = candidates;
+
 				quickPick.selectedItems = candidates;
+
 				quickPick.busy = false;
 			})();
 		});
@@ -120,6 +132,7 @@ export class BreakpointTerminationConditionFactory
 			),
 			l10n.t("Got it!"),
 		);
+
 		await this.context.workspaceState.update(warnedKey, true);
 	}
 

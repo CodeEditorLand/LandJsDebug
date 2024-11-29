@@ -55,6 +55,7 @@ export class JsDebugPortAttributesProvider
 		pid,
 	}: {
 		port: number;
+
 		pid?: number;
 	}) {
 		if (pid && this.cachedResolutions.includes(`${port}:${pid}`)) {
@@ -68,6 +69,7 @@ export class JsDebugPortAttributesProvider
 		if (pid) {
 			const index =
 				this.cachedResolutionIndex++ % this.cachedResolutions.length;
+
 			this.cachedResolutions[index] = `${port}:${pid}`;
 		}
 

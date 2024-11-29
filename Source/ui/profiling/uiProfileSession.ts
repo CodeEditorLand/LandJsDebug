@@ -28,10 +28,15 @@ export const enum Category {
  */
 export class UiProfileSession implements IDisposable {
 	private statusChangeEmitter = new EventEmitter<string>();
+
 	private stopEmitter = new EventEmitter<string | undefined>();
+
 	private _innerStatus: string[] = [];
+
 	private disposables = new DisposableList();
+
 	private state = State.Collecting;
+
 	private file?: string;
 
 	/**
@@ -75,6 +80,7 @@ export class UiProfileSession implements IDisposable {
 
 		if (termination) {
 			this.disposables.push(termination);
+
 			termination.attachTo?.(this);
 		}
 	}
@@ -97,6 +103,7 @@ export class UiProfileSession implements IDisposable {
 			);
 		} catch (e) {
 			vscode.window.showErrorMessage(e.message);
+
 			this.stopEmitter.fire(undefined);
 		}
 	}
@@ -106,6 +113,7 @@ export class UiProfileSession implements IDisposable {
 	 */
 	public dispose() {
 		this.state = State.Stopped;
+
 		this.disposables.dispose();
 	}
 
@@ -126,6 +134,7 @@ export class UiProfileSession implements IDisposable {
 		}
 
 		this.setStatus(Category.Overwrite, l10n.t("Saving"));
+
 		this.state = State.Saving;
 
 		await vscode.window.withProgress(
@@ -148,7 +157,9 @@ export class UiProfileSession implements IDisposable {
 		}
 
 		this.state = State.Stopped;
+
 		this.stopEmitter.fire(this.file);
+
 		this.dispose();
 	}
 

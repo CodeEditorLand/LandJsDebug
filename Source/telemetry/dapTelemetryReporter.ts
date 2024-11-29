@@ -31,11 +31,14 @@ export class DapTelemetryReporter implements ITelemetryReporter {
 	private target: Dap.Api | Dap.OutputEventParams[] = [];
 
 	private readonly flushEmitter = new EventEmitter<void>();
+
 	private readonly loggers = createLoggers((params) =>
 		this.pushOutput(params),
 	);
+
 	private readonly batchFlushTimeout: { [K in Batchable]?: NodeJS.Timeout } =
 		{};
+
 	private readonly batchers: { [K in Batchable]: ReporterBatcher } = {
 		dapOperation: new ReporterBatcher(this.isVsCode),
 		cdpOperation: new ReporterBatcher(this.isVsCode),
@@ -76,6 +79,7 @@ export class DapTelemetryReporter implements ITelemetryReporter {
 		if (this.batchFlushTimeout[key] === undefined) {
 			this.batchFlushTimeout[key] = setTimeout(() => {
 				this.report(key, this.batchers[key].flush());
+
 				this.batchFlushTimeout[key] = undefined;
 			}, DapTelemetryReporter.batchFlushInterval);
 		}
@@ -111,6 +115,7 @@ export class DapTelemetryReporter implements ITelemetryReporter {
 			}
 
 			this.batchFlushTimeout[key] = undefined;
+
 			clearTimeout(value);
 		}
 	}
@@ -169,7 +174,9 @@ const extractFileNamePattern = /(?:[A-z]:)?(?:[\\/][^:]*)+[\\/]([^:]*:)/g;
 
 interface IErrorTelemetryProperties {
 	message: string | undefined;
+
 	name: string | undefined;
+
 	stack: string | undefined;
 }
 

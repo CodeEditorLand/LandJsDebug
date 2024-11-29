@@ -43,6 +43,7 @@ export class SourceSteppingUI implements IExtensionContribution {
 
 		const setEnabled = (enabled: boolean) => {
 			isDisabled.value = !enabled;
+
 			sourceMapSteppingEnabled.write(
 				this.context.workspaceState,
 				enabled,

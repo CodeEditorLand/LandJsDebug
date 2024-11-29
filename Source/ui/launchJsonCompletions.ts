@@ -115,6 +115,7 @@ export class LaunchJsonCompletions
 				fs,
 				path.join(wf.uri.fsPath, "node_modules", ".bin"),
 			));
+
 		this.hasNodeModules.set(wf, hasNodeModules);
 
 		return hasNodeModules;
@@ -128,14 +129,18 @@ class NodeToolInserter extends LaunchJsonUpdaterHelper {
 		type TItem = vscode.QuickPickItem & { relativeDir: string };
 
 		const pick = vscode.window.createQuickPick<TItem>();
+
 		pick.title = l10n.t("Select a tool to run");
+
 		pick.busy = true;
+
 		pick.show();
 
 		const options = await this.getOptions(folder);
 
 		if (options.length === 0) {
 			pick.dispose();
+
 			vscode.window.showWarningMessage(
 				l10n.t("No npm scripts found in the workspace folder."),
 			);
@@ -153,17 +158,22 @@ class NodeToolInserter extends LaunchJsonUpdaterHelper {
 					relativeDir,
 				});
 			}
+
 			items = items.concat(
 				names.map((name) => ({ label: name, relativeDir })),
 			);
 		}
+
 		pick.busy = false;
+
 		pick.items = items;
 
 		const chosen = await new Promise<TItem | undefined>((resolve) => {
 			pick.onDidAccept(() => resolve(pick.selectedItems[0]));
+
 			pick.onDidHide(() => resolve(undefined));
 		});
+
 		pick.dispose();
 
 		if (!chosen) {
@@ -204,6 +214,7 @@ class NodeToolInserter extends LaunchJsonUpdaterHelper {
 
 					for (const bin of bins) {
 						const ext = path.extname(bin);
+
 						names.add(ext ? bin.slice(0, -ext.length) : bin);
 					}
 

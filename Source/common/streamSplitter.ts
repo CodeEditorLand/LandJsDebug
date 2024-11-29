@@ -14,6 +14,7 @@ import { Transform } from "stream";
  */
 export class StreamSplitter extends Transform {
 	private prefix: Buffer[] = [];
+
 	private readonly splitter: number;
 
 	/** Suffix added after each split chunk. */
@@ -57,7 +58,9 @@ export class StreamSplitter extends Transform {
 					: thisChunk;
 
 			this.push(toEmit);
+
 			this.prefix.length = 0;
+
 			offset = index + 1;
 		}
 

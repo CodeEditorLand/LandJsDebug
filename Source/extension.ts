@@ -75,6 +75,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	for (const resolver of debugResolvers) {
 		const cast = resolver as vscode.DebugConfigurationProvider;
+
 		context.subscriptions.push(
 			vscode.debug.registerDebugConfigurationProvider(
 				resolver.type,
@@ -109,6 +110,7 @@ export function activate(context: vscode.ExtensionContext) {
 	}
 
 	const sessionManager = new VSCodeSessionManager(services);
+
 	context.subscriptions.push(
 		...[...allDebugTypes].map((type) =>
 			vscode.debug.registerDebugAdapterDescriptorFactory(
@@ -117,31 +119,41 @@ export function activate(context: vscode.ExtensionContext) {
 			),
 		),
 	);
+
 	context.subscriptions.push(
 		vscode.debug.onDidTerminateDebugSession((s) =>
 			sessionManager.terminate(s),
 		),
 	);
+
 	context.subscriptions.push(sessionManager);
 
 	const debugSessionTracker = services.get(DebugSessionTracker);
+
 	debugSessionTracker.attach();
 
 	registerCompanionBrowserLaunch(context);
+
 	registerCustomBreakpointsUI(context, debugSessionTracker);
+
 	registerDebugTerminalUI(
 		context,
 		services.get(DelegateLauncherFactory),
 		services,
 	);
+
 	registerProfilingCommand(context, services);
+
 	registerAutoAttach(
 		context,
 		services.get(DelegateLauncherFactory),
 		services,
 	);
+
 	registerRevealPage(context, debugSessionTracker);
+
 	registerRequestCDPProxy(context, debugSessionTracker);
+
 	services
 		.getAll<IExtensionContribution>(IExtensionContribution)
 		.forEach((c) => c.register(context));

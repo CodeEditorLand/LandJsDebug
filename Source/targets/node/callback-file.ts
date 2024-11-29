@@ -23,6 +23,7 @@ export class CallbackFile<T> implements IDisposable {
 	);
 
 	private disposed = false;
+
 	private readPromise?: Promise<T | undefined>;
 
 	/**
@@ -38,6 +39,7 @@ export class CallbackFile<T> implements IDisposable {
 			const interval = setInterval(() => {
 				if (this.disposed) {
 					clearInterval(interval);
+
 					resolve(undefined);
 
 					return;

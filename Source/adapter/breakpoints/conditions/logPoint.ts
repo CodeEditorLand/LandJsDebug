@@ -91,6 +91,7 @@ export class LogPointCompiler {
 			formatParts.push(unescape(msg.slice(end, start)));
 
 			const [block] = parseSource(msg.slice(start));
+
 			end = start + block.end;
 
 			// unclosed or empty bracket is not valid, emit it as text

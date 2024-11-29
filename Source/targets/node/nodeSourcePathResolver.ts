@@ -120,6 +120,7 @@ export class NodeSourcePathResolver extends SourcePathResolverBase<IOptions> {
 		// applies, otherwise just assume it's relative to the basePath.
 		if (urlUtils.isValidUrl(url)) {
 			const mapped = this.sourceMapOverrides.apply(url);
+
 			url = mapped === url ? new URL(url).pathname.slice(1) : mapped;
 		} // Node internals are given us us as relative path, for example
 		// require('cluster') will import a file simply named "cluster". For these

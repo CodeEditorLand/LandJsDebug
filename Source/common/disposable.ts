@@ -14,6 +14,7 @@ export interface IReference<T> extends IDisposable {
 
 export class RefCounter<T extends IDisposable> {
 	private disposed = false;
+
 	private count = 0;
 
 	constructor(public readonly value: T) {}
@@ -38,6 +39,7 @@ export class RefCounter<T extends IDisposable> {
 	public dispose() {
 		if (!this.disposed) {
 			this.disposed = true;
+
 			this.value.dispose();
 		}
 	}
@@ -55,6 +57,7 @@ export const noOpDisposable = { dispose: () => undefined };
  */
 export class DisposableList {
 	private disposed = false;
+
 	private items: IDisposable[] = [];
 
 	public get isDisposed() {
@@ -80,7 +83,9 @@ export class DisposableList {
 	 * Adds new items to the disposable list.
 	 */
 	public push<T extends IDisposable>(newItem: T): T;
+
 	public push(...newItems: ReadonlyArray<IDisposable>): void;
+
 	public push(...newItems: ReadonlyArray<IDisposable>): IDisposable {
 		if (this.disposed) {
 			newItems.forEach((d) => d.dispose());
@@ -98,6 +103,7 @@ export class DisposableList {
 	 */
 	public disposeObject(d: IDisposable) {
 		this.items = this.items.filter((i) => i !== d);
+
 		d.dispose();
 	}
 
@@ -106,6 +112,7 @@ export class DisposableList {
 	 */
 	public clear() {
 		const r = Promise.all(this.items.map((i) => i.dispose()));
+
 		this.items = [];
 
 		return r;
@@ -116,7 +123,9 @@ export class DisposableList {
 	 */
 	public dispose() {
 		const r = Promise.all(this.items.map((i) => i.dispose()));
+
 		this.items = [];
+
 		this.disposed = true;
 
 		return r;

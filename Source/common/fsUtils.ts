@@ -43,6 +43,7 @@ export async function copyFile(
 		try {
 			if (await canAccess(fs, toPath)) {
 				await fs.unlink(toPath);
+
 				await fs.copyFile(fromPath, toPath);
 			} else {
 				throw eOriginal;
@@ -101,6 +102,7 @@ export async function moveFile(
 		await rename(src, dest);
 	} catch {
 		await copyFile(src, dest);
+
 		await unlink(src);
 	}
 }

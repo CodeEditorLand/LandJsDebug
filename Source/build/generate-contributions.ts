@@ -71,8 +71,11 @@ export type DescribedAttribute<T> = JSONSchema6 &
 		default: T;
 
 		docDefault?: string;
+
 		enum?: Array<T>;
+
 		enumDescriptions?: MappedReferenceString[];
+
 		tags?: Tag[];
 	};
 
@@ -88,8 +91,11 @@ type Described =
 type Menus = {
 	[menuId: string]: {
 		command: Commands;
+
 		title?: MappedReferenceString;
+
 		when?: string;
+
 		group?: "navigation" | "inline" | string;
 	}[];
 };
@@ -131,21 +137,31 @@ const refString = (str: keyof typeof strings & string): MappedReferenceString =>
  */
 interface IDebugger<T extends AnyLaunchConfiguration> {
 	type: T["type"];
+
 	request: T["request"];
+
 	label: MappedReferenceString;
+
 	program?: string;
+
 	runtime?: string;
+
 	languages: string[];
 
 	variables?: { [key: string]: Commands };
+
 	required?: (keyof T)[];
+
 	configurationSnippets: ({
 		label: MappedReferenceString;
+
 		body: ResolvingConfiguration<T & { preLaunchTask?: string }>;
 	} & Described)[];
+
 	configurationAttributes: ConfigurationAttributes<T>;
 
 	defaults: T;
+
 	strings?: { unverifiedBreakpoints?: string };
 }
 
@@ -1199,6 +1215,7 @@ function buildDebuggers() {
 			defaults,
 			...rest
 		} = d;
+
 		entry = {
 			...rest,
 			type,
@@ -1209,6 +1226,7 @@ function buildDebuggers() {
 				unverifiedBreakpoints: refString("debug.unverifiedBreakpoints"),
 			},
 		};
+
 		output.push(entry);
 
 		return entry;
@@ -1223,8 +1241,11 @@ function buildDebuggers() {
 
 		if (preferred) {
 			const entry = ensureEntryForType(preferred, d);
+
 			delete entry.languages;
+
 			entries.unshift(entry);
+
 			primary.deprecated = `Please use type ${preferred} instead`;
 		}
 
@@ -1365,8 +1386,11 @@ const configurationSchema: ConfigurationAttributes<IConfigurationTypes> = {
 
 const commands: ReadonlyArray<{
 	command: Commands;
+
 	title: MappedReferenceString;
+
 	category?: string;
+
 	icon?: string;
 }> = [
 	{

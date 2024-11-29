@@ -14,7 +14,9 @@ function abcdef(): void {
 		b: 2,
 		c: " ",
 	};
+
 	console.log("hello!");
+
 	printArr([obj1.a, obj1.b]);
 }
 

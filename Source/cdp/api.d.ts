@@ -24,60 +24,115 @@ export namespace Cdp {
 		 * Resumes previously-paused events
 		 */
 		resume(): void;
+
 		Accessibility: AccessibilityApi;
+
 		Animation: AnimationApi;
+
 		Audits: AuditsApi;
+
 		Autofill: AutofillApi;
+
 		BackgroundService: BackgroundServiceApi;
+
 		Browser: BrowserApi;
+
 		CacheStorage: CacheStorageApi;
+
 		Cast: CastApi;
+
 		Console: ConsoleApi;
+
 		CSS: CSSApi;
+
 		Database: DatabaseApi;
+
 		Debugger: DebuggerApi;
+
 		DeviceAccess: DeviceAccessApi;
+
 		DeviceOrientation: DeviceOrientationApi;
+
 		DOM: DOMApi;
+
 		DOMDebugger: DOMDebuggerApi;
+
 		DOMSnapshot: DOMSnapshotApi;
+
 		DOMStorage: DOMStorageApi;
+
 		DotnetDebugger: DotnetDebuggerApi;
+
 		Emulation: EmulationApi;
+
 		EventBreakpoints: EventBreakpointsApi;
+
 		FedCm: FedCmApi;
+
 		Fetch: FetchApi;
+
 		HeadlessExperimental: HeadlessExperimentalApi;
+
 		HeapProfiler: HeapProfilerApi;
+
 		IndexedDB: IndexedDBApi;
+
 		Input: InputApi;
+
 		Inspector: InspectorApi;
+
 		IO: IOApi;
+
 		JsDebug: JsDebugApi;
+
 		LayerTree: LayerTreeApi;
+
 		Log: LogApi;
+
 		Media: MediaApi;
+
 		Memory: MemoryApi;
+
 		Network: NetworkApi;
+
 		NodeRuntime: NodeRuntimeApi;
+
 		NodeTracing: NodeTracingApi;
+
 		NodeWorker: NodeWorkerApi;
+
 		Overlay: OverlayApi;
+
 		Page: PageApi;
+
 		Performance: PerformanceApi;
+
 		PerformanceTimeline: PerformanceTimelineApi;
+
 		Preload: PreloadApi;
+
 		Profiler: ProfilerApi;
+
 		Runtime: RuntimeApi;
+
 		Schema: SchemaApi;
+
 		Security: SecurityApi;
+
 		ServiceWorker: ServiceWorkerApi;
+
 		Storage: StorageApi;
+
 		SystemInfo: SystemInfoApi;
+
 		Target: TargetApi;
+
 		Tethering: TetheringApi;
+
 		Tracing: TracingApi;
+
 		WebAudio: WebAudioApi;
+
 		WebAuthn: WebAuthnApi;
 	}
 

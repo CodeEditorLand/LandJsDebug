@@ -20,6 +20,7 @@ export const makeInternalSourceUrl = () =>
 
 export type TemplateFunction<A extends unknown[]> = {
 	expr: (...args: A) => string;
+
 	decl: (...args: A) => string;
 };
 
@@ -150,6 +151,7 @@ export function remoteFunction<Args extends unknown[], R>(
 	let stringified = "" + fn;
 
 	const endIndex = stringified.lastIndexOf("}");
+
 	stringified =
 		stringified.slice(0, endIndex) +
 		getSourceSuffix(sourceURL) +
@@ -165,7 +167,9 @@ export function remoteFunction<Args extends unknown[], R>(
 		...options
 	}: {
 		cdp: Cdp.Api;
+
 		sourceURL?: string;
+
 		args: Args | RemoteObjectId[];
 	} & Omit<
 		Cdp.Runtime.CallFunctionOnParams,

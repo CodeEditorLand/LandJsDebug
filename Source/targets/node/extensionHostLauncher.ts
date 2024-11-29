@@ -58,6 +58,7 @@ export class ExtensionHostLauncher extends NodeLauncherBase<IExtensionHostLaunch
 		}
 
 		this.program = new StubProgram();
+
 		this.program.stop();
 	}
 }
@@ -78,6 +79,7 @@ const resolveCodeLaunchArgs = (
 			) {
 				return { prefix: pair[0] + "=", path: pair[1] };
 			}
+
 			return { prefix: arg };
 		} else {
 			// arg is a path
@@ -92,6 +94,7 @@ const resolveCodeLaunchArgs = (
 			} catch (err) {
 				// file not found
 			}
+
 			return { path: arg }; // just return the path blindly and hope for the best...
 		}
 	});

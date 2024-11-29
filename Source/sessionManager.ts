@@ -28,7 +28,9 @@ import { ITelemetryReporter } from "./telemetry/telemetryReporter";
  */
 export interface IDebugSessionLike {
 	readonly id: string;
+
 	name: string;
+
 	readonly configuration: DebugConfiguration;
 }
 
@@ -52,6 +54,7 @@ export class Session<TSessionImpl extends IDebugSessionLike>
 	implements IDisposable
 {
 	public readonly connection: DapConnection;
+
 	private readonly subscriptions = new DisposableList();
 
 	constructor(
@@ -65,6 +68,7 @@ export class Session<TSessionImpl extends IDebugSessionLike>
 			this.connection = transport;
 		} else {
 			transport.setLogger(logger);
+
 			this.connection = new DapConnection(transport, this.logger);
 		}
 	}
@@ -118,6 +122,7 @@ export class RootSession<
 			services.get(ILogger),
 			services.get(SessionSubStates),
 		);
+
 		this.connection.attachTelemetry(services.get(ITelemetryReporter));
 	}
 
@@ -137,6 +142,7 @@ export class RootSession<
 
 	dispose() {
 		super.dispose();
+
 		this._binder?.dispose?.();
 	}
 }
@@ -145,20 +151,24 @@ export class SessionManager<TSessionImpl extends IDebugSessionLike>
 	implements IDisposable, IBinderDelegate
 {
 	private _disposables: IDisposable[] = [];
+
 	private _sessions = new Map<string, Session<TSessionImpl>>();
 
 	private _pendingTarget = new Map<
 		string,
 		{ target: ITarget; parent: Session<TSessionImpl> }
 	>();
+
 	private _sessionForTarget = new Map<
 		ITarget,
 		Promise<Session<TSessionImpl>>
 	>();
+
 	private _sessionForTargetCallbacks = new Map<
 		ITarget,
 		{
 			fulfill: (session: Session<TSessionImpl>) => void;
+
 			reject: (error: Error) => void;
 		}
 	>();
@@ -170,6 +180,7 @@ export class SessionManager<TSessionImpl extends IDebugSessionLike>
 
 	public terminate(debugSession: TSessionImpl) {
 		const session = this._sessions.get(debugSession.id);
+
 		this._sessions.delete(debugSession.id);
 
 		if (session) session.dispose();
@@ -191,7 +202,9 @@ export class SessionManager<TSessionImpl extends IDebugSessionLike>
 			transport,
 			createTopLevelSessionContainer(this.globalContainer),
 		);
+
 		root.createBinder(this);
+
 		this._sessions.set(debugSession.id, root);
 
 		return root;
@@ -222,12 +235,17 @@ export class SessionManager<TSessionImpl extends IDebugSessionLike>
 		);
 
 		this._pendingTarget.delete(pendingTargetId);
+
 		session.debugSession.name = target.name();
+
 		session.listenToTarget(target);
 
 		const callbacks = this._sessionForTargetCallbacks.get(target);
+
 		this._sessionForTargetCallbacks.delete(target);
+
 		callbacks?.fulfill?.(session);
+
 		this._sessions.set(debugSession.id, session);
 
 		return session;
@@ -276,6 +294,7 @@ export class SessionManager<TSessionImpl extends IDebugSessionLike>
 					target,
 					parent: parentSession,
 				});
+
 				this._sessionForTargetCallbacks.set(target, {
 					fulfill,
 					reject,
@@ -332,6 +351,7 @@ export class SessionManager<TSessionImpl extends IDebugSessionLike>
 		const callbacks = this._sessionForTargetCallbacks.get(target);
 
 		if (callbacks) callbacks.reject(new Error("Target gone"));
+
 		this._sessionForTargetCallbacks.delete(target);
 	}
 
@@ -340,12 +360,17 @@ export class SessionManager<TSessionImpl extends IDebugSessionLike>
 	 */
 	public dispose() {
 		for (const session of this._sessions.values()) session.dispose();
+
 		this._sessions.clear();
+
 		this._pendingTarget.clear();
+
 		this._sessionForTarget.clear();
+
 		this._sessionForTargetCallbacks.clear();
 
 		for (const disposable of this._disposables) disposable.dispose();
+
 		this._disposables = [];
 	}
 }

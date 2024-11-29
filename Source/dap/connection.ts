@@ -31,19 +31,25 @@ export default class Connection {
 	private _sequence: number;
 
 	private telemetryReporter?: ITelemetryReporter;
+
 	private _pendingRequests = new Map<
 		number,
 		(result: string | object) => void
 	>();
+
 	private _requestHandlers = new Map<
 		string,
 		(params: object) => Promise<object>
 	>();
+
 	private _eventListeners = new Map<string, Set<(params: object) => void>>();
+
 	private _dap: Dap.Api;
+
 	private disposables: IDisposable[] = [];
 
 	private _initialized = getDeferred<Connection>();
+
 	private closed = false;
 
 	/**
@@ -64,11 +70,13 @@ export default class Connection {
 				this._onMessage(event.message, event.receivedTime),
 			),
 		);
+
 		this._dap = this._createApi();
 	}
 
 	public attachTelemetry(telemetryReporter: ITelemetryReporter) {
 		this.telemetryReporter = telemetryReporter;
+
 		telemetryReporter.attachDap(this._dap);
 	}
 
@@ -94,10 +102,12 @@ export default class Connection {
 								this._requestHandlers.delete(requestName);
 						};
 					}
+
 					if (methodName === "off") {
 						return (requestName: string) =>
 							this._requestHandlers.delete(requestName);
 					}
+
 					return (params: object) => {
 						if (isRequest(methodName)) {
 							return this.enqueueRequest(
@@ -124,8 +134,10 @@ export default class Connection {
 
 			if (!listeners) {
 				listeners = new Set();
+
 				this._eventListeners.set(eventName, listeners);
 			}
+
 			listeners.add(listener);
 		};
 
@@ -142,9 +154,12 @@ export default class Connection {
 			return new Promise((cb) => {
 				const listener = (params?: object) => {
 					if (filter && !filter(params)) return;
+
 					off(eventName, listener);
+
 					cb(params);
 				};
+
 				on(eventName, listener);
 			});
 		};
@@ -174,6 +189,7 @@ export default class Connection {
 				command,
 				arguments: params || {},
 			};
+
 			this._send(request); // this updates request.seq
 			this._pendingRequests.set(request.seq, cb);
 		});
@@ -181,6 +197,7 @@ export default class Connection {
 
 	public stop(): void {
 		this.closed = true;
+
 		this.transport.close();
 	}
 
@@ -190,6 +207,7 @@ export default class Connection {
 
 			const shouldLog =
 				message.type !== "event" || !logOmittedCalls.has(message.body);
+
 			this.transport.send(message, shouldLog, onDidWrite);
 		} else {
 			this.logger.warn(
@@ -197,6 +215,7 @@ export default class Connection {
 				`Not sending message because the connection has ended`,
 				message,
 			);
+
 			onDidWrite?.();
 		}
 	}
@@ -231,6 +250,7 @@ export default class Connection {
 
 						if (response.command === "initialize") {
 							this._send(msg);
+
 							this._initialized.resolve(this);
 						} else if (response.command === "disconnect") {
 							// close the DAP connection after we respond to disconnect so that
@@ -243,6 +263,7 @@ export default class Connection {
 						}
 					}
 				}
+
 				this.telemetryReporter?.reportOperation(
 					"dapOperation",
 					msg.command,
@@ -257,6 +278,7 @@ export default class Connection {
 					});
 				} else {
 					console.error(e);
+
 					this._send({
 						...response,
 						success: false,
@@ -279,11 +301,13 @@ export default class Connection {
 				);
 			}
 		}
+
 		if (msg.type === "event") {
 			const listeners = this._eventListeners.get(msg.event) || new Set();
 
 			for (const listener of listeners) listener(msg.body);
 		}
+
 		if (msg.type === "response") {
 			const cb = this._pendingRequests.get(msg.request_seq);
 
@@ -304,6 +328,7 @@ export default class Connection {
 				// eslint-disable-next-line
 				const format: string | undefined = (msg.body as any)?.error
 					?.format;
+
 				cb(format || msg.message || `Unknown error`);
 			}
 		}

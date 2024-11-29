@@ -54,6 +54,7 @@ export const extractScopeRenames = async (
 		);
 
 		const start = toOffset.convert(position);
+
 		identifierRe.lastIndex = start;
 
 		const match = identifierRe.exec(source);
@@ -84,6 +85,7 @@ export const extractScopeRenames = async (
 			if (!mappings) {
 				continue;
 			}
+
 			for (let k = 0; k < mappings.length; k++) {
 				const mapping: number[] = mappings[k];
 
@@ -101,6 +103,7 @@ export const extractScopeRenames = async (
 				) {
 					continue;
 				}
+
 				if (
 					generatedLineBase0 === node.range.end.base0.lineNumber &&
 					node.range.end.base0.columnNumber < generatedColumnBase0

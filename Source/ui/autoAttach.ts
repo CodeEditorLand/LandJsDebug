@@ -68,6 +68,7 @@ export function registerAutoAttach(
 
 			if (workspaceFolder) {
 				const fsPath = workspaceFolder?.uri.fsPath;
+
 				config = { ...config, cwd: fsPath, __workspaceFolder: fsPath };
 			}
 
@@ -78,12 +79,14 @@ export function registerAutoAttach(
 					disposeTimeout = setTimeout(
 						() => {
 							launchers.delete(workspaceFolder);
+
 							inst.terminate();
 						},
 						5 * 60 * 1000,
 					);
 				} else if (disposeTimeout) {
 					clearTimeout(disposeTimeout);
+
 					disposeTimeout = undefined;
 				}
 			});
@@ -146,9 +149,11 @@ export function registerAutoAttach(
 					const launcher = await acquireLauncher(
 						wf || vscode.workspace.workspaceFolders?.[0],
 					);
+
 					launcher.spawnForChild(info);
 				} catch (err) {
 					console.error(err);
+
 					vscode.window.showErrorMessage(
 						`Error activating auto attach: ${err.stack || err}`,
 					);
@@ -163,6 +168,7 @@ export function registerAutoAttach(
 
 				for (const [key, value] of launchers.entries()) {
 					launchers.delete(key);
+
 					value.then((v) => v.terminate());
 				}
 			},

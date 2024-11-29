@@ -88,6 +88,7 @@ class DomainReplays {
 
 		if (!ll) {
 			ll = new LinkedList();
+
 			this.replays.set(domain, ll);
 		}
 
@@ -114,16 +115,20 @@ class DomainReplays {
 			handler.on(event, (args) => this.addReplay(domain, event, args));
 		} else if (behavior === CaptureBehavior.Replace) {
 			let rmPrevious: (() => void) | undefined;
+
 			handler.on(event, (args) => {
 				rmPrevious?.();
+
 				rmPrevious = this.addReplay(domain, event, args);
 			});
 		} else {
 			const rmQueue = new LinkedList<() => void>();
+
 			handler.on(event, (args) => {
 				if (rmQueue.size === behavior.cap) {
 					rmQueue.shift()?.();
 				}
+
 				rmQueue.push(this.addReplay(domain, event, args));
 			});
 		}
@@ -150,6 +155,7 @@ class DomainReplays {
 	 */
 	public clearEvent<TKey extends keyof Cdp.Api>(domain: TKey, event: string) {
 		const e = `${domain}.${event}`;
+
 		this.filter(domain, (r) => r.event !== e);
 	}
 
@@ -176,7 +182,9 @@ export const ICdpProxyProvider = Symbol("ICdpProxyProvider");
 @injectable()
 export class CdpProxyProvider implements ICdpProxyProvider {
 	private server?: Promise<{ server: WebSocket.Server; path: string }>;
+
 	private readonly disposables = new DisposableList();
+
 	private readonly replay = new DomainReplays();
 
 	private jsDebugApi: IJsDebugDomain = {
@@ -219,15 +227,19 @@ export class CdpProxyProvider implements ICdpProxyProvider {
 			"styleSheetAdded",
 			CaptureBehavior.Append,
 		);
+
 		this.replay.capture(cdp, "Debugger", "paused", CaptureBehavior.Replace);
+
 		this.replay.capture(cdp, "Runtime", "executionContextCreated", {
 			cap: 50,
 			type: CaptureBehavior.CappedAppend,
 		});
+
 		this.replay.capture(cdp, "Runtime", "consoleAPICalled", {
 			cap: 50,
 			type: CaptureBehavior.CappedAppend,
 		});
+
 		cdp.Debugger.on("resumed", () => {
 			this.replay.clearEvent("Debugger", "paused");
 		});
@@ -273,6 +285,7 @@ export class CdpProxyProvider implements ICdpProxyProvider {
 
 		server.on("connection", (client) => {
 			const clientHandle = new ClientHandle(client, this.logger);
+
 			this.logger.info(
 				LogTag.ProxyActivity,
 				"accepted proxy connection",
@@ -289,6 +302,7 @@ export class CdpProxyProvider implements ICdpProxyProvider {
 						id: clientHandle.id,
 					},
 				);
+
 				this.disposables.disposeObject(clientHandle);
 			});
 
@@ -331,12 +345,14 @@ export class CdpProxyProvider implements ICdpProxyProvider {
 									fn,
 									params,
 								);
+
 					clientHandle.send({ id, result });
 				} catch (e) {
 					const error =
 						e instanceof ProtocolError && e.cause
 							? e.cause
 							: { code: 0, message: e.message };
+
 					clientHandle.send({ id, error });
 				}
 			});
@@ -350,7 +366,9 @@ export class CdpProxyProvider implements ICdpProxyProvider {
 	 */
 	public dispose() {
 		this.disposables.dispose();
+
 		this.server?.then((s) => s.server.close());
+
 		this.server = undefined;
 	}
 
@@ -370,6 +388,7 @@ export class CdpProxyProvider implements ICdpProxyProvider {
 				for (const m of this.replay.read(domain as keyof Cdp.Api)) {
 					client.send({ method: m.event, params: m.params });
 				}
+
 				break;
 
 			case "disable":
@@ -416,6 +435,7 @@ let connectionIdCounter = 0;
 
 class ClientHandle implements IDisposable {
 	private readonly disposables = new DisposableList();
+
 	public readonly id = connectionIdCounter++;
 
 	constructor(
@@ -429,6 +449,7 @@ class ClientHandle implements IDisposable {
 
 	dispose() {
 		this.disposables.dispose();
+
 		this.webSocket.close();
 	}
 
@@ -438,6 +459,7 @@ class ClientHandle implements IDisposable {
 			"send proxy message",
 			message,
 		);
+
 		this.webSocket.send(JSON.stringify(message));
 	}
 }

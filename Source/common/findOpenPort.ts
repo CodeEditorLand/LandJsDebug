@@ -14,8 +14,11 @@ type PortTesterFn<T> = (port: number, ct: CancellationToken) => Promise<T>;
 
 export interface IFindOpenPortOptions<T> {
 	min?: number;
+
 	max?: number;
+
 	attempts?: number;
+
 	tester: PortTesterFn<T>;
 }
 
@@ -87,8 +90,10 @@ export function acquirePortNumber(
 
 	return new Promise((resolve, reject) => {
 		const server = net.createServer();
+
 		server.listen(port, "127.0.0.1", () => {
 			const address = server.address() as net.AddressInfo;
+
 			server.close(() => resolve(address.port));
 		});
 
@@ -96,6 +101,7 @@ export function acquirePortNumber(
 
 		disposable = ct.onCancellationRequested(() => {
 			server.close();
+
 			reject(new TaskCancelledError("Port open lookup cancelled"));
 		});
 	}).finally(() => disposable?.dispose());
@@ -112,6 +118,7 @@ export const makeAcquireTcpServer =
 	): PortTesterFn<net.Server> =>
 	(port, ct) => {
 		const server = net.createServer(onSocket);
+
 		server.listen(port, host);
 
 		return waitForServerToListen(server, ct);
@@ -135,7 +142,9 @@ export const makeAcquireWebSocketServer =
 
 interface IServerLike {
 	on(event: "error", handler: (err: Error) => void): void;
+
 	on(event: "listening", handler: () => void): void;
+
 	close(): void;
 }
 
@@ -147,10 +156,12 @@ export const waitForServerToListen = <T extends IServerLike>(
 
 	return new Promise<T>((resolve, reject) => {
 		server.on("error", reject);
+
 		server.on("listening", () => resolve(server));
 
 		disposable = ct.onCancellationRequested(() => {
 			server.close();
+
 			reject(new TaskCancelledError("Port open lookup cancelled"));
 		});
 	}).finally(() => disposable?.dispose());

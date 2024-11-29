@@ -33,11 +33,13 @@ export function installUnhandledErrorReporter(
 	);
 
 	process.addListener("uncaughtException", exceptionListener);
+
 	process.addListener("unhandledRejection", rejectionListener);
 
 	return {
 		dispose: () => {
 			process.removeListener("uncaughtException", exceptionListener);
+
 			process.removeListener("unhandledRejection", rejectionListener);
 		},
 	};
@@ -60,6 +62,7 @@ export const onUncaughtError =
 			error: isVsCode ? undefined : error,
 			exceptionType: src,
 		});
+
 		logger.error(
 			LogTag.RuntimeException,
 			"Unhandled error in debug adapter",

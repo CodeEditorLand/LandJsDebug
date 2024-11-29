@@ -21,6 +21,7 @@ export class StackTraceParser {
 	public static isStackLike(str: string) {
 		return re1.test(str) || re2.test(str);
 	}
+
 	constructor(private readonly stack: string) {}
 
 	/** Iterates over segments of text and locations in the stack. */

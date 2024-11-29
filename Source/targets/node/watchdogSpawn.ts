@@ -68,6 +68,7 @@ export interface IWatchdogInfo {
 
 export type WatchdogTarget = Cdp.Target.TargetInfo & {
 	processId: number;
+
 	processInspectorPort: number;
 };
 
@@ -78,10 +79,15 @@ const enum Method {
 
 export class WatchDog implements IDisposable {
 	private readonly onEndEmitter = new EventEmitter<IStopMetadata>();
+
 	private readonly cts = new CancellationTokenSource();
+
 	private target?: WebSocketTransport;
+
 	private gracefulExit = false;
+
 	private targetAlive = false;
+
 	private readonly targetInfo: WatchdogTarget = {
 		targetId: this.info.ownId ?? createTargetId(),
 		processId: Number(this.info.pid) || 0,
@@ -115,6 +121,7 @@ export class WatchDog implements IDisposable {
 			const cnx: net.Socket = net.createConnection(info.ipcAddress, () =>
 				resolve(cnx),
 			);
+
 			cnx.on("error", reject);
 		});
 
@@ -136,12 +143,14 @@ export class WatchDog implements IDisposable {
 	 */
 	private listenToServer() {
 		const { server, targetInfo } = this;
+
 		server.send(
 			JSON.stringify({
 				method: "Target.targetCreated",
 				params: { targetInfo },
 			}),
 		);
+
 		server.onMessage(async ([data]) => {
 			// Fast-path to check if we might need to parse it:
 			if (
@@ -163,6 +172,7 @@ export class WatchDog implements IDisposable {
 
 		server.onEnd(() => {
 			this.disposeTarget();
+
 			this.onEndEmitter.fire({
 				killed: this.gracefulExit,
 				code: this.gracefulExit ? 0 : 1,
@@ -175,8 +185,11 @@ export class WatchDog implements IDisposable {
 	 */
 	public dispose() {
 		this.gracefulExit = true;
+
 		this.cts.dispose(true);
+
 		this.disposeTarget();
+
 		this.server.dispose(); // will cause the end emitter to fire after teardown finishes
 	}
 
@@ -192,6 +205,7 @@ export class WatchDog implements IDisposable {
 				if (this.target) {
 					this.disposeTarget();
 				}
+
 				this.target = await this.createTarget();
 
 				return {
@@ -206,6 +220,7 @@ export class WatchDog implements IDisposable {
 
 			case Method.DetachFromTarget:
 				this.gracefulExit = true;
+
 				this.disposeTarget();
 
 				return { id: object.id, result: {} };
@@ -224,7 +239,9 @@ export class WatchDog implements IDisposable {
 			this.cts.token,
 			this.info.remoteHostHeader,
 		);
+
 		target.onMessage(([data]) => this.server.send(data));
+
 		target.onEnd(() => {
 			if (target) {
 				// Could be due us closing.
@@ -240,6 +257,7 @@ export class WatchDog implements IDisposable {
 			}
 
 			this.targetAlive = false;
+
 			this.server.dispose();
 		});
 
@@ -249,6 +267,7 @@ export class WatchDog implements IDisposable {
 	private disposeTarget() {
 		if (this.target) {
 			this.target.dispose();
+
 			this.target = undefined;
 		}
 	}

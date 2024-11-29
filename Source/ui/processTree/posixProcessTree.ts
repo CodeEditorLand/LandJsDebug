@@ -41,10 +41,12 @@ export class PosixProcessTree extends DarwinProcessTree {
 				if (process.args[pos] === " ") {
 					break;
 				}
+
 				pos++;
 			}
 
 			process.command = process.args.substr(0, pos);
+
 			process.args = process.args.substr(pos + 1);
 
 			return process;

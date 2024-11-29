@@ -64,6 +64,7 @@ export class Console implements IConsole {
 			if (this.length) {
 				await new Promise((r) => this.onDrained(r));
 			}
+
 			if (final) {
 				this.dispose();
 			}

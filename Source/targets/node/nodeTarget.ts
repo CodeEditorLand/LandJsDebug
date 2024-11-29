@@ -28,17 +28,24 @@ export interface INodeTargetLifecycleHooks {
 
 export class NodeTarget implements ITarget {
 	private _cdp: Cdp.Api;
+
 	private _targetName: string;
+
 	private _serialize: Promise<Cdp.Api | undefined> =
 		Promise.resolve(undefined);
+
 	private _attached = false;
+
 	private _waitingForDebugger: boolean;
+
 	private _onNameChangedEmitter = new EventEmitter<void>();
+
 	private _onDisconnectEmitter = new EventEmitter<void>();
 
 	public entryBreakpoint: IBreakpointPathAndId | undefined = undefined;
 
 	public readonly onDisconnect = this._onDisconnectEmitter.event;
+
 	public readonly onNameChanged = this._onNameChangedEmitter.event;
 
 	constructor(
@@ -52,8 +59,11 @@ export class NodeTarget implements ITarget {
 		private readonly _parent: ITarget | undefined,
 	) {
 		this.connection = connection;
+
 		this._cdp = cdp;
+
 		cdp.pause();
+
 		this._waitingForDebugger = targetInfo.type === "waitingForDebugger";
 
 		if (targetInfo.title) {
@@ -61,6 +71,7 @@ export class NodeTarget implements ITarget {
 		} else this._targetName = `[${targetInfo.processId}]`;
 
 		cdp.Target.on("targetDestroyed", () => this.connection.close());
+
 		connection.onDisconnected(() => this._disconnected());
 	}
 
@@ -151,6 +162,7 @@ export class NodeTarget implements ITarget {
 
 	async _doAttach(): Promise<Cdp.Api | undefined> {
 		this._waitingForDebugger = false;
+
 		this._attached = true;
 
 		const result = await this._cdp.Target.attachToTarget({
@@ -175,15 +187,18 @@ export class NodeTarget implements ITarget {
 			// order matters! The runtime must be enabled first so we know what
 			// execution contexts scripts are in
 			await this._cdp.Runtime.enable({});
+
 			await this._cdp.Debugger.enable({});
 		}
 
 		let defaultCountextId: number;
+
 		this._cdp.Runtime.on("executionContextCreated", (event) => {
 			if (event.context.auxData && event.context.auxData["isDefault"]) {
 				defaultCountextId = event.context.id;
 			}
 		});
+
 		this._cdp.Runtime.on("executionContextDestroyed", (event) => {
 			if (event.executionContextId === defaultCountextId)
 				this.connection.close();
@@ -204,6 +219,7 @@ export class NodeTarget implements ITarget {
 		this._serialize = this._serialize.then(async () => {
 			if (this._waitingForDebugger) {
 				const cdp = await this._doAttach();
+
 				await cdp?.Runtime.runIfWaitingForDebugger({});
 			}
 
@@ -224,6 +240,7 @@ export class NodeTarget implements ITarget {
 		]);
 
 		this.connection.close();
+
 		this._attached = false;
 	}
 

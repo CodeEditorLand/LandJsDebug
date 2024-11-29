@@ -9,7 +9,9 @@
  */
 export interface IPosition {
 	base0: Base0Position;
+
 	base1: Base1Position;
+
 	base01: Base01Position;
 	/**
 	 * Compares the position and returns the sort order, <0 if `this` is
@@ -135,6 +137,7 @@ export class Range {
 		new Base0Position(0, 0),
 		new Base0Position(0, 0),
 	);
+
 	public static INFINITE = new Range(
 		new Base0Position(0, 0),
 		new Base0Position(Infinity, Infinity),
@@ -163,9 +166,11 @@ export class Range {
 				currentRange = new Range(currentRange.begin, nextRange.end);
 			} else {
 				mergedRanges.push(currentRange);
+
 				currentRange = nextRange;
 			}
 		}
+
 		mergedRanges.push(currentRange);
 
 		return mergedRanges;

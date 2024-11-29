@@ -30,9 +30,13 @@ class XHRBreakpoint extends vscode.TreeItem {
 				: l10n.t("Any XHR or fetch"),
 			vscode.TreeItemCollapsibleState.None,
 		);
+
 		this.contextValue = "xhrBreakpoint";
+
 		this.id = xhr.match;
+
 		this.match = xhr.match;
+
 		this.checkboxState = enabled
 			? vscode.TreeItemCheckboxState.Checked
 			: vscode.TreeItemCheckboxState.Unchecked;
@@ -45,6 +49,7 @@ class XHRBreakpoint extends vscode.TreeItem {
 
 class Breakpoint extends vscode.TreeItem {
 	id: string;
+
 	group: string;
 
 	public get checked() {
@@ -56,8 +61,11 @@ class Breakpoint extends vscode.TreeItem {
 		public readonly parent: Category,
 	) {
 		super(cb.title, vscode.TreeItemCollapsibleState.None);
+
 		this.checkboxState = vscode.TreeItemCheckboxState.Unchecked;
+
 		this.id = cb.id;
+
 		this.group = cb.group;
 	}
 
@@ -75,6 +83,7 @@ class Category extends vscode.TreeItem {
 
 	constructor(public readonly label: string) {
 		super(label, vscode.TreeItemCollapsibleState.Collapsed);
+
 		this.checkboxState = vscode.TreeItemCheckboxState.Unchecked;
 	}
 }
@@ -83,11 +92,13 @@ type TreeItem = Breakpoint | Category | XHRBreakpoint;
 
 class BreakpointsDataProvider implements vscode.TreeDataProvider<TreeItem> {
 	private _onDidChangeTreeData = new EventEmitter<Breakpoint | undefined>();
+
 	readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
 	private _debugSessionTracker: DebugSessionTracker;
 
 	private readonly categories = new Map<string, Category>();
+
 	xhrBreakpoints: XHRBreakpoint[] = [];
 
 	/** Gets all breakpoint categories */
@@ -106,19 +117,25 @@ class BreakpointsDataProvider implements vscode.TreeDataProvider<TreeItem> {
 
 			if (!category) {
 				category = new Category(breakpoint.group);
+
 				this.categories.set(breakpoint.group, category);
 			}
+
 			category.children.push(new Breakpoint(breakpoint, category));
 		}
 
 		const xhrCategory = new Category(xhrBreakpointsCategory());
+
 		xhrCategory.contextValue = "xhrCategory";
+
 		xhrCategory.checkboxState = undefined;
+
 		this.categories.set(xhrBreakpointsCategory(), xhrCategory);
 
 		this.xhrBreakpoints = [];
 
 		this._debugSessionTracker = debugSessionTracker;
+
 		debugSessionTracker.onSessionAdded((session) => {
 			if (!DebugSessionTracker.isConcreteSession(session)) {
 				return;
@@ -159,10 +176,12 @@ class BreakpointsDataProvider implements vscode.TreeDataProvider<TreeItem> {
 				const title = l10n.t("Add new URL...");
 
 				const addNew = new vscode.TreeItem(title) as XHRBreakpoint;
+
 				addNew.command = { title, command: Commands.AddXHRBreakpoints };
 
 				return [...this.xhrBreakpoints, addNew];
 			}
+
 			return this.categories.get(item.label)?.children;
 		}
 
@@ -217,6 +236,7 @@ class BreakpointsDataProvider implements vscode.TreeDataProvider<TreeItem> {
 		}
 
 		this.updateDebuggersState();
+
 		this._onDidChangeTreeData.fire(undefined);
 	}
 
@@ -240,8 +260,11 @@ class BreakpointsDataProvider implements vscode.TreeDataProvider<TreeItem> {
 		}
 
 		this.xhrBreakpoints.push(breakpoint);
+
 		this.updateDebuggersState();
+
 		this.syncXHRCategoryState();
+
 		this._onDidChangeTreeData.fire(undefined);
 	}
 
@@ -249,8 +272,11 @@ class BreakpointsDataProvider implements vscode.TreeDataProvider<TreeItem> {
 		this.xhrBreakpoints = this.xhrBreakpoints.filter(
 			(b) => b !== breakpoint,
 		);
+
 		this.updateDebuggersState();
+
 		this.syncXHRCategoryState();
+
 		this._onDidChangeTreeData.fire(undefined);
 	}
 
@@ -332,6 +358,7 @@ export function registerCustomBreakpointsUI(
 				}
 
 				const pickedSet = new Set(picked.map((i) => i.id));
+
 				provider.setEnabled(
 					provider.allBreakpoints.map((i) => [
 						i,
@@ -359,13 +386,19 @@ export function registerCustomBreakpointsUI(
 	context.subscriptions.push(
 		vscode.commands.registerCommand(Commands.AddXHRBreakpoints, () => {
 			const inputBox = vscode.window.createInputBox();
+
 			inputBox.title = l10n.t("Add XHR Breakpoint");
+
 			inputBox.placeholder = l10n.t("Break when URL Contains");
+
 			inputBox.onDidAccept(() => {
 				const match = inputBox.value;
+
 				provider.addXHRBreakpoints(new XHRBreakpoint({ match }, true));
+
 				inputBox.dispose();
 			});
+
 			inputBox.show();
 		}),
 	);
@@ -375,14 +408,20 @@ export function registerCustomBreakpointsUI(
 			Commands.EditXHRBreakpoint,
 			(treeItem: vscode.TreeItem) => {
 				const inputBox = vscode.window.createInputBox();
+
 				inputBox.title = l10n.t("Edit XHR Breakpoint");
+
 				inputBox.placeholder = l10n.t(
 					"Enter a URL or a pattern to match",
 				);
+
 				inputBox.value = (treeItem as XHRBreakpoint).match;
+
 				inputBox.onDidAccept(() => {
 					const match = inputBox.value;
+
 					provider.removeXHRBreakpoint(treeItem as XHRBreakpoint);
+
 					provider.addXHRBreakpoints(
 						new XHRBreakpoint(
 							{ match },
@@ -390,8 +429,10 @@ export function registerCustomBreakpointsUI(
 								vscode.TreeItemCheckboxState.Checked,
 						),
 					);
+
 					inputBox.dispose();
 				});
+
 				inputBox.show();
 			},
 		),

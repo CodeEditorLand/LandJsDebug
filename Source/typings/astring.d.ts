@@ -12,10 +12,15 @@ declare module "astring" {
 	 */
 	export interface State {
 		output: string;
+
 		write(code: string): void;
+
 		writeComments: boolean;
+
 		indent: string;
+
 		lineEnd: string;
+
 		indentLevel: number;
 	}
 
@@ -24,8 +29,11 @@ declare module "astring" {
 	 */
 	export interface StateWithSourceMap {
 		line: number;
+
 		column: number;
+
 		lineEndSize: number;
+
 		mapping: Mapping;
 	}
 
@@ -38,9 +46,12 @@ declare module "astring" {
 		 */
 		sourceMap?: {
 			file?: string;
+
 			addMapping(mapping: {
 				original: { line: number; column: number };
+
 				generated: { line: number; column: number };
+
 				source: string | undefined;
 			});
 		};

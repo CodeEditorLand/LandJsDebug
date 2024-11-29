@@ -13,13 +13,16 @@ import { ITransport } from "./transport";
 
 export class RawPipeTransport implements ITransport {
 	private readonly messageEmitter = new EventEmitter<[string, HrTime]>();
+
 	private readonly endEmitter = new EventEmitter<void>();
 
 	public readonly onMessage = this.messageEmitter.event;
+
 	public readonly onEnd = this.endEmitter.event;
 
 	private streams?: Readonly<{
 		write: Writable;
+
 		read: Readable;
 	}>;
 
@@ -29,16 +32,22 @@ export class RawPipeTransport implements ITransport {
 		}
 
 		this.beforeClose();
+
 		this.streams.read.removeAllListeners();
 		// destroy pipeRead, not streams.read, since that will cause any buffered
 		// data left in the `split()` transform to error when written.
 		this.pipeRead?.destroy();
+
 		this.streams.write.removeListener("end", this.onceEnded);
+
 		this.streams.write.removeListener("error", this.onWriteError);
 		// Suppress pipe errors, e.g. EPIPE when pipe is destroyed with buffered data
 		this.streams.write.on("error", () => undefined);
+
 		this.streams.write.end();
+
 		this.streams = undefined;
+
 		this.endEmitter.fire();
 	});
 
@@ -56,6 +65,7 @@ export class RawPipeTransport implements ITransport {
 		protected readonly pipeRead?: Readable,
 	) {
 		const read = pipeRead || pipeWrite;
+
 		this.streams = {
 			read: read
 				.on("error", (error) =>

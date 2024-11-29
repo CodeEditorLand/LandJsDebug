@@ -18,8 +18,11 @@ export interface IPropertyData {
 		| "CustomerContent"
 		| "EndUserPseudonymizedInformation"
 		| "Unclassified";
+
 	purpose: "PerformanceAndHealth" | "FeatureInsight" | "BusinessInsight";
+
 	endpoint?: string;
+
 	isMeasurement?: boolean;
 }
 
@@ -47,18 +50,24 @@ export interface IGlobalProperties {
 interface IGlobalClassification {
 	nodeVersion: {
 		classification: "SystemMetaData";
+
 		purpose: "FeatureInsight";
 	};
+
 	browser: { classification: "SystemMetaData"; purpose: "FeatureInsight" };
+
 	jsDebugCommitId: {
 		classification: "SystemMetaData";
+
 		purpose: "FeatureInsight";
 	};
 }
 
 export interface IGlobalMetrics {
 	nodeVersion?: string;
+
 	browser?: string;
+
 	jsDebugCommitId?: string;
 }
 
@@ -67,17 +76,24 @@ interface IRPCOperationClassification
 		ICDPOperationClassification {
 	[key: string]: {
 		classification: "SystemMetaData" | "CallstackOrException";
+
 		purpose: "PerformanceAndHealth";
 	};
 }
 
 export interface IRPCMetrics {
 	operation: string;
+
 	totalTime: number;
+
 	max: number;
+
 	avg: number;
+
 	stddev: number;
+
 	count: number;
+
 	failed: number;
 }
 
@@ -92,15 +108,19 @@ export interface IRPCOperation {
 interface IErrorClassification {
 	exceptionType: {
 		classification: "CallstackOrException";
+
 		purpose: "PerformanceAndHealth";
 	};
 	"!error": {
 		classification: "CallstackOrException";
+
 		purpose: "PerformanceAndHealth";
 	};
+
 	error:
 		| {
 				classification: "CallstackOrException";
+
 				purpose: "PerformanceAndHealth";
 		  }
 		| undefined;
@@ -109,18 +129,23 @@ interface IErrorClassification {
 export interface IErrorMetrics {
 	exceptionType: "uncaughtException" | "unhandledRejection";
 	"!error": unknown;
+
 	error: unknown | undefined;
 }
 
 interface IBreakpointClassification {
 	set: { classification: "SystemMetaData"; purpose: "FeatureInsight" };
+
 	verified: { classification: "SystemMetaData"; purpose: "FeatureInsight" };
+
 	hit: { classification: "SystemMetaData"; purpose: "FeatureInsight" };
 }
 
 export interface IBreakpointMetrics {
 	set: number;
+
 	verified: number;
+
 	hit: number;
 }
 
@@ -131,6 +156,7 @@ export interface IStatistics {
 interface IStatisticsClassification {
 	fallbackSourceMapCount: {
 		classification: "SystemMetaData";
+
 		purpose: "FeatureInsight";
 	};
 }
@@ -138,72 +164,104 @@ interface IStatisticsClassification {
 interface IBrowserVersionClassification {
 	targetCRDPVersion: {
 		classification: "SystemMetaData";
+
 		purpose: "FeatureInsight";
 	};
+
 	targetRevision: {
 		classification: "SystemMetaData";
+
 		purpose: "FeatureInsight";
 	};
+
 	targetUserAgent: {
 		classification: "SystemMetaData";
+
 		purpose: "FeatureInsight";
 	};
+
 	targetV8: { classification: "SystemMetaData"; purpose: "FeatureInsight" };
+
 	targetProject: {
 		classification: "SystemMetaData";
+
 		purpose: "FeatureInsight";
 	};
+
 	targetVersion: {
 		classification: "SystemMetaData";
+
 		purpose: "FeatureInsight";
 	};
+
 	targetProduct: {
 		classification: "SystemMetaData";
+
 		purpose: "FeatureInsight";
 	};
 }
 
 export interface IBrowserVersionMetrics {
 	targetCRDPVersion: string;
+
 	targetRevision: string;
+
 	targetUserAgent: string;
+
 	targetV8: string;
+
 	targetProject: string;
+
 	targetVersion: string;
+
 	targetProduct: string;
 }
 
 interface INodeRuntimeClassification {
 	version: { classification: "SystemMetaData"; purpose: "FeatureInsight" };
+
 	arch: { classification: "SystemMetaData"; purpose: "FeatureInsight" };
 }
 
 export interface INodeRuntimeMetrics {
 	version: string;
+
 	arch: string;
 }
 
 interface ILaunchClassification {
 	type: { classification: "SystemMetaData"; purpose: "FeatureInsight" };
+
 	request: { classification: "SystemMetaData"; purpose: "FeatureInsight" };
+
 	parameters: { classification: "SystemMetaData"; purpose: "FeatureInsight" };
+
 	nodeVersion: {
 		classification: "SystemMetaData";
+
 		purpose: "FeatureInsight";
 	};
+
 	adapterVersion: {
 		classification: "SystemMetaData";
+
 		purpose: "FeatureInsight";
 	};
+
 	os: { classification: "SystemMetaData"; purpose: "FeatureInsight" };
 }
 
 export interface ILaunchMetrics {
 	type: string;
+
 	os: string;
+
 	nodeVersion: string;
+
 	adapterVersion: string;
+
 	request: string;
+
 	parameters: string;
 }
 
@@ -343,6 +401,7 @@ export const createLoggers = (
 				"..",
 				".gitcommit",
 			);
+
 			globalMetrics.jsDebugCommitId = fs.readFileSync(filePath, "utf8");
 		} catch {
 			// We don't do anything if we don't have the file, or can't read it

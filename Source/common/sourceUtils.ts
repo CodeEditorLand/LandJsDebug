@@ -150,6 +150,7 @@ export function rewriteTopLevelAwait(code: string): string | undefined {
 					if (node.await) {
 						containsAwait = true;
 					}
+
 					return;
 
 				case "ReturnStatement":
@@ -276,6 +277,7 @@ export function parseSourceMappingUrl(content: string): string | undefined {
 		if (pos === -1) return;
 		// Check for a /\/[\/*][@#][ \t]/ regexp (length of 4) before found name.
 		if (pos < 4) return;
+
 		pos -= 4;
 
 		if (content[pos] !== "/") continue;
@@ -285,6 +287,7 @@ export function parseSourceMappingUrl(content: string): string | undefined {
 		if (content[pos + 2] !== "#" && content[pos + 2] !== "@") continue;
 
 		if (content[pos + 3] !== " " && content[pos + 3] !== "\t") continue;
+
 		equalSignPos = pos + 4 + nameLength;
 
 		if (equalSignPos < length && content[equalSignPos] !== "=") continue;
@@ -303,7 +306,9 @@ export function parseSourceMappingUrl(content: string): string | undefined {
 
 interface INotNullRange {
 	line: number;
+
 	column: number;
+
 	lastColumn: number | null;
 }
 
@@ -411,6 +416,7 @@ export function getBestSteppableExpressionAt(src: string, offset: number) {
 	let other: Node | undefined;
 
 	let steppable: Node | undefined;
+
 	traverse(ast, {
 		enter: (node) => {
 			const asAcorn = node as AcornNode;

@@ -52,6 +52,7 @@ export async function attachProcess() {
 
 	// TODO: Figure out how to inject FsUtils
 	await resolveProcessId(new LocalFsUtils(fsPromises), config, true);
+
 	await vscode.debug.startDebugging(
 		config.cwd
 			? vscode.workspace.getWorkspaceFolder(vscode.Uri.file(config.cwd))
@@ -89,6 +90,7 @@ export async function resolveProcessId(
 	}
 
 	config.port = result.port || INSPECTOR_PORT_DEFAULT;
+
 	delete config.processId;
 
 	if (setCwd) {
@@ -172,16 +174,22 @@ async function listProcesses(): Promise<IProcessItem | undefined> {
 	let seq = 0; // default sort key
 
 	const quickPick = vscode.window.createQuickPick<IProcessItem>();
+
 	quickPick.placeholder = l10n.t("Pick the node.js process to attach to");
+
 	quickPick.matchOnDescription = true;
+
 	quickPick.matchOnDetail = true;
+
 	quickPick.busy = true;
+
 	quickPick.show();
 
 	let hasPicked = false;
 
 	const itemPromise = new Promise<IProcessItem | undefined>((resolve) => {
 		quickPick.onDidAccept(() => resolve(quickPick.selectedItems[0]));
+
 		quickPick.onDidHide(() => resolve(undefined));
 	});
 
@@ -225,7 +233,9 @@ async function listProcesses(): Promise<IProcessItem | undefined> {
 			const index = acc.findIndex(
 				(item) => item.sortKey < newItem.sortKey,
 			);
+
 			acc.splice(index === -1 ? acc.length : index, 0, newItem);
+
 			quickPick.items = acc;
 
 			return acc;
@@ -235,11 +245,14 @@ async function listProcesses(): Promise<IProcessItem | undefined> {
 			vscode.window.showErrorMessage(
 				`Error listing processes: ${err.message}`,
 			);
+
 			quickPick.dispose();
 		});
 
 	const item = await itemPromise;
+
 	hasPicked = true;
+
 	quickPick.dispose();
 
 	return item;
@@ -253,6 +266,7 @@ function putPidInDebugMode(pid: number): void {
 			// But since we are running on Electron's node, process._debugProcess doesn't work (for unknown reasons).
 			// So we use a regular node instead:
 			const command = `node -e process._debugProcess(${pid})`;
+
 			execSync(command);
 		} else {
 			process.kill(pid, "SIGUSR1");

@@ -35,10 +35,14 @@ export class DebugSessionTracker implements vscode.Disposable {
 
 		const qp = vscode.window.createQuickPick<{
 			id: string;
+
 			label: string;
 		}>();
+
 		qp.title = title;
+
 		qp.items = candidates.map((c) => ({ label: c.name, id: c.id }));
+
 		qp.ignoreFocusOut = true;
 
 		return new Promise<vscode.DebugSession | undefined>((resolve) => {
@@ -47,16 +51,21 @@ export class DebugSessionTracker implements vscode.Disposable {
 					candidates.find((i) => i.id === qp.selectedItems[0]?.id),
 				),
 			);
+
 			qp.onDidHide(() => resolve(undefined));
+
 			qp.show();
 		}).finally(() => qp.dispose());
 	}
 
 	private _onSessionAddedEmitter =
 		new vscode.EventEmitter<vscode.DebugSession>();
+
 	private _onSessionEndedEmitter =
 		new vscode.EventEmitter<vscode.DebugSession>();
+
 	private _disposables: vscode.Disposable[] = [];
+
 	private readonly sessions = new Map<string, vscode.DebugSession>();
 
 	/**
@@ -120,6 +129,7 @@ export class DebugSessionTracker implements vscode.Disposable {
 			(session) => {
 				if (isDebugType(session.type)) {
 					this.sessions.set(session.id, session);
+
 					this._onSessionAddedEmitter.fire(session);
 				}
 			},
@@ -131,6 +141,7 @@ export class DebugSessionTracker implements vscode.Disposable {
 			(session) => {
 				if (isDebugType(session.type)) {
 					this.sessions.delete(session.id);
+
 					this._onSessionEndedEmitter.fire(session);
 				}
 			},
@@ -160,14 +171,17 @@ export class DebugSessionTracker implements vscode.Disposable {
 							(params.line || 1) - 1,
 							(params.column || 1) - 1,
 						);
+
 						options.selection = new vscode.Range(
 							position,
 							position,
 						);
 					}
+
 					vscode.window.showTextDocument(uri, options);
 				} else if (event.event === "copyRequested") {
 					const params = event.body as Dap.CopyRequestedEventParams;
+
 					vscode.env.clipboard.writeText(params.text);
 				}
 			},
@@ -178,6 +192,7 @@ export class DebugSessionTracker implements vscode.Disposable {
 
 	dispose() {
 		for (const disposable of this._disposables) disposable.dispose();
+
 		this._disposables = [];
 	}
 }

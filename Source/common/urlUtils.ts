@@ -195,6 +195,7 @@ export function completeUrl(
 export function removeQueryString(url: string) {
 	try {
 		const parsed = new URL(url);
+
 		parsed.search = "";
 
 		return parsed.toString();
@@ -237,10 +238,13 @@ export function completeUrlEscapingRoot(
 	let s = url.protocol + "//";
 
 	if (url.username) s += url.username + ":" + url.password + "@";
+
 	s += url.host;
+
 	s += path.dirname(url.pathname);
 
 	if (s[s.length - 1] !== "/") s += "/";
+
 	s += relative;
 
 	return s;
@@ -268,14 +272,17 @@ export function escapeForRegExp(s: string): string {
 			break;
 		}
 	}
+
 	if (!foundChar) return s;
 
 	let result = "";
 
 	for (let i = 0; i < s.length; ++i) {
 		if (chars.indexOf(s.charAt(i)) !== -1) result += "\\";
+
 		result += s.charAt(i);
 	}
+
 	return result;
 }
 
@@ -326,6 +333,7 @@ export function fileUrlToAbsolutePath(urlOrPath: string): string | undefined {
 	}
 
 	urlOrPath = urlOrPath.replace("file:///", "");
+
 	urlOrPath = decodeURIComponent(urlOrPath);
 
 	// UNC paths are returned from Chrome in the form `file:////shared/folder`,
@@ -354,7 +362,9 @@ export function fileUrlToAbsolutePath(urlOrPath: string): string | undefined {
 export function fileUrlToNetworkPath(urlOrPath: string): string {
 	if (isFileUrl(urlOrPath)) {
 		urlOrPath = urlOrPath.replace("file:///", "\\\\");
+
 		urlOrPath = urlOrPath.replace(/\//g, "\\");
+
 		urlOrPath = decodeURIComponent(urlOrPath);
 	}
 
@@ -367,6 +377,7 @@ export function absolutePathToFileUrl(absolutePath: string): string {
 	if (platform === "win32") {
 		return "file:///" + platformPathToUrlPath(absolutePath);
 	}
+
 	return "file://" + platformPathToUrlPath(absolutePath);
 }
 
@@ -381,6 +392,7 @@ export function absolutePathToFileUrlWithDetection(
 	if (!absolutePath.startsWith("/")) {
 		return "file:///" + platformPathToUrlPath(absolutePath);
 	}
+
 	return "file://" + platformPathToUrlPath(absolutePath);
 }
 
@@ -470,6 +482,7 @@ export function charRangeToUrlReGroup(
 				charToUrlReGroupSet,
 				escapeRegex,
 			);
+
 			urlToRegexChar(
 				char.toUpperCase(),
 				charToUrlReGroupSet,
@@ -478,8 +491,10 @@ export function charRangeToUrlReGroup(
 		}
 
 		re += createReGroup(charToUrlReGroupSet);
+
 		charToUrlReGroupSet.clear();
 	}
+
 	return re;
 }
 
@@ -571,6 +586,7 @@ export function maybeAbsolutePathToFileUrl(
 	) {
 		return absolutePathToFileUrl(sourceUrl);
 	}
+
 	return sourceUrl;
 }
 
@@ -599,6 +615,7 @@ export function platformPathToUrlPath(p: string): string {
 		if (isUncPath(p)) {
 			p = p.slice(1); // emit "file:////" and not "file://///" to match what V8 expects
 		}
+
 		return p
 			.split(/[\\//]/g)
 			.map((p, i) => (i > 0 ? encodeURIComponent(p) : p))

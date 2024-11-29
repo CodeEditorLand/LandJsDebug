@@ -109,6 +109,7 @@ const killCompanionBrowser = async (
 	await vscode.commands.executeCommand("js-debug-companion.kill", {
 		launchId,
 	});
+
 	tunnels.destroySession(session.id);
 };
 

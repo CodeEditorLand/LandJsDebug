@@ -15,6 +15,7 @@ import { ISourceMapMetadata } from "./sourceMap";
  */
 export interface IRelativePattern {
 	base: string;
+
 	pattern: string;
 }
 
@@ -80,12 +81,15 @@ export const createMetadataForFile = async (
 	if (metadata.siblings.includes(maybeSibling)) {
 		sourceMapUrl = maybeSibling;
 	}
+
 	if (!sourceMapUrl) {
 		if (typeof fileContents === "undefined") {
 			fileContents = await readfile(compiledPath);
 		}
+
 		sourceMapUrl = parseSourceMappingUrl(fileContents);
 	}
+
 	if (!sourceMapUrl) {
 		return;
 	}

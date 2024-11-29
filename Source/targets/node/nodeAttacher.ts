@@ -75,6 +75,7 @@ export class NodeAttacher extends NodeAttacherBase<INodeAttachConfiguration> {
 			const prevProgram = this.program;
 
 			let inspectorURL: string;
+
 			try {
 				if (runData.params.websocketAddress) {
 					inspectorURL = runData.params.websocketAddress;
@@ -114,6 +115,7 @@ export class NodeAttacher extends NodeAttacherBase<INodeAttachConfiguration> {
 			});
 
 			const program = (this.program = new WatchDogProgram(watchdog));
+
 			program.stopped.then((r) =>
 				restart(restartPolicy.reset(), program, r),
 			);
@@ -135,6 +137,7 @@ export class NodeAttacher extends NodeAttacherBase<INodeAttachConfiguration> {
 			}
 
 			const nextRestart = restartPolicy.next();
+
 			if (!nextRestart) {
 				this.onProgramTerminated(result);
 
@@ -149,12 +152,14 @@ export class NodeAttacher extends NodeAttacherBase<INodeAttachConfiguration> {
 			});
 
 			const deferred = new StubProgram();
+
 			this.program = deferred;
 
 			const killed = await Promise.race([
 				delay(nextRestart.delay),
 				deferred.stopped,
 			]);
+
 			if (this.program !== deferred) {
 				return;
 			}
@@ -196,6 +201,7 @@ export class NodeAttacher extends NodeAttacherBase<INodeAttachConfiguration> {
 		return {
 			initialized: async () => {
 				leaseFile = this.onFirstInitialize(cdp, run, target);
+
 				await leaseFile;
 			},
 			close: () => {
@@ -219,6 +225,7 @@ export class NodeAttacher extends NodeAttacherBase<INodeAttachConfiguration> {
 		// NODE_OPTIONS for the process, forever. We can try to unset this on
 		// close, but this isn't reliable as it's always possible
 		const leaseFile = new LeaseFile();
+
 		await leaseFile.startTouchLoop();
 
 		let binary = new NodeBinary("node", undefined);
@@ -281,6 +288,7 @@ export class NodeAttacher extends NodeAttacherBase<INodeAttachConfiguration> {
 				LogTag.RuntimeTarget,
 				"Cannot attach to children of remote process",
 			);
+
 			return;
 		}
 

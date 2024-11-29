@@ -128,11 +128,13 @@ export interface IPrepareOptions extends IEvaluatorBaseOptions {
 
 export type RenamePrepareOptions = {
 	position: IPosition;
+
 	mapping: RenameMapping;
 };
 
 export type LocationEvaluateOptions = {
 	source: Source;
+
 	position: IPosition;
 
 	variables: VariableStore;
@@ -196,6 +198,7 @@ export class Evaluator implements IEvaluator {
 		// object onto `globalThis`, replace reference in the expression, then
 		// evalute the expression and unhoist it from the globals.
 		const toHoist = new Map<string, string>();
+
 		toHoist.set(returnValueStr, makeHoistedName());
 
 		for (const key of hoist ?? []) {
@@ -255,10 +258,12 @@ export class Evaluator implements IEvaluator {
 	public evaluate(
 		params: Cdp.Debugger.EvaluateOnCallFrameParams,
 	): Promise<Cdp.Debugger.EvaluateOnCallFrameResult>;
+
 	public evaluate(
 		params: Cdp.Runtime.EvaluateParams,
 		options?: IEvaluateOptions,
 	): Promise<Cdp.Runtime.EvaluateResult>;
+
 	public async evaluate(
 		params:
 			| Cdp.Debugger.EvaluateOnCallFrameParams
@@ -297,6 +302,7 @@ export class Evaluator implements IEvaluator {
 					).then((r) => {
 						if (r) {
 							hoist = r.doHoist;
+
 							prepareOptions.hoist = [...r.hoistable];
 						}
 					}),
@@ -304,6 +310,7 @@ export class Evaluator implements IEvaluator {
 		} else if (stackFrame) {
 			const mapping =
 				await this.renameProvider.provideOnStackframe(stackFrame);
+
 			prepareOptions.renames = {
 				mapping,
 				position: stackFrame.rawPosition,
@@ -350,6 +357,7 @@ export class Evaluator implements IEvaluator {
 					getSourceSuffix(),
 			});
 		}
+
 		return !!r && !r.exceptionDetails;
 	}
 
@@ -391,6 +399,7 @@ export class Evaluator implements IEvaluator {
 		);
 
 		const hoistable = new Set<string>();
+
 		await Promise.all(
 			scopes.slice(0, scopeIndex).map(async (s) => {
 				const vars = await variables.getVariableNames({
@@ -468,6 +477,7 @@ export class Evaluator implements IEvaluator {
 
 				if (hoistName) {
 					hoisted.add(node.name);
+
 					mutated = true;
 
 					return {

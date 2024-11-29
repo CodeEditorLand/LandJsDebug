@@ -86,15 +86,24 @@ export interface IPossibleBreakLocation {
 @injectable()
 export class BreakpointManager {
 	_dap: Dap.Api;
+
 	_sourceContainer: SourceContainer;
+
 	_thread: Thread | undefined;
+
 	_resolvedBreakpoints = new Map<Cdp.Debugger.BreakpointId, Breakpoint>();
+
 	_totalBreakpointsCount = 0;
+
 	_scriptSourceMapHandler: ScriptWithSourceMapHandler;
+
 	private _launchBlocker: Set<Promise<unknown>> = new Set();
+
 	private _predictorDisabledForTest = false;
+
 	private _breakpointsStatisticsCalculator =
 		new BreakpointsStatisticsCalculator();
+
 	private entryBreakpointMode: EntryBreakpointMode =
 		EntryBreakpointMode.Exact;
 
@@ -160,6 +169,7 @@ export class BreakpointManager {
 		public readonly _breakpointsPredictor?: IBreakpointsPredictor,
 	) {
 		this._dap = dap;
+
 		this._sourceContainer = sourceContainer;
 
 		_breakpointsPredictor?.onLongParse(() => dap.longPrediction({}));
@@ -217,6 +227,7 @@ export class BreakpointManager {
 							),
 						);
 					}
+
 					const byRef = this._byRef.get(source.sourceReference);
 
 					for (const breakpoint of byRef || []) {
@@ -282,6 +293,7 @@ export class BreakpointManager {
 				}
 
 				const base1 = gen.position.base1;
+
 				bp.updateSourceLocation(
 					thread,
 					{
@@ -306,7 +318,9 @@ export class BreakpointManager {
 
 		if (byPath && toPath) {
 			const [remaining, moved] = await tryUpdateLocations(byPath);
+
 			this._byPath.set(fromPath, remaining);
+
 			this._byPath.set(toPath, moved);
 		}
 
@@ -314,7 +328,9 @@ export class BreakpointManager {
 
 		if (byRef) {
 			const [remaining, moved] = await tryUpdateLocations(byRef);
+
 			this._byRef.set(fromSource.sourceReference, remaining);
+
 			this._byRef.set(toSource.sourceReference, moved);
 		}
 	}
@@ -333,8 +349,11 @@ export class BreakpointManager {
 		}
 
 		const previous = [...this.moduleEntryBreakpoints.values()];
+
 		this.moduleEntryBreakpoints.clear();
+
 		this.entryBreakpointMode = mode;
+
 		await Promise.all(
 			previous.map((p) =>
 				this.ensureModuleEntryBreakpoint(thread, p.source),
@@ -438,6 +457,7 @@ export class BreakpointManager {
 			}
 
 			const { scriptId } = lsrc.scripts[lsrc.scripts.length - 1];
+
 			todo.push(
 				thread
 					.cdp()
@@ -486,6 +506,7 @@ export class BreakpointManager {
 					}),
 			);
 		}
+
 		await Promise.all(todo);
 
 		return result;
@@ -496,6 +517,7 @@ export class BreakpointManager {
 	 */
 	public setThread(thread: Thread) {
 		this._thread = thread;
+
 		this._thread.cdp().Debugger.on("breakpointResolved", (event) => {
 			const breakpoint = this._resolvedBreakpoints.get(
 				event.breakpointId,
@@ -522,11 +544,13 @@ export class BreakpointManager {
 					if (isSourceWithMap(source)) sources.push(source);
 				}
 			}
+
 			return sources;
 		});
 
 		for (const breakpoints of this._byPath.values()) {
 			breakpoints.forEach((b) => this._setBreakpoint(b, thread));
+
 			this.ensureModuleEntryBreakpoint(thread, breakpoints[0]?.source);
 		}
 
@@ -579,6 +603,7 @@ export class BreakpointManager {
 	private addLaunchBlocker(...promises: ReadonlyArray<Promise<unknown>>) {
 		for (const promise of promises) {
 			this._launchBlocker.add(promise);
+
 			promise.finally(() => this._launchBlocker.delete(promise));
 		}
 	}
@@ -619,11 +644,13 @@ export class BreakpointManager {
 				this._scriptSourceMapHandler,
 			);
 		}
+
 		this._sourceMapHandlerInstalled = { entryBpSet };
 	}
 
 	private async _uninstallSourceMapHandler(thread: Thread) {
 		thread.setScriptSourceMapHandler(false);
+
 		this._sourceMapHandlerInstalled = undefined;
 	}
 
@@ -650,6 +677,7 @@ export class BreakpointManager {
 		}
 
 		const wasEntryBpSet = await this._sourceMapHandlerInstalled?.entryBpSet;
+
 		params.source.path = urlUtils.platformPathToPreferredCase(
 			params.source.path,
 		);
@@ -666,7 +694,9 @@ export class BreakpointManager {
 		if (!wasEntryBpSet && this._breakpointsPredictor && !containedSource) {
 			const promise =
 				this._breakpointsPredictor.predictBreakpoints(params);
+
 			this.addLaunchBlocker(promise);
+
 			await promise;
 		}
 
@@ -674,7 +704,9 @@ export class BreakpointManager {
 
 		if (thread?.debuggerReady.hasSettled() === false) {
 			const promise = thread.debuggerReady.promise;
+
 			this.addLaunchBlocker(promise);
+
 			await promise;
 		}
 
@@ -712,6 +744,7 @@ export class BreakpointManager {
 					}
 
 					this._dap.output({ category: "stderr", output: e.message });
+
 					created = new NeverResolvedBreakpoint(
 						this,
 						ids[index],
@@ -728,10 +761,13 @@ export class BreakpointManager {
 
 				if (existing?.equivalentTo?.(created)) {
 					result.list.push(existing);
+
 					result.unbound.splice(existingIndex, 1);
 				} else {
 					result.new.push(created);
+
 					result.list.push(created);
+
 					this._byDapId.set(created.dapId, created);
 				}
 			}
@@ -766,6 +802,7 @@ export class BreakpointManager {
 
 		// Cleanup existing breakpoints before setting new ones.
 		this._totalBreakpointsCount -= result.unbound.length;
+
 		await Promise.all(
 			result.unbound.map((b) => {
 				this._byDapId.delete(b.dapId);
@@ -808,12 +845,14 @@ export class BreakpointManager {
 			this.addLaunchBlocker(
 				Promise.race([delay(breakpointSetTimeout), promise]),
 			);
+
 			await promise;
 		}
 
 		const dapBreakpoints = await Promise.all(
 			result.list.map((b) => b.toDap()),
 		);
+
 		this._breakpointsStatisticsCalculator.registerBreakpoints(
 			dapBreakpoints,
 		);
@@ -843,6 +882,7 @@ export class BreakpointManager {
 			this._breakpointsStatisticsCalculator.registerResolvedBreakpoint(
 				breakpoint.dapId,
 			);
+
 			this.suggester.notifyVerifiedBreakpoint();
 		}
 
@@ -943,6 +983,7 @@ export class BreakpointManager {
 					) {
 						breakpoint.disable();
 					}
+
 					votesForContinue++;
 
 					return;
@@ -1010,7 +1051,9 @@ export class BreakpointManager {
 		}
 
 		const bp = new EntryBreakpoint(this, source, this.entryBreakpointMode);
+
 		this.moduleEntryBreakpoints.set(source.path, bp);
+
 		this._setBreakpoint(bp, thread);
 	}
 
@@ -1029,10 +1072,12 @@ export class BreakpointManager {
 	 */
 	public async reapply() {
 		const all = [...this._byDapId.values()];
+
 		await Promise.all(all.map((a) => a.disable()));
 
 		if (this._thread) {
 			const thread = this._thread;
+
 			await Promise.all(all.map((a) => a.enable(thread)));
 		}
 	}

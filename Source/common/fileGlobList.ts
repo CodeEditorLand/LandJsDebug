@@ -10,7 +10,9 @@ import { forceForwardSlashes } from "./pathUtils";
 
 export interface IExplodedGlob {
 	cwd: string;
+
 	negations: string[];
+
 	pattern: string;
 }
 
@@ -26,6 +28,7 @@ export class FileGlobList {
 	 */
 	private readonly patterns: ReadonlyArray<{
 		pattern: string;
+
 		negated: boolean;
 	}>;
 
@@ -41,13 +44,16 @@ export class FileGlobList {
 		patterns,
 	}: {
 		rootPath?: string;
+
 		patterns?: ReadonlyArray<string>;
 	}) {
 		if (!rootPath || !patterns) {
 			this.rootPath = "";
+
 			this.patterns = [];
 		} else {
 			this.rootPath = rootPath;
+
 			this.patterns = patterns.map((p) => {
 				const negated = p.startsWith("!");
 

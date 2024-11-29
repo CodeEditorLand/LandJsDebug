@@ -339,6 +339,7 @@ declare module "vscode" {
 		 */
 		translate(change: {
 			lineDelta?: number;
+
 			characterDelta?: number;
 		}): Position;
 
@@ -1213,6 +1214,7 @@ declare module "vscode" {
 			callback: (editBuilder: TextEditorEdit) => void,
 			options?: {
 				readonly undoStopBefore: boolean;
+
 				readonly undoStopAfter: boolean;
 			},
 		): Thenable<boolean>;
@@ -1237,6 +1239,7 @@ declare module "vscode" {
 				| readonly Range[],
 			options?: {
 				readonly undoStopBefore: boolean;
+
 				readonly undoStopAfter: boolean;
 			},
 		): Thenable<boolean>;
@@ -1414,9 +1417,13 @@ declare module "vscode" {
 		 */
 		static from(components: {
 			readonly scheme: string;
+
 			readonly authority?: string;
+
 			readonly path?: string;
+
 			readonly query?: string;
+
 			readonly fragment?: string;
 		}): Uri;
 
@@ -1496,9 +1503,13 @@ declare module "vscode" {
 		 */
 		with(change: {
 			scheme?: string;
+
 			authority?: string;
+
 			path?: string;
+
 			query?: string;
+
 			fragment?: string;
 		}): Uri;
 
@@ -3870,6 +3881,7 @@ declare module "vscode" {
 			uri: Uri,
 			options?: {
 				readonly overwrite?: boolean;
+
 				readonly ignoreIfExists?: boolean;
 
 				/**
@@ -3893,6 +3905,7 @@ declare module "vscode" {
 			uri: Uri,
 			options?: {
 				readonly recursive?: boolean;
+
 				readonly ignoreIfNotExists?: boolean;
 			},
 			metadata?: WorkspaceEditEntryMetadata,
@@ -3912,6 +3925,7 @@ declare module "vscode" {
 			newUri: Uri,
 			options?: {
 				readonly overwrite?: boolean;
+
 				readonly ignoreIfExists?: boolean;
 			},
 			metadata?: WorkspaceEditEntryMetadata,
@@ -6118,8 +6132,11 @@ declare module "vscode" {
 			 */
 			docComment?: {
 				scope: string;
+
 				open: string;
+
 				lineStart: string;
+
 				close?: string;
 			};
 		};
@@ -6132,7 +6149,9 @@ declare module "vscode" {
 		__characterPairSupport?: {
 			autoClosingPairs: {
 				open: string;
+
 				close: string;
+
 				notIn?: string[];
 			}[];
 		};
@@ -6266,13 +6285,19 @@ declare module "vscode" {
 					key: string;
 
 					defaultValue?: T;
+
 					globalValue?: T;
+
 					workspaceValue?: T;
+
 					workspaceFolderValue?: T;
 
 					defaultLanguageValue?: T;
+
 					globalLanguageValue?: T;
+
 					workspaceLanguageValue?: T;
+
 					workspaceFolderLanguageValue?: T;
 
 					languageIds?: string[];
@@ -8635,6 +8660,7 @@ declare module "vscode" {
 			uri: Uri,
 			options: {
 				readonly recursive: boolean;
+
 				readonly excludes: readonly string[];
 			},
 		): Disposable;
@@ -10629,6 +10655,7 @@ declare module "vscode" {
 				| ViewColumn
 				| {
 						readonly viewColumn: ViewColumn;
+
 						readonly preserveFocus?: boolean;
 				  },
 			options?: WebviewPanelOptions & WebviewOptions,
@@ -11344,7 +11371,9 @@ declare module "vscode" {
 			element: T,
 			options?: {
 				select?: boolean;
+
 				focus?: boolean;
+
 				expand?: boolean | number;
 			},
 		): Thenable<void>;
@@ -11508,7 +11537,9 @@ declare module "vscode" {
 			| TreeItemCheckboxState
 			| {
 					readonly state: TreeItemCheckboxState;
+
 					readonly tooltip?: string;
+
 					readonly accessibilityInformation?: AccessibilityInformation;
 			  };
 
@@ -12734,6 +12765,7 @@ declare module "vscode" {
 		 */
 		readonly files: ReadonlyArray<{
 			readonly oldUri: Uri;
+
 			readonly newUri: Uri;
 		}>;
 
@@ -12776,6 +12808,7 @@ declare module "vscode" {
 		 */
 		readonly files: ReadonlyArray<{
 			readonly oldUri: Uri;
+
 			readonly newUri: Uri;
 		}>;
 	}
@@ -12995,6 +13028,7 @@ declare module "vscode" {
 			deleteCount: number | undefined | null,
 			...workspaceFoldersToAdd: {
 				readonly uri: Uri;
+
 				readonly name?: string;
 			}[]
 		): boolean;
@@ -13229,6 +13263,7 @@ declare module "vscode" {
 		 */
 		export function openTextDocument(options?: {
 			language?: string;
+
 			content?: string;
 		}): Thenable<TextDocument>;
 
@@ -13515,6 +13550,7 @@ declare module "vscode" {
 			provider: FileSystemProvider,
 			options?: {
 				readonly isCaseSensitive?: boolean;
+
 				readonly isReadonly?: boolean;
 			},
 		): Disposable;
@@ -14322,6 +14358,7 @@ declare module "vscode" {
 		 */
 		readonly onDidReceiveMessage: Event<{
 			readonly editor: NotebookEditor;
+
 			readonly message: any;
 		}>;
 
@@ -14635,6 +14672,7 @@ declare module "vscode" {
 		 */
 		readonly timing?: {
 			readonly startTime: number;
+
 			readonly endTime: number;
 		};
 	}
@@ -15067,6 +15105,7 @@ declare module "vscode" {
 		 */
 		readonly onDidChangeSelectedNotebooks: Event<{
 			readonly notebook: NotebookDocument;
+
 			readonly selected: boolean;
 		}>;
 
@@ -18190,6 +18229,7 @@ interface Thenable<T> {
 		onfulfilled?: (value: T) => TResult | Thenable<TResult>,
 		onrejected?: (reason: any) => TResult | Thenable<TResult>,
 	): Thenable<TResult>;
+
 	then<TResult>(
 		onfulfilled?: (value: T) => TResult | Thenable<TResult>,
 		onrejected?: (reason: any) => void,

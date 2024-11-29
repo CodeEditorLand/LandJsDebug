@@ -32,8 +32,11 @@ import {
 
 export interface IOptions extends ISourcePathResolverOptions {
 	baseUrl?: string;
+
 	pathMapping: PathMapping;
+
 	clientID: string | undefined;
+
 	remoteFilePrefix: string | undefined;
 }
 
@@ -58,6 +61,7 @@ export class BrowserSourcePathResolver extends SourcePathResolverBase<IOptions> 
 	/** @override */
 	private absolutePathToUrlPath(absolutePath: string): {
 		url: string;
+
 		needsWildcard: boolean;
 	} {
 		absolutePath = path.normalize(absolutePath);
@@ -145,11 +149,13 @@ export class BrowserSourcePathResolver extends SourcePathResolverBase<IOptions> 
 		// to a location on disk.
 		if (utils.isFileUrl(url)) {
 			const abs = utils.fileUrlToAbsolutePath(url);
+
 			if (await this.fsUtils.exists(abs)) {
 				return abs;
 			}
 
 			const net = utils.fileUrlToNetworkPath(url);
+
 			if (await this.fsUtils.exists(net)) {
 				return net;
 			}
@@ -161,6 +167,7 @@ export class BrowserSourcePathResolver extends SourcePathResolverBase<IOptions> 
 
 		try {
 			const parsed = new URL(url);
+
 			if (!parsed.pathname || parsed.pathname === "/") {
 				pathname = "index.html";
 			} else {
@@ -182,11 +189,13 @@ export class BrowserSourcePathResolver extends SourcePathResolverBase<IOptions> 
 
 		while (pathParts.length > 0) {
 			const joinedPath = "/" + pathParts.join("/");
+
 			const clientPath = await defaultPathMappingResolver(
 				joinedPath,
 				this.options.pathMapping,
 				this.logger,
 			);
+
 			if (clientPath) {
 				if (
 					!extname &&
@@ -194,6 +203,7 @@ export class BrowserSourcePathResolver extends SourcePathResolverBase<IOptions> 
 				) {
 					return clientPath + Suffix.Html;
 				}
+
 				if (await this.fsUtils.exists(clientPath)) {
 					return clientPath;
 				}
@@ -211,13 +221,16 @@ export class BrowserSourcePathResolver extends SourcePathResolverBase<IOptions> 
 		switch (this.vueMapper.getVueHandling(url)) {
 			case VueHandling.Omit:
 				return undefined;
+
 			case VueHandling.Lookup:
 				const vuePath = await this.vueMapper.lookup(url);
 
 				if (vuePath) {
 					return fixDriveLetterAndSlashes(vuePath);
 				}
+
 				break;
+
 			default:
 			// fall through
 		}
@@ -242,6 +255,7 @@ export class BrowserSourcePathResolver extends SourcePathResolverBase<IOptions> 
 				"ClientApp",
 				properRelative(pathMapping["/"], mappedFullSourceEntry),
 			);
+
 			if (
 				this.options.clientID === "visualstudio" &&
 				fullSourceEntry.startsWith("webpack:///") &&
@@ -288,9 +302,11 @@ export class BrowserSourcePathResolver extends SourcePathResolverBase<IOptions> 
 
 		if (url.endsWith(Suffix.Index)) {
 			endRegexEscape = url.length - Suffix.Index.length - 1;
+
 			url = url.slice(0, endRegexEscape) + `\\/?($|index(\\.html)?)`;
 		} else if (url.endsWith(Suffix.Html)) {
 			endRegexEscape = url.length - Suffix.Html.length;
+
 			url = url.slice(0, endRegexEscape) + `(\\.html)?`;
 		}
 
@@ -299,7 +315,9 @@ export class BrowserSourcePathResolver extends SourcePathResolverBase<IOptions> 
 
 		if (transform.needsWildcard) {
 			url = wildcardHostname + url;
+
 			startRegexEscape = wildcardHostname.length;
+
 			endRegexEscape += wildcardHostname.length;
 		}
 

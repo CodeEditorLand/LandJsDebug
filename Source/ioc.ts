@@ -196,23 +196,35 @@ export const createTargetContainer = (
 	cdp: Cdp.Api,
 ) => {
 	const container = new Container();
+
 	container.parent = parent;
+
 	container.bind(AnyLaunchConfiguration).toConstantValue(target.launchConfig);
+
 	container.bind(IContainer).toConstantValue(container);
+
 	container.bind(IDapApi).toConstantValue(dap);
+
 	container.bind(ICdpApi).toConstantValue(cdp);
+
 	container.bind(ITarget).toConstantValue(target);
+
 	container.bind(ITargetOrigin).toConstantValue(target.targetOrigin());
+
 	container
 		.bind(IResourceProvider)
 		.to(StatefulResourceProvider)
 		.inSingletonScope();
+
 	container.bind(IClientCapabilies).to(ClientCapabilities).inSingletonScope();
+
 	container.bind(ISourceMapFactory).to(SourceMapFactory).inSingletonScope();
+
 	container
 		.bind(IBreakpointConditionFactory)
 		.to(BreakpointConditionFactory)
 		.inSingletonScope();
+
 	container.bind(LogPointCompiler).toSelf().inSingletonScope();
 
 	if (target.sourcePathResolver) {
@@ -222,6 +234,7 @@ export const createTargetContainer = (
 	}
 
 	container.bind(PerformanceProviderFactory).toSelf();
+
 	container
 		.bind(IPerformanceProvider)
 		.toDynamicValue((ctx) =>
@@ -235,6 +248,7 @@ export const createTargetContainer = (
 			.bind(IBreakpointsPredictor)
 			.to(BreakpointsPredictor)
 			.inSingletonScope();
+
 		container
 			.bind(BreakpointSearch)
 			.to(TargetedBreakpointSearch)
@@ -252,22 +266,31 @@ export const createTargetContainer = (
 		.onActivation(trackDispose);
 
 	container.bind(BreakpointManager).toSelf().inSingletonScope();
+
 	container.bind(SourceContainer).toSelf().inSingletonScope();
+
 	container.bind(Diagnostics).toSelf().inSingletonScope();
 
 	container.bind(IScriptSkipper).to(ScriptSkipper).inSingletonScope();
+
 	container.bind(SmartStepper).toSelf().inSingletonScope();
+
 	container
 		.bind(IExceptionPauseService)
 		.to(ExceptionPauseService)
 		.inSingletonScope();
+
 	container.bind(ICompletions).to(Completions).inSingletonScope();
+
 	container.bind(IEvaluator).to(Evaluator).inSingletonScope();
+
 	container.bind(IConsole).to(Console).inSingletonScope();
+
 	container
 		.bind(IShutdownParticipants)
 		.to(ShutdownParticipants)
 		.inSingletonScope();
+
 	container
 		.bind(IWasmSymbolProvider)
 		.to(WasmSymbolProvider)
@@ -275,9 +298,13 @@ export const createTargetContainer = (
 		.onActivation(trackDispose);
 
 	container.bind(BasicCpuProfiler).toSelf();
+
 	container.bind(BasicHeapProfiler).toSelf();
+
 	container.bind(HeapDumpProfiler).toSelf();
+
 	container.bind(IProfilerFactory).to(ProfilerFactory).inSingletonScope();
+
 	container.bind(IProfileController).to(ProfileController).inSingletonScope();
 
 	container
@@ -299,7 +326,9 @@ export interface IRootOptions {
  */
 export const createTopLevelSessionContainer = (parent: Container) => {
 	const container = new Container();
+
 	container.parent = parent;
+
 	container.bind(IContainer).toConstantValue(container);
 
 	// Core services:
@@ -308,10 +337,12 @@ export const createTopLevelSessionContainer = (parent: Container) => {
 		.to(Logger)
 		.inSingletonScope()
 		.onActivation(trackDispose);
+
 	container
 		.bind(IResourceProvider)
 		.to(StatefulResourceProvider)
 		.inSingletonScope();
+
 	container
 		.bind(ITelemetryReporter)
 		.to(
@@ -323,11 +354,15 @@ export const createTopLevelSessionContainer = (parent: Container) => {
 		.onActivation(trackDispose);
 
 	container.bind(OutFiles).to(OutFiles).inSingletonScope();
+
 	container.bind(VueComponentPaths).to(VueComponentPaths).inSingletonScope();
+
 	container.bind(IVueFileMapper).to(VueFileMapper).inSingletonScope();
+
 	container.bind(ISearchStrategy).to(TurboSearchStrategy).inSingletonScope();
 
 	container.bind(INodeBinaryProvider).to(InteractiveNodeBinaryProvider);
+
 	container
 		.bind(RemoteBrowserHelper)
 		.toSelf()
@@ -336,21 +371,28 @@ export const createTopLevelSessionContainer = (parent: Container) => {
 
 	// Launcher logic:
 	container.bind(RestartPolicyFactory).toSelf();
+
 	container
 		.bind(ILauncher)
 		.to(VSCodeRendererAttacher)
 		.onActivation(trackDispose);
+
 	container
 		.bind(ILauncher)
 		.to(ExtensionHostAttacher)
 		.onActivation(trackDispose);
+
 	container
 		.bind(ILauncher)
 		.to(ExtensionHostLauncher)
 		.onActivation(trackDispose);
+
 	container.bind(ILauncher).to(NodeLauncher).onActivation(trackDispose);
+
 	container.bind(IProgramLauncher).to(SubprocessProgramLauncher);
+
 	container.bind(IProgramLauncher).to(TerminalProgramLauncher);
+
 	container
 		.bind(IPackageJsonProvider)
 		.to(PackageJsonProvider)
@@ -365,22 +407,27 @@ export const createTopLevelSessionContainer = (parent: Container) => {
 		.toSelf()
 		.inSingletonScope()
 		.onActivation(trackDispose);
+
 	container.bind(ILauncher).toService(ChromeLauncher);
+
 	container
 		.bind(ILauncher)
 		.to(EdgeLauncher)
 		.inSingletonScope()
 		.onActivation(trackDispose);
+
 	container
 		.bind(ILauncher)
 		.to(RemoteBrowserLauncher)
 		.inSingletonScope()
 		.onActivation(trackDispose);
+
 	container
 		.bind(ILauncher)
 		.to(RemoteBrowserAttacher)
 		.inSingletonScope()
 		.onActivation(trackDispose);
+
 	container
 		.bind(ILauncher)
 		.to(UWPWebviewBrowserAttacher)
@@ -388,6 +435,7 @@ export const createTopLevelSessionContainer = (parent: Container) => {
 		.onActivation(trackDispose);
 
 	container.bind(ILauncher).to(BrowserAttacher).onActivation(trackDispose);
+
 	container
 		.bind(ILauncher)
 		.toDynamicValue(() =>
@@ -403,6 +451,7 @@ export const createTopLevelSessionContainer = (parent: Container) => {
 			.to(DwarfModuleProvider)
 			.inSingletonScope();
 	}
+
 	container
 		.bind(IWasmWorkerFactory)
 		.to(WasmWorkerFactory)
@@ -422,6 +471,7 @@ export const createTopLevelSessionContainer = (parent: Container) => {
 		.toDynamicValue(browserFinderFactory(ChromeBrowserFinder))
 		.inSingletonScope()
 		.whenTargetTagged("browser", "chrome");
+
 	container
 		.bind(BrowserFinder)
 		.toDynamicValue(browserFinderFactory(EdgeBrowserFinder))
@@ -433,33 +483,49 @@ export const createTopLevelSessionContainer = (parent: Container) => {
 
 export const createGlobalContainer = (options: {
 	storagePath: string;
+
 	isVsCode: boolean;
+
 	isRemote?: boolean;
+
 	context?: vscode.ExtensionContext;
 }) => {
 	const container = new Container();
+
 	container.bind(IContainer).toConstantValue(container);
 
 	container.bind(DelegateLauncherFactory).toSelf().inSingletonScope();
+
 	container.bind(NodeOnlyPathResolverFactory).toSelf().inSingletonScope();
 
 	container
 		.bind(IExperimentationService)
 		.to(NullExperimentationService)
 		.inSingletonScope();
+
 	container.bind(SessionSubStates).toConstantValue(new ObservableMap());
+
 	container
 		.bind(IDefaultBrowserProvider)
 		.to(DefaultBrowserProvider)
 		.inSingletonScope();
+
 	container.bind(StoragePath).toConstantValue(options.storagePath);
+
 	container.bind(IsVSCode).toConstantValue(options.isVsCode);
+
 	container.bind(INvmResolver).to(NvmResolver);
+
 	container.bind(IPortLeaseTracker).to(PortLeaseTracker).inSingletonScope();
+
 	container.bind(ProcessEnv).toConstantValue(process.env);
+
 	container.bind(Execa).toConstantValue(execa);
+
 	container.bind(FS).toConstantValue(fsPromises);
+
 	container.bind(IFsUtils).toConstantValue(new LocalFsUtils(fsPromises));
+
 	container
 		.bind<ExtensionLocation>(ExtensionLocation)
 		.toConstantValue(options.isRemote ? "remote" : "local");
@@ -481,11 +547,14 @@ export const provideLaunchParams = (
 	container
 		.bind(MutableLaunchConfig)
 		.toConstantValue(createMutableLaunchConfig(params));
+
 	container.bind(AnyLaunchConfiguration).toService(MutableLaunchConfig);
+
 	container
 		.bind(ISourcePathResolverFactory)
 		.to(SourcePathResolverFactory)
 		.inSingletonScope();
+
 	container.bind(IRootDapApi).toConstantValue(dap);
 
 	container
@@ -513,20 +582,25 @@ export const provideLaunchParams = (
 		.to(CachingSourceMapFactory)
 		.inSingletonScope()
 		.onActivation(trackDispose);
+
 	container.bind(IRenameProvider).to(RenameProvider).inSingletonScope();
+
 	container
 		.bind(DiagnosticToolSuggester)
 		.toSelf()
 		.inSingletonScope()
 		.onActivation(trackDispose);
+
 	container.bind(ISourceMapFactory).to(SourceMapFactory).inSingletonScope();
 
 	// BP predictor:
 	container.bind(BreakpointPredictorCachedState).toSelf().inSingletonScope();
+
 	container
 		.bind(IBreakpointsPredictor)
 		.to(BreakpointsPredictor)
 		.inSingletonScope();
+
 	container
 		.bind(BreakpointSearch)
 		.to(GlobalBreakpointSearch)

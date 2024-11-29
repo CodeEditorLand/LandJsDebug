@@ -12,6 +12,7 @@ import { BrowserSourcePathResolver, IOptions } from "./browserPathResolver";
 
 export class BlazorSourcePathResolver extends BrowserSourcePathResolver {
 	private readonly blazorInCodespacesRegexp: RegExp;
+
 	private readonly blazorInCodespacesRegexpSubstitution = "$1:\\$2";
 
 	constructor(
@@ -29,6 +30,7 @@ export class BlazorSourcePathResolver extends BrowserSourcePathResolver {
 				new RegExp(sep, "g"),
 				sep,
 			);
+
 			this.blazorInCodespacesRegexp = new RegExp(
 				`^${escapedPrefix}${sep}([A-z])\\$${sep}(.*)$`,
 				// Sample value: /^C:\\Users\\digeff\\AppData\\Local\\Temp\\4169355D62D44D791D2A7534DE8994AB4B9E\\9\\~~\\([A-z])\$\\(.*)$/

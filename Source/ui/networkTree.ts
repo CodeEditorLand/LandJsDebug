@@ -35,11 +35,15 @@ export class NetworkTree
 	implements IExtensionContribution, vscode.TreeDataProvider<NetworkNode>
 {
 	private readonly disposables = new DisposableList();
+
 	private readonly activeListeners = new DisposableList();
+
 	private readonly treeDataChangeEmitter = new vscode.EventEmitter<
 		void | NetworkNode | NetworkNode[] | null | undefined
 	>();
+
 	private readonly models = new Map<string, NetworkModel>();
+
 	private current: NetworkModel | undefined;
 
 	constructor(
@@ -92,6 +96,7 @@ export class NetworkTree
 					const doc = await vscode.workspace.openTextDocument(
 						request.fsUri,
 					);
+
 					await vscode.window.showTextDocument(doc);
 				},
 			),
@@ -111,6 +116,7 @@ export class NetworkTree
 					const doc = await vscode.workspace.openTextDocument(
 						request.fsBodyUri,
 					);
+
 					await vscode.window.showTextDocument(doc);
 				},
 			),
@@ -139,6 +145,7 @@ export class NetworkTree
 				for (const model of this.models.values()) {
 					model.clear();
 				}
+
 				this.treeDataChangeEmitter.fire();
 			}),
 		);
@@ -215,6 +222,7 @@ export class NetworkTree
 			ContextKey.NetworkAvailable,
 			hasRequests,
 		);
+
 		this.treeDataChangeEmitter.fire(undefined);
 	}
 }
@@ -347,8 +355,10 @@ class NetworkModel {
 
 	private readonly didChangeEmitter = new vscode.EventEmitter<{
 		request: NetworkRequest;
+
 		isNew: boolean;
 	}>();
+
 	public readonly onDidChange = this.didChangeEmitter.event;
 
 	constructor(private readonly session: vscode.DebugSession) {}
@@ -372,7 +382,9 @@ class NetworkModel {
 	public append([key, event]: KeyValue<IMirroredNetworkEvents>) {
 		if (key === "requestWillBeSent") {
 			const request = new NetworkRequest(event, this.session);
+
 			this.requests.set(event.requestId, request);
+
 			this.didChangeEmitter.fire({ request, isNew: true });
 		} else if (
 			key === "responseReceived" ||
@@ -395,7 +407,9 @@ class NetworkModel {
 			} else if (key === "responseReceivedExtraInfo") {
 				request.responseExtra = event;
 			}
+
 			request.mtime = Date.now();
+
 			this.didChangeEmitter.fire({ request, isNew: false });
 		} else {
 			assertNever(key, "unexpected network event");
@@ -405,10 +419,15 @@ class NetworkModel {
 
 export class NetworkRequest {
 	public readonly ctime = Date.now();
+
 	public mtime = Date.now();
+
 	public response?: Cdp.Network.Response;
+
 	public responseExtra?: Cdp.Network.ResponseReceivedExtraInfoEvent;
+
 	public failed?: Cdp.Network.LoadingFailedEvent;
+
 	public finished?: Cdp.Network.LoadingFinishedEvent;
 
 	public get isComplete() {
@@ -475,7 +494,9 @@ export class NetworkRequest {
 
 		try {
 			const url = new URL(this.init.request.url);
+
 			host = url.host;
+
 			path = url.pathname;
 		} catch {
 			path = this.init.request.url;
@@ -487,10 +508,15 @@ export class NetworkRequest {
 			label,
 			vscode.TreeItemCollapsibleState.Collapsed,
 		);
+
 		treeItem.iconPath = icon;
+
 		treeItem.description = host;
+
 		treeItem.tooltip = this.init.request.url;
+
 		treeItem.id = this.init.requestId;
+
 		treeItem.collapsibleState = vscode.TreeItemCollapsibleState.None;
 
 		return treeItem;
@@ -505,6 +531,7 @@ export class NetworkRequest {
 		}
 
 		const parts = [command];
+
 		parts.push(
 			`< HTTP ${this.responseExtra?.statusCode || this.response.status || "UNKOWN"}`,
 		);
@@ -514,6 +541,7 @@ export class NetworkRequest {
 		)) {
 			parts.push(`< ${header[0]}: ${header[1]}`);
 		}
+
 		parts.push("<");
 
 		if (this.failed) {
@@ -541,6 +569,7 @@ export class NetworkRequest {
 
 			try {
 				const parsed = JSON.parse(str);
+
 				parts.push(JSON.stringify(parsed, null, 2));
 			} catch {
 				parts.push(str);
@@ -570,6 +599,7 @@ export class NetworkRequest {
 				.join("");
 
 			const bytes = Buffer.from(parts, "base64");
+
 			args.push(
 				isUtf8(bytes)
 					? `-d '${bytes.toString()}'`
@@ -598,11 +628,14 @@ export class NetworkRequest {
 						"Response body inspection is not supported in Node.js yet.",
 					);
 				}
+
 				return undefined;
 			}
+
 			if (res.base64Encoded) {
 				return Buffer.from(res.body, "base64");
 			}
+
 			return Buffer.from(res.body);
 		} catch {
 			return undefined;

@@ -128,6 +128,7 @@ export class StatefulResourceProvider
 				: chunkRes.data;
 			// V8 uses byte length, not UTF-16 length, see #1814
 			offset += Buffer.byteLength(chunk, "utf-8");
+
 			result.push(chunk);
 
 			if (offset >= maxOffset) {

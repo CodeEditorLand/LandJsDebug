@@ -24,23 +24,35 @@ import { SourceContainer } from "./sourceContainer";
 
 export interface IDiagnosticSource {
 	uniqueId: number;
+
 	url: string;
+
 	sourceReference: number;
+
 	absolutePath: string;
+
 	actualAbsolutePath: string | undefined;
+
 	scriptIds: string[];
+
 	prettyName: string;
+
 	compiledSourceRefToUrl?: [number, string][];
+
 	sourceMap?: {
 		url: string;
+
 		metadata: ISourceMapMetadata;
+
 		sources: { [url: string]: number };
 	};
 }
 
 export interface IDiagnosticUiLocation {
 	lineNumber: number;
+
 	columnNumber: number;
+
 	sourceReference: number;
 }
 
@@ -52,7 +64,9 @@ export type DiagnosticBreakpointArgs =
 
 export interface IDiagnosticBreakpoint {
 	source: Dap.Source;
+
 	params: Dap.SourceBreakpoint;
+
 	cdp: DiagnosticBreakpointArgs[];
 }
 
@@ -60,6 +74,7 @@ export interface IDiagnosticDump {
 	sources: IDiagnosticSource[];
 
 	breakpoints: IDiagnosticBreakpoint[];
+
 	config: AnyLaunchConfiguration;
 }
 
@@ -123,6 +138,7 @@ export class Diagnostics {
 			for (const breakpoints of list.values()) {
 				for (const breakpoint of breakpoints) {
 					const dump = breakpoint.diagnosticDump();
+
 					output.push({
 						source: dump.source,
 						params: dump.params,

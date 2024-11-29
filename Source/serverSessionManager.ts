@@ -26,6 +26,7 @@ import {
 
 interface IDebugServerCreateResult {
 	server: net.Server;
+
 	connectionPromise: Promise<DapConnection>;
 }
 
@@ -34,8 +35,11 @@ interface IDebugServerCreateResult {
  */
 export class ServerSessionManager<T extends IDebugSessionLike> {
 	private readonly sessionManager: SessionManager<T>;
+
 	private readonly portLeaseTracker: IPortLeaseTracker;
+
 	private disposables: IDisposable[] = [];
+
 	private servers = new Map<string, net.Server>();
 
 	constructor(
@@ -47,7 +51,9 @@ export class ServerSessionManager<T extends IDebugSessionLike> {
 			globalContainer,
 			sessionLauncher,
 		);
+
 		this.portLeaseTracker = globalContainer.get(IPortLeaseTracker);
+
 		this.disposables.push(this.sessionManager);
 	}
 
@@ -139,6 +145,7 @@ export class ServerSessionManager<T extends IDebugSessionLike> {
 			const transport = new StreamDapTransport(socket, socket);
 
 			const session = sessionCreationFunc(transport);
+
 			deferredConnection.resolve(session.connection);
 		};
 
@@ -172,7 +179,9 @@ export class ServerSessionManager<T extends IDebugSessionLike> {
 	 */
 	public terminate(debugSession: T) {
 		this.sessionManager.terminate(debugSession);
+
 		this.servers.get(debugSession.id)?.close();
+
 		this.servers.delete(debugSession.id);
 	}
 

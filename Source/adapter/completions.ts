@@ -32,7 +32,9 @@ import {
  */
 export interface ICompletionContext {
 	expression: string;
+
 	executionContextId: number | undefined;
+
 	stackFrame: StackFrame | undefined;
 }
 
@@ -41,6 +43,7 @@ export interface ICompletionContext {
  */
 export interface ICompletionExpression {
 	expression: string;
+
 	position: IPosition;
 }
 
@@ -115,6 +118,7 @@ const inferCompletionInfoForDeclaration = (node: Node) => {
 
 function maybeHasSideEffects(node: Node): boolean {
 	let result = false;
+
 	traverse(node, {
 		enter(node) {
 			if (
@@ -183,6 +187,7 @@ export class Completions {
 							node.type === "MemberExpression"
 								? node
 								: (parent as MemberExpression);
+
 						candidate = memberExpression.computed
 							? () =>
 									this.elementAccessCompleter(
@@ -205,6 +210,7 @@ export class Completions {
 								offset,
 							);
 					}
+
 					parent = node;
 				}
 			},
@@ -262,6 +268,7 @@ export class Completions {
 	) {
 		// Walk through the expression and look for any locally-declared variables or identifiers.
 		const localIdentifiers: ICompletionWithSort[] = [];
+
 		traverse(source, {
 			enter(node) {
 				const completion = inferCompletionInfoForDeclaration(node);
@@ -328,13 +335,16 @@ export class Completions {
 		for (const item of result) {
 			if (!validIdentifierRe.test(item.label)) {
 				item.text = `[${JSON.stringify(item.label)}]`;
+
 				item.start = start;
+
 				item.length = 1;
 			}
 		}
 
 		if (isArray) {
 			const placeholder = "index";
+
 			result.unshift({
 				label: `[${placeholder}]`,
 				text: `[${placeholder}]`,
@@ -359,11 +369,15 @@ export class Completions {
 		throwOnSideEffect = false,
 	}: {
 		executionContextId?: number;
+
 		stackFrame?: StackFrame;
+
 		expression: string;
+
 		prefix: string;
 
 		throwOnSideEffect?: boolean;
+
 		isInGlobalScope?: boolean;
 	}): Promise<{ result: ICompletionWithSort[]; isArray: boolean }> {
 		const params = {
@@ -463,6 +477,7 @@ export class Completions {
 					}
 
 					names.add(completion.label);
+
 					items.push(completion as ICompletionWithSort);
 				}
 			}

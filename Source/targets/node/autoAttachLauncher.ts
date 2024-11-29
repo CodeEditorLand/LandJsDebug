@@ -124,7 +124,9 @@ export class AutoAttachLauncher
 			this.extensionContext.environmentVariableCollection,
 			runData,
 		);
+
 		this.program = new StubProgram();
+
 		this.program.stopped.then((data) => this.onProgramTerminated(data));
 	}
 
@@ -284,14 +286,17 @@ export class AutoAttachLauncher
 		}
 
 		const pid = Number(data.pid ?? "0");
+
 		this.telemetryItems.set(pid, data.telemetry);
 
 		const wd = await WatchDog.attach({
 			...data,
 			ipcAddress: this.run.serverAddress, // may be outdated from a previous set of vars
 		});
+
 		wd.onEnd(() => {
 			this.telemetryItems.delete(pid);
+
 			wd.dispose();
 		});
 	}

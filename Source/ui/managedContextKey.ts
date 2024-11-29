@@ -12,6 +12,7 @@ export class ManagedContextKey<T extends ContextKey> {
 	public set value(value: IContextKeyTypes[T] | undefined) {
 		if (value !== this._value) {
 			this._value = value;
+
 			vscode.commands.executeCommand("setContext", this.key, value);
 		}
 	}

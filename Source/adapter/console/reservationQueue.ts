@@ -11,7 +11,9 @@ import { EventEmitter } from "../../common/events";
  */
 export class ReservationQueue<T> implements IDisposable {
 	private q: Reservation<T>[] = [];
+
 	private disposed = false;
+
 	private onDrainedEmitter = new EventEmitter<void>();
 
 	/**
@@ -49,6 +51,7 @@ export class ReservationQueue<T> implements IDisposable {
 	 */
 	public dispose() {
 		this.disposed = true;
+
 		this.q = [];
 	}
 
@@ -59,9 +62,11 @@ export class ReservationQueue<T> implements IDisposable {
 			await this.q[0].wait;
 		} else if (toIndex === -1) {
 			this.sink(extractResolved(this.q));
+
 			this.q = [];
 		} else {
 			this.sink(extractResolved(this.q.slice(0, toIndex)));
+
 			this.q = this.q.slice(toIndex);
 		}
 
@@ -97,6 +102,7 @@ class Reservation<T> {
 	constructor(rawValue: T | Promise<T>) {
 		if (!(rawValue instanceof Promise)) {
 			this.value = rawValue;
+
 			this.wait = Promise.resolve();
 		} else {
 			this.wait = rawValue.then(

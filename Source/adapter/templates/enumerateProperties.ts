@@ -99,7 +99,9 @@ export const enumerateProperties = remoteFunction(function (
 
 			try {
 				const value = (object as any)[name];
+
 				type = getCompletionKind(name, typeof descriptor?.value, value);
+
 				detail = getDetail(value);
 			} catch {
 				// ignored -- the act of accessing some properties has side effects

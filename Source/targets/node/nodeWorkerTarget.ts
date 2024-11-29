@@ -13,7 +13,9 @@ import { NodeTarget } from "./nodeTarget";
 
 export class NodeWorkerTarget implements ITarget {
 	public readonly onNameChanged = new EventEmitter<void>().event;
+
 	private attached = false;
+
 	private isWaitingForDebugger = true;
 
 	constructor(
@@ -62,6 +64,7 @@ export class NodeWorkerTarget implements ITarget {
 	canRestart(): boolean {
 		return false;
 	}
+
 	restart(): void {
 		// no-op
 	}
@@ -78,6 +81,7 @@ export class NodeWorkerTarget implements ITarget {
 		if (!this.launchConfig.noDebug) {
 			await this.cdp.Debugger.enable({});
 		}
+
 		this.attached = true;
 
 		return this.cdp;
@@ -90,9 +94,11 @@ export class NodeWorkerTarget implements ITarget {
 	public async detach(): Promise<void> {
 		// there seems to be a bug where if we detach while paused, the worker will remain paused
 		await this.cdp.Debugger.resume({});
+
 		await this.cdp.NodeWorker.detach({
 			sessionId: this.targetInfo.targetId,
 		});
+
 		this.attached = false;
 	}
 
@@ -108,6 +114,7 @@ export class NodeWorkerTarget implements ITarget {
 
 	public async runIfWaitingForDebugger(): Promise<void> {
 		this.isWaitingForDebugger = false;
+
 		await this.cdp.Runtime.runIfWaitingForDebugger({});
 	}
 

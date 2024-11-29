@@ -41,7 +41,9 @@ import { simpleGlobsToRe } from "./simpleGlobToRe";
 
 interface ISharedSkipToggleEvent {
 	rootTargetId: string;
+
 	targetId: string;
+
 	params: Dap.ToggleSkipFileStatusParams;
 }
 
@@ -124,8 +126,11 @@ export class ScriptSkipper implements IScriptSkipper {
 	private _scriptsWithSkipping = new Set<string>();
 
 	private _sourceContainer!: SourceContainer;
+
 	private _updateSkippedDebounce: () => void;
+
 	private _targetId: string;
+
 	private _rootTargetId: string;
 
 	constructor(
@@ -136,7 +141,9 @@ export class ScriptSkipper implements IScriptSkipper {
 		@inject(ITarget) target: ITarget,
 	) {
 		this._targetId = target.id();
+
 		this._rootTargetId = getRootTarget(target).id();
+
 		this._isUrlFromSourceMapSkipped = new MapUsingProjection<
 			string,
 			boolean
@@ -146,6 +153,7 @@ export class ScriptSkipper implements IScriptSkipper {
 			sourcePathResolver,
 			skipFiles,
 		);
+
 		this._nodeInternalsGlobs = preprocessNodeInternals(skipFiles);
 
 		this._initNodeInternals(target); // Purposely don't wait, no need to slow things down
@@ -293,6 +301,7 @@ export class ScriptSkipper implements IScriptSkipper {
 							columnNumber: end.columnNumber - 1,
 						},
 					);
+
 					inSkipRange = !inSkipRange;
 				} else {
 					this.logger.error(
@@ -310,6 +319,7 @@ export class ScriptSkipper implements IScriptSkipper {
 			targets = targets.filter((t) =>
 				this._scriptsWithSkipping.has(t.scriptId),
 			);
+
 			targets.forEach((t) =>
 				this._scriptsWithSkipping.delete(t.scriptId),
 			);
@@ -348,7 +358,9 @@ export class ScriptSkipper implements IScriptSkipper {
 			)
 		) {
 			this.setIsUrlBlackboxSkipped(url, true);
+
 			skipped = true;
+
 			this._updateSkippedDebounce();
 		}
 
@@ -434,6 +446,7 @@ export class ScriptSkipper implements IScriptSkipper {
 			const compiledSources = Array.from(
 				source.compiledToSourceUrl.keys(),
 			);
+
 			await Promise.all(
 				compiledSources.map((compiledSource) =>
 					this._updateSourceWithSkippedSourceMappedSources(
@@ -454,6 +467,7 @@ export class ScriptSkipper implements IScriptSkipper {
 			}
 
 			this.setIsUrlBlackboxSkipped(source.url, newSkipValue);
+
 			await this._updateGeneratedSkippedSources();
 		}
 
@@ -474,8 +488,10 @@ export class ScriptSkipper implements IScriptSkipper {
 			this._regexForAuthored(globs).some((r) => r.test(url)) !== skipped
 		) {
 			globs.push(skipped ? positive : negative);
+
 			this._regexForAuthored.clear();
 		}
+
 		this._authoredGlobs = globs;
 	}
 
@@ -483,6 +499,7 @@ export class ScriptSkipper implements IScriptSkipper {
 		params: Dap.ToggleSkipFileStatusParams,
 	): Promise<Dap.ToggleSkipFileStatusResult> {
 		const result = await this._toggleSkippingFile(params);
+
 		ScriptSkipper.sharedSkipsEmitter.fire({
 			params,
 			rootTargetId: this._rootTargetId,

@@ -21,7 +21,9 @@ import { retryGetBrowserEndpoint } from "./endpoints";
 
 interface ITransportOptions {
 	connection: "pipe" | number;
+
 	inspectUri?: string;
+
 	url?: string | null;
 }
 
@@ -100,7 +102,9 @@ const inspectWsConnection = async (
 
 export class NonTrackedBrowserProcess implements IBrowserProcess {
 	public readonly pid = undefined;
+
 	public readonly onExit = new EventEmitter<number>().event;
+
 	public readonly onError = new EventEmitter<Error>().event;
 
 	constructor(private readonly logger: ILogger) {}
@@ -135,9 +139,11 @@ export class ChildProcessBrowserProcess implements IBrowserProcess {
 	public readonly pid = undefined;
 
 	private readonly exitEmitter = new EventEmitter<number>();
+
 	public readonly onExit = this.exitEmitter.event;
 
 	private readonly errorEmitter = new EventEmitter<Error>();
+
 	public readonly onError = this.errorEmitter.event;
 
 	constructor(
@@ -145,6 +151,7 @@ export class ChildProcessBrowserProcess implements IBrowserProcess {
 		private readonly logger: ILogger,
 	) {
 		cp.on("exit", (code) => this.exitEmitter.fire(code || 0));
+
 		cp.on("error", (error) => this.errorEmitter.fire(error));
 	}
 
@@ -206,6 +213,7 @@ function waitForWSEndpoint(
 		const onClose = () => onDone();
 
 		rl.on("line", onLine);
+
 		rl.on("close", onClose);
 
 		const disposable = new DisposableList([
@@ -215,6 +223,7 @@ function waitForWSEndpoint(
 
 		const timeout = cancellationToken.onCancellationRequested(() => {
 			cleanup();
+
 			reject(
 				new TaskCancelledError(
 					`Timed out after ${timeout} ms while trying to connect to the browser!`,
@@ -224,6 +233,7 @@ function waitForWSEndpoint(
 
 		function onDone(error?: Error) {
 			cleanup();
+
 			reject(
 				new Error(
 					[
@@ -244,14 +254,19 @@ function waitForWSEndpoint(
 			const match = line.match(/^DevTools listening on (ws:\/\/.*)$/);
 
 			if (!match) return;
+
 			cleanup();
+
 			resolve(match[1]);
 		}
 
 		function cleanup() {
 			timeout.dispose();
+
 			rl.removeListener("line", onLine);
+
 			rl.removeListener("close", onClose);
+
 			disposable.dispose();
 		}
 	});

@@ -51,10 +51,12 @@ export class MapUsingProjection<K, V, P = K> implements Map<K, V> {
 	public forEach(
 		callbackfn: (value: V, key: K, map: Map<K, V>) => void,
 	): void;
+
 	public forEach<T>(
 		callbackfn: (this: T, value: V, key: K, map: Map<K, V>) => void,
 		thisArg: T,
 	): void;
+
 	public forEach<T>(
 		callbackfn: (value: V, key: K, map: Map<K, V>) => void,
 		thisArg?: T,

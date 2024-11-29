@@ -22,12 +22,14 @@ import { TestLogSink } from "./testLogSink";
  */
 class RingBuffer {
 	private readonly items: ILogItem<unknown>[] = [];
+
 	private i = 0;
 
 	constructor(private readonly size = 512) {}
 
 	public write(item: ILogItem<unknown>): void {
 		this.items[this.i] = item;
+
 		this.i = (this.i + 1) % this.size;
 	}
 
@@ -58,6 +60,7 @@ export class Logger implements ILogger, IDisposable {
 	 */
 	public static null = (() => {
 		const logger = new Logger();
+
 		logger.setup({ sinks: [] });
 
 		return logger;
@@ -68,6 +71,7 @@ export class Logger implements ILogger, IDisposable {
 	 */
 	public static async test() {
 		const logger = new Logger();
+
 		logger.setup({ sinks: [new TestLogSink()], showWelcome: false });
 
 		return logger;
@@ -197,6 +201,7 @@ export class Logger implements ILogger, IDisposable {
 			for (const target of this.logTarget.sinks) {
 				target.dispose();
 			}
+
 			this.logTarget = { queue: [] };
 		}
 	}
@@ -223,6 +228,7 @@ export class Logger implements ILogger, IDisposable {
 		}
 
 		const prevTarget = this.logTarget;
+
 		this.logTarget = { sinks: options.sinks.slice() };
 
 		if ("sinks" in prevTarget) {

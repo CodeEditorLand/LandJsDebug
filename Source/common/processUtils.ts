@@ -53,7 +53,9 @@ export function spawnAsync(
 		const stderr: Buffer[] = [];
 
 		const stdout: Buffer[] = [];
+
 		process.stderr.on("data", (chunk) => stderr.push(chunk));
+
 		process.stdout.on("data", (chunk) => stdout.push(chunk));
 
 		const rejectWithError = (code?: number, innerError?: Error) =>
@@ -68,6 +70,7 @@ export function spawnAsync(
 			);
 
 		process.on("error", (err) => rejectWithError(undefined, err));
+
 		process.on("close", (code) =>
 			code
 				? rejectWithError(code)
@@ -105,6 +108,7 @@ export const formatSubprocessArguments = (
 
 		if (executable.endsWith(".ps1")) {
 			args = ["-File", executable, ...args];
+
 			executable = "powershell.exe";
 		}
 	}

@@ -42,5 +42,6 @@ export interface Message {
 
 export interface Error {
 	__errorMarker: boolean;
+
 	error: Message;
 }

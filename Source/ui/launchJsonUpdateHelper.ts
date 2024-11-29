@@ -66,6 +66,7 @@ export abstract class LaunchJsonUpdaterHelper {
 		if (!cursorPosition) {
 			return;
 		}
+
 		const commaPosition =
 			LaunchJsonUpdaterHelper.isCommaImmediatelyBeforeCursor(
 				document,
@@ -81,8 +82,11 @@ export abstract class LaunchJsonUpdaterHelper {
 		);
 
 		const workspaceEdit = new vscode.WorkspaceEdit();
+
 		workspaceEdit.insert(document.uri, position, formattedJson);
+
 		await vscode.workspace.applyEdit(workspaceEdit);
+
 		Promise.resolve(
 			vscode.commands.executeCommand("editor.action.formatDocument"),
 		).then(() => {
@@ -110,9 +114,11 @@ export abstract class LaunchJsonUpdaterHelper {
 			// If we already have a comma immediately before the cursor, then no need of adding a comma.
 			return commaPosition === "BeforeCursor" ? json : `,${json}`;
 		}
+
 		if (cursorPosition === "BeforeItem") {
 			return `${json},`;
 		}
+
 		return json;
 	}
 
@@ -123,7 +129,9 @@ export abstract class LaunchJsonUpdaterHelper {
 		if (LaunchJsonUpdaterHelper.isConfigurationArrayEmpty(document)) {
 			return "InsideEmptyArray";
 		}
+
 		const scanner = createScanner(document.getText(), true);
+
 		scanner.setPosition(document.offsetAt(position));
 
 		const nextToken = scanner.scan();
@@ -134,9 +142,11 @@ export abstract class LaunchJsonUpdaterHelper {
 		) {
 			return "AfterItem";
 		}
+
 		if (nextToken === SyntaxKind.OpenBraceToken) {
 			return "BeforeItem";
 		}
+
 		return undefined;
 	}
 
@@ -188,8 +198,10 @@ export abstract class LaunchJsonUpdaterHelper {
 			if (lineText.trim().length !== 0) {
 				return false;
 			}
+
 			startLineNumber -= 1;
 		}
+
 		return false;
 	}
 }

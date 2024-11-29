@@ -106,6 +106,7 @@ export abstract class ChromiumDebugConfigurationResolver<
 		if (config.request === "launch") {
 			const cast =
 				config as ResolvingConfiguration<AnyChromiumLaunchConfiguration>;
+
 			this.applyDefaultRuntimeExecutable(cast);
 		}
 	}
@@ -211,6 +212,7 @@ export abstract class ChromiumDebugConfigurationResolver<
 	private async isVsCodeLocked(filepath: string) {
 		try {
 			const pid = Number(await this.fs.readFile(filepath, "utf-8"));
+
 			process.kill(pid, 0); // throws if the process does not exist
 			return true;
 		} catch {

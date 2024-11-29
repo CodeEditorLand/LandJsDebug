@@ -130,6 +130,7 @@ export abstract class TextualMessage<
 		) {
 			await this.getUiLocation(thread); // ensure the source is loaded before decoding stack
 			output = await thread.replacePathsInStackTrace(output);
+
 			includeStackInVariables = true;
 		}
 

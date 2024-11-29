@@ -84,7 +84,9 @@ const minimumVersion = new Semver(8, 0, 0);
 
 export interface IWarningMessage {
 	inclusiveMin: Semver;
+
 	inclusiveMax: Semver;
+
 	message: string;
 }
 
@@ -417,6 +419,7 @@ export class NodeBinaryProvider implements INodeBinaryProvider {
 		// remap the node version bundled if we're running electron
 		if (exeName === "electron") {
 			const nodeVersion = await this.resolveAndValidate(env);
+
 			version = Semver.min(
 				electronNodeVersion.get(version.major) ?? assumedVersion,
 				nodeVersion.version ?? assumedVersion,
@@ -428,6 +431,7 @@ export class NodeBinaryProvider implements INodeBinaryProvider {
 		}
 
 		const entry = new NodeBinary(location, version);
+
 		this.knownGoodMappings.set(location, entry);
 
 		return entry;

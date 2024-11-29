@@ -28,6 +28,7 @@ import { Thread } from "./threads";
  */
 export interface IProfileController {
 	connect(dap: Dap.Api, thread: Thread): void;
+
 	start(
 		dap: Dap.Api,
 		thread: Thread,
@@ -39,14 +40,18 @@ export const IProfileController = Symbol("IProfileController");
 
 interface IRunningProfile {
 	file: string;
+
 	profile: IProfile;
+
 	keptDebuggerOn: boolean;
+
 	enableFilter: BreakpointEnableFilter;
 }
 
 @injectable()
 export class ProfileController implements IProfileController {
 	private profile?: Promise<IRunningProfile>;
+
 	private seenConsoleProfileNames = Object.create(null);
 
 	constructor(
@@ -86,7 +91,9 @@ export class ProfileController implements IProfileController {
 				ShutdownOrder.ExecutionContexts,
 				() => promise,
 			);
+
 			await promise;
+
 			shutdownBlocker.dispose();
 		});
 
@@ -126,6 +133,7 @@ export class ProfileController implements IProfileController {
 			basename = evt.title.replace(/[\/\\]/g, "-");
 
 			const nth = this.seenConsoleProfileNames[evt.title] || 0;
+
 			this.seenConsoleProfileNames[evt.title] = nth + 1;
 
 			if (nth > 0) {
@@ -136,6 +144,7 @@ export class ProfileController implements IProfileController {
 		}
 
 		basename += BasicCpuProfiler.extension;
+
 		await this.basicCpuProfiler.save(evt.profile, basename);
 
 		dap.output({
@@ -159,7 +168,9 @@ export class ProfileController implements IProfileController {
 
 		if (params.stopAtBreakpoint?.length) {
 			const toBreakpoint = new Set(params.stopAtBreakpoint);
+
 			keepDebuggerOn = true;
+
 			enableFilter = (bp) =>
 				!(bp instanceof UserDefinedBreakpoint) ||
 				toBreakpoint.has(bp.dapId);
@@ -186,6 +197,7 @@ export class ProfileController implements IProfileController {
 		profile.onUpdate((label) =>
 			dap.profilerStateUpdate({ label, running: true }),
 		);
+
 		profile.onStop(() => this.disposeProfile(runningProfile));
 
 		const isPaused = !!thread.pausedDetails();
@@ -213,7 +225,9 @@ export class ProfileController implements IProfileController {
 		}
 
 		this.profile = undefined;
+
 		await running?.profile.stop();
+
 		dap.profilerStateUpdate({ label: "", running: false });
 
 		return {};
@@ -229,6 +243,7 @@ export class ProfileController implements IProfileController {
 		}
 
 		await this.breakpoints.applyEnabledFilter(undefined, enableFilter);
+
 		profile.dispose();
 	}
 }

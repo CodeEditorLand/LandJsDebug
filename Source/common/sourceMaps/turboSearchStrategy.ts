@@ -57,11 +57,13 @@ export class TurboSearchStrategy implements ISearchStrategy {
 			(opts.lastState as Record<string, CachedType<T>>) || {};
 
 		const nextState: Record<string, CachedType<T>> = {};
+
 		await Promise.all(
 			[...opts.files.explode()].map(async (glob) => {
 				const key = JSON.stringify(glob);
 
 				const searchState = prevState[key] || CacheTree.root();
+
 				await this._streamChildrenWithSourcemaps(
 					searchState,
 					opts,

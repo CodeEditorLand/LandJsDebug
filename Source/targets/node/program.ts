@@ -43,6 +43,7 @@ export class CombinedProgram implements IProgram {
 
 	public gotTelemetery(telemetry: IProcessTelemetry) {
 		this.a.gotTelemetery(telemetry);
+
 		this.b.gotTelemetery(telemetry);
 	}
 
@@ -58,6 +59,7 @@ export class CombinedProgram implements IProgram {
  */
 export class SubprocessProgram implements IProgram {
 	public readonly stopped: Promise<IStopMetadata>;
+
 	private killed = false;
 
 	constructor(
@@ -69,6 +71,7 @@ export class SubprocessProgram implements IProgram {
 			child.once("exit", (code) =>
 				resolve({ killed: this.killed, code: code || 0 }),
 			);
+
 			child.once("error", (error) =>
 				reject({ killed: this.killed, code: 1, error }),
 			);
@@ -81,6 +84,7 @@ export class SubprocessProgram implements IProgram {
 
 	public stop(): Promise<IStopMetadata> {
 		this.killed = true;
+
 		killTree(this.child.pid as number, this.logger, this.killBehavior);
 
 		return this.stopped;
@@ -93,7 +97,9 @@ export class SubprocessProgram implements IProgram {
  */
 export class StubProgram implements IProgram {
 	public readonly stopped: Promise<IStopMetadata>;
+
 	protected stopDefer!: (data: IStopMetadata) => void;
+
 	protected telemetry?: IProcessTelemetry;
 
 	constructor() {
@@ -117,8 +123,10 @@ export class StubProgram implements IProgram {
 export class WatchDogProgram extends StubProgram {
 	constructor(private readonly wd: WatchDog) {
 		super();
+
 		wd.onEnd((data) => {
 			this.stopDefer(data);
+
 			this.wd.dispose();
 		});
 	}
@@ -145,14 +153,18 @@ export class TerminalProcess implements IProgram {
 	private static readonly killConfirmInterval = 200;
 
 	private didStop = false;
+
 	private onStopped!: (killed: boolean) => void;
+
 	public readonly stopped = new Promise<IStopMetadata>(
 		(resolve) =>
 			(this.onStopped = (killed) => {
 				this.didStop = true;
+
 				resolve({ code: 0, killed });
 			}),
 	);
+
 	private loop?: { timer: NodeJS.Timeout; processId: number };
 
 	constructor(
@@ -181,12 +193,14 @@ export class TerminalProcess implements IProgram {
 		if (this.didStop) {
 			return this.stopped;
 		}
+
 		this.didStop = true;
 
 		// If we're already polling some process ID, kill it and accelerate polling
 		// so we can confirm it's dead quickly.
 		if (this.loop) {
 			killTree(this.loop.processId, this.logger, this.killBehavior);
+
 			this.startPollLoop(
 				this.loop.processId,
 				TerminalProcess.killConfirmInterval,
@@ -198,6 +212,7 @@ export class TerminalProcess implements IProgram {
 				this.logger,
 				this.killBehavior,
 			);
+
 			this.startPollLoop(
 				this.terminalResult.shellProcessId,
 				TerminalProcess.killConfirmInterval,
@@ -223,6 +238,7 @@ export class TerminalProcess implements IProgram {
 			timer: setInterval(() => {
 				if (!isProcessAlive(processId)) {
 					clearInterval(loop.timer);
+
 					this.onStopped(true);
 				}
 			}, interval),

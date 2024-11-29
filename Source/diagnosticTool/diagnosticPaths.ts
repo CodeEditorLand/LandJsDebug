@@ -77,6 +77,7 @@ export const relative = (fromPath: string, toPath: string) => {
 
 	while (fromParts.length && toParts[0] === fromParts[0]) {
 		fromParts.shift();
+
 		toParts.shift();
 	}
 

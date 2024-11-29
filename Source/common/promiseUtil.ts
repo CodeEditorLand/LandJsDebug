@@ -20,10 +20,13 @@ export const disposableTimeout = (
 
 export interface IDeferred<T> {
 	resolve: (result: T) => void;
+
 	reject: (err: Error) => void;
+
 	hasSettled(): boolean;
 
 	settledValue: T | undefined;
+
 	promise: Promise<T>;
 }
 
@@ -41,6 +44,7 @@ export function some<T>(
 			prom.then((p) => {
 				if (p) {
 					resolve(p);
+
 					remaining = -1;
 				} else if (--remaining === 0) {
 					resolve(undefined);
@@ -80,10 +84,13 @@ export function getDeferred<T>(): IDeferred<T> {
 			settled = true;
 
 			settledValue = value;
+
 			_resolve(value);
 		};
+
 		reject = (error: Error) => {
 			settled = true;
+
 			_reject(error);
 		};
 	});

@@ -9,9 +9,13 @@ import Cdp from "../cdp/api";
  */
 export interface IMirroredNetworkEvents {
 	requestWillBeSent: Cdp.Network.RequestWillBeSentEvent;
+
 	responseReceived: Cdp.Network.ResponseReceivedEvent;
+
 	responseReceivedExtraInfo: Cdp.Network.ResponseReceivedExtraInfoEvent;
+
 	loadingFailed: Cdp.Network.LoadingFailedEvent;
+
 	loadingFinished: Cdp.Network.LoadingFinishedEvent;
 }
 

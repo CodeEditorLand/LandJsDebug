@@ -19,6 +19,7 @@ if (process.argv.length >= 3) {
 		port = +address;
 	} else {
 		host = address.substring(0, colonIndex);
+
 		port = +address.substring(colonIndex + 1);
 	}
 }

@@ -50,15 +50,25 @@ import { VariableStore } from "./variableStore";
 // to be applied after launch.
 export class DebugAdapter implements IDisposable {
 	readonly dap: Dap.Api;
+
 	readonly sourceContainer: SourceContainer;
+
 	readonly breakpointManager: BreakpointManager;
+
 	private _disposables = new DisposableList();
+
 	private _customBreakpoints: string[] = [];
+
 	private _xhrBreakpoints: string[] = [];
+
 	private _thread: Thread | undefined;
+
 	private _threadDeferred = getDeferred<Thread>();
+
 	private _configurationDoneDeferred: IDeferred<void>;
+
 	private breakpointIdCounter = posInt32Counter();
+
 	private readonly _cdpProxyProvider =
 		this._services.get<ICdpProxyProvider>(ICdpProxyProvider);
 
@@ -80,113 +90,158 @@ export class DebugAdapter implements IDisposable {
 			_services.get<IPerformanceProvider>(IPerformanceProvider);
 
 		const telemetry = _services.get<ITelemetryReporter>(ITelemetryReporter);
+
 		telemetry.onFlush(() => {
 			telemetry.report(
 				"breakpointStats",
 				this.breakpointManager.statisticsForTelemetry(),
 			);
+
 			telemetry.report("statistics", this.sourceContainer.statistics());
 		});
 
 		this.dap = dap;
+
 		this.dap.on("initialize", (params) => this.onInitialize(params));
+
 		this.dap.on("setBreakpoints", (params) =>
 			this._onSetBreakpoints(params),
 		);
+
 		this.dap.on("setExceptionBreakpoints", (params) =>
 			this.setExceptionBreakpoints(params),
 		);
+
 		this.dap.on("configurationDone", () => this.configurationDone());
+
 		this.dap.on("loadedSources", () => this._onLoadedSources());
+
 		this.dap.on("disableSourcemap", (params) =>
 			this._onDisableSourcemap(params),
 		);
+
 		this.dap.on("source", (params) => this._onSource(params));
+
 		this.dap.on("threads", () => this._onThreads());
+
 		this.dap.on("stackTrace", (params) =>
 			this._withThread((thread) => thread.stackTrace(params)),
 		);
+
 		this.dap.on("variables", (params) => this._onVariables(params));
+
 		this.dap.on("readMemory", (params) => this._onReadMemory(params));
+
 		this.dap.on("writeMemory", (params) => this._onWriteMemory(params));
+
 		this.dap.on("setVariable", (params) => this._onSetVariable(params));
+
 		this.dap.on("setExpression", (params) => this._onSetExpression(params));
+
 		this.dap.on("continue", () =>
 			this._withThread((thread) => thread.resume()),
 		);
+
 		this.dap.on("pause", () =>
 			this._withThread((thread) => thread.pause()),
 		);
+
 		this.dap.on("next", () =>
 			this._withThread((thread) => thread.stepOver()),
 		);
+
 		this.dap.on("stepIn", (params) =>
 			this._withThread((thread) => thread.stepInto(params.targetId)),
 		);
+
 		this.dap.on("stepOut", () =>
 			this._withThread((thread) => thread.stepOut()),
 		);
+
 		this.dap.on("restartFrame", (params) =>
 			this._withThread((thread) => thread.restartFrame(params)),
 		);
+
 		this.dap.on("scopes", (params) =>
 			this._withThread((thread) => thread.scopes(params)),
 		);
+
 		this.dap.on("evaluate", (params) => this.onEvaluate(params));
+
 		this.dap.on("completions", (params) =>
 			this._withThread((thread) => thread.completions(params)),
 		);
+
 		this.dap.on("exceptionInfo", () =>
 			this._withThread((thread) => thread.exceptionInfo()),
 		);
+
 		this.dap.on("setCustomBreakpoints", (params) =>
 			this.setCustomBreakpoints(params),
 		);
+
 		this.dap.on("toggleSkipFileStatus", (params) =>
 			this._toggleSkipFileStatus(params),
 		);
+
 		this.dap.on("toggleSkipFileStatus", (params) =>
 			this._toggleSkipFileStatus(params),
 		);
+
 		this.dap.on("prettyPrintSource", (params) =>
 			this._prettyPrintSource(params),
 		);
+
 		this.dap.on("locations", (params) => this._onLocations(params));
+
 		this.dap.on("revealPage", () =>
 			this._withThread((thread) => thread.revealPage()),
 		);
+
 		this.dap.on("getPerformance", () =>
 			this._withThread((thread) =>
 				performanceProvider.retrieve(thread.cdp()),
 			),
 		);
+
 		this.dap.on("breakpointLocations", (params) =>
 			this._breakpointLocations(params),
 		);
+
 		this.dap.on("createDiagnostics", (params) =>
 			this._dumpDiagnostics(params),
 		);
+
 		this.dap.on("requestCDPProxy", () => this._requestCDPProxy());
+
 		this.dap.on("setExcludedCallers", (params) =>
 			this._onSetExcludedCallers(params),
 		);
+
 		this.dap.on("saveDiagnosticLogs", ({ toFile }) =>
 			this._saveDiagnosticLogs(toFile),
 		);
+
 		this.dap.on("setSourceMapStepping", (params) =>
 			this._setSourceMapStepping(params),
 		);
+
 		this.dap.on("stepInTargets", (params) => this._stepInTargets(params));
+
 		this.dap.on("setDebuggerProperty", (params) =>
 			this._setDebuggerProperty(params),
 		);
+
 		this.dap.on("setSymbolOptions", (params) =>
 			this._setSymbolOptions(params),
 		);
+
 		this.dap.on("networkCall", (params) => this._doNetworkCall(params));
+
 		this.dap.on("enableNetworking", (params) =>
 			this._withThread((t) => t.enableNetworking(params)),
 		);
+
 		this.dap.on("getPreferredUILocation", (params) =>
 			this._getPreferredUILocation(params),
 		);
@@ -299,6 +354,7 @@ export class DebugAdapter implements IDisposable {
 		toFile: string,
 	): Promise<Dap.SaveDiagnosticLogsResult> {
 		const logs = this._services.get<ILogger>(ILogger).getRecentLogs();
+
 		await this._services
 			.get<FsPromises>(FS)
 			.writeFile(toFile, logs.map((l) => JSON.stringify(l)).join("\n"));
@@ -308,9 +364,12 @@ export class DebugAdapter implements IDisposable {
 
 	public async launchBlocker(): Promise<void> {
 		await this._configurationDoneDeferred.promise;
+
 		await this._thread?.debuggerReady.promise;
+
 		await this._services.get<IExceptionPauseService>(IExceptionPauseService)
 			.launchBlocker;
+
 		await this.breakpointManager.launchBlocker();
 	}
 
@@ -318,6 +377,7 @@ export class DebugAdapter implements IDisposable {
 		callers,
 	}: Dap.SetExcludedCallersParams): Promise<Dap.SetExcludedCallersResult> {
 		const thread = await this._threadDeferred.promise;
+
 		thread.setExcludedCallers(callers);
 
 		return {};
@@ -327,7 +387,9 @@ export class DebugAdapter implements IDisposable {
 		params: Dap.InitializeParams,
 	): Promise<Dap.InitializeResult | Dap.Error> {
 		console.assert(params.linesStartAt1);
+
 		console.assert(params.columnsStartAt1);
+
 		this._services.get<IClientCapabilies>(IClientCapabilies).value = params;
 
 		const capabilities = DebugAdapter.capabilities(true);
@@ -621,6 +683,7 @@ export class DebugAdapter implements IDisposable {
 
 		if (!variableStore)
 			return errors.createSilentError(l10n.t("Variable not found"));
+
 		params.value = sourceUtils.wrapObjectLiteral(params.value.trim());
 
 		return variableStore.setVariable(params);
@@ -663,6 +726,7 @@ export class DebugAdapter implements IDisposable {
 
 		const profile =
 			this._services.get<IProfileController>(IProfileController);
+
 		profile.connect(this.dap, this._thread);
 
 		if (
@@ -689,7 +753,9 @@ export class DebugAdapter implements IDisposable {
 			);
 
 		this.breakpointManager.setThread(this._thread);
+
 		this._services.get(DiagnosticToolSuggester).attach(cdp);
+
 		this._threadDeferred.resolve(this._thread);
 
 		return this._thread;
@@ -700,7 +766,9 @@ export class DebugAdapter implements IDisposable {
 		xhr,
 	}: Dap.SetCustomBreakpointsParams): Promise<Dap.SetCustomBreakpointsResult> {
 		await this._thread?.updateCustomBreakpoints(xhr, ids);
+
 		this._customBreakpoints = ids;
+
 		this._xhrBreakpoints = xhr;
 
 		return {};
@@ -712,6 +780,7 @@ export class DebugAdapter implements IDisposable {
 		await this._services
 			.get<ScriptSkipper>(IScriptSkipper)
 			.toggleSkippingFile(params);
+
 		await this._refreshStackTrace();
 
 		return {};
@@ -748,7 +817,9 @@ export class DebugAdapter implements IDisposable {
 			sourceMap,
 			generated,
 		);
+
 		this.sourceContainer.clearDisabledSourceMaps(source as ISourceWithMap);
+
 		await this._refreshStackTrace();
 
 		return {};
@@ -788,6 +859,7 @@ export class DebugAdapter implements IDisposable {
 
 	dispose() {
 		this._disposables.dispose();
+
 		disposeContainer(this._services);
 	}
 }

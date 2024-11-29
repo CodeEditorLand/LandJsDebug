@@ -37,8 +37,11 @@ export interface IMandatedConfiguration extends Dap.LaunchParams {
 
 	// Lifecycle tasks:
 	preLaunchTask?: string;
+
 	postDebugTask?: string;
+
 	preRestartTask?: string;
+
 	postRestartTask?: string;
 }
 
@@ -284,11 +287,17 @@ export interface IExtensionHostLaunchConfiguration
 export interface IExtensionHostAttachConfiguration
 	extends IExtensionHostBaseConfiguration {
 	type: DebugType.ExtensionHost;
+
 	request: "attach";
+
 	debugWebviews: boolean;
+
 	debugWebWorkerHost: boolean;
+
 	__sessionId: string;
+
 	port: number;
+
 	rendererDebugOptions: Partial<IChromeAttachConfiguration>;
 }
 
@@ -373,6 +382,7 @@ export interface INodeLaunchConfiguration
 	extends INodeBaseConfiguration,
 		IConfigurationWithEnv {
 	type: DebugType.Node;
+
 	request: "launch";
 
 	/**
@@ -537,6 +547,7 @@ export interface IChromiumBaseConfiguration extends IBaseConfiguration {
  */
 export interface ITerminalLaunchConfiguration extends INodeBaseConfiguration {
 	type: DebugType.Terminal;
+
 	request: "launch";
 
 	/**
@@ -550,6 +561,7 @@ export interface ITerminalLaunchConfiguration extends INodeBaseConfiguration {
  */
 export interface INodeAttachConfiguration extends INodeBaseConfiguration {
 	type: DebugType.Node;
+
 	request: "attach";
 
 	/**
@@ -680,6 +692,7 @@ export interface IChromiumLaunchConfiguration
 export interface IChromeLaunchConfiguration
 	extends IChromiumLaunchConfiguration {
 	type: DebugType.Chrome;
+
 	__pendingTargetId?: string;
 }
 
@@ -723,7 +736,9 @@ export interface IChromiumAttachConfiguration
 export interface IChromeAttachConfiguration
 	extends IChromiumAttachConfiguration {
 	type: DebugType.Chrome;
+
 	restart: boolean;
+
 	__pendingTargetId?: string;
 }
 
@@ -732,11 +747,17 @@ export interface IChromeAttachConfiguration
  */
 export interface IPseudoAttachConfiguration extends IMandatedConfiguration {
 	type: DebugType;
+
 	request: "attach" | "launch";
+
 	__pendingTargetId: string;
+
 	preLaunchTask?: string;
+
 	postDebugTask?: string;
+
 	preRestartTask?: string;
+
 	postRestartTask?: string;
 }
 
@@ -762,7 +783,9 @@ export interface IEdgeLaunchConfiguration extends IChromiumLaunchConfiguration {
  */
 export interface IEdgeAttachConfiguration extends IChromiumAttachConfiguration {
 	type: DebugType.Edge;
+
 	request: "attach";
+
 	useWebView: boolean | { pipeName: string };
 }
 
@@ -771,7 +794,9 @@ export interface IEdgeAttachConfiguration extends IChromiumAttachConfiguration {
  */
 export interface ITerminalDelegateConfiguration extends INodeBaseConfiguration {
 	type: DebugType.Terminal;
+
 	request: "attach";
+
 	delegateId: number;
 }
 
@@ -893,6 +918,7 @@ export const baseDefaults: IBaseConfiguration = {
 	cascadeTerminateToConfigurations: [],
 	enableDWARF: true,
 	// Should always be determined upstream;
+
 	__workspaceFolder: "",
 	__remoteFilePrefix: undefined,
 	__breakOnConditionalError: false,
@@ -1111,6 +1137,7 @@ export function applyExtensionHostDefaults(
 	config: ResolvingExtensionHostConfiguration,
 ): IExtensionHostLaunchConfiguration {
 	const resolved = { ...extensionHostConfigDefaults, ...config };
+
 	resolved.skipFiles = [
 		...resolved.skipFiles,
 		"**/node_modules.asar/**",
@@ -1245,6 +1272,7 @@ export function resolveWorkspaceInConfig<T extends AnyLaunchConfiguration>(
 		"workspaceFolder",
 		config.__workspaceFolder,
 	);
+
 	config = resolveVariableInConfig(
 		config,
 		"webRoot",
@@ -1270,6 +1298,7 @@ export function resolveVariableInConfig<T>(
 					`Unable to resolve \${${varName}} in configuration (${JSON.stringify(varName)})`,
 				);
 			}
+
 			return varValue;
 		});
 	} else if (config instanceof Array) {
@@ -1283,6 +1312,7 @@ export function resolveVariableInConfig<T>(
 			obj[resolveVariableInConfig(key, varName, varValue)] =
 				resolveVariableInConfig(value, varName, varValue);
 		}
+
 		out = obj;
 	} else {
 		out = config;

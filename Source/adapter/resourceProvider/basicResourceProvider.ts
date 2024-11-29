@@ -153,6 +153,7 @@ export class BasicResourceProvider implements IResourceProvider {
 			}
 
 			parsed.hostname = resolved.family === 6 ? "127.0.0.1" : "[::1]";
+
 			response = await this.requestHttp(
 				parsed.toString(),
 				options,
@@ -178,6 +179,7 @@ export class BasicResourceProvider implements IResourceProvider {
 
 		try {
 			const request = got(url, options);
+
 			disposables.push(
 				cancellationToken.onCancellationRequested(() =>
 					request.cancel(),

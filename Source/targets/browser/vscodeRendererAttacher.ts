@@ -26,7 +26,9 @@ import { VSCodeRendererTargetManager } from "./vscodeRendererTargetManager";
 
 export interface IRendererAttachParams extends IChromeAttachConfiguration {
 	__sessionId: string;
+
 	debugWebviews: boolean;
+
 	debugWebWorkerExtHost: boolean;
 }
 
@@ -85,7 +87,9 @@ export class VSCodeRendererAttacher extends BrowserAttacher<IRendererAttachParam
 		}) as IRendererAttachParams;
 
 		configuration.__sessionId = params.__sessionId;
+
 		configuration.debugWebWorkerExtHost = params.debugWebWorkerHost;
+
 		configuration.debugWebviews = params.debugWebviews;
 
 		super
@@ -115,11 +119,13 @@ export class VSCodeRendererAttacher extends BrowserAttacher<IRendererAttachParam
 			const p: Socket = createConnection({ port: params.port }, () =>
 				resolve(p),
 			);
+
 			p.on("error", reject);
 
 			disposable.push(
 				cancellationToken.onCancellationRequested(() => {
 					p.destroy();
+
 					reject(new Error("connection timed out"));
 				}),
 			);

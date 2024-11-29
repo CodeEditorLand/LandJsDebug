@@ -12,6 +12,7 @@ export class ManagedState<T> {
 	public write(memento: vscode.Memento, value: T) {
 		if (value !== this.read(memento)) {
 			this._value = value;
+
 			memento.update(this.key, value);
 		}
 	}

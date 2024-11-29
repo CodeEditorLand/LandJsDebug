@@ -25,6 +25,7 @@ import { isLoopbackIp, isMetaAddress } from "../common/urlUtils";
 
 interface ITerminalLink extends vscode.TerminalLink {
 	target: URL;
+
 	workspaceFolder?: number;
 }
 
@@ -38,8 +39,11 @@ export class TerminalLinkHandler
 	implements ITerminalLinkProvider<ITerminalLink>, IDisposable
 {
 	private readonly enabledTerminals = new WeakSet<vscode.Terminal>();
+
 	private readonly disposable = new DisposableList();
+
 	private notifiedCantOpenOnWeb = false;
+
 	private baseConfiguration = this.readConfig();
 
 	constructor(

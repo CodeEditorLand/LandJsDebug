@@ -15,17 +15,24 @@ import { WatchDog } from "./watchdogSpawn";
 
 interface IProcessTreeNode {
 	children: IProcessTreeNode[];
+
 	pid: number;
+
 	ppid: number;
+
 	command: string;
+
 	args: string;
 }
 
 export async function watchAllChildren(
 	options: {
 		pid: number;
+
 		nodePath: string;
+
 		hostname: string;
+
 		ipcAddress: string;
 	},
 	openerId: string,
@@ -44,6 +51,7 @@ export async function watchAllChildren(
 
 	while (queue.length) {
 		const child = queue.pop() as IProcessTreeNode;
+
 		queue = queue.concat(child.children);
 
 		const { port } = analyseArguments(child.args);
@@ -103,6 +111,7 @@ async function getProcessTree(
 			if (pid !== ppid) {
 				map.set(pid, { pid, ppid, command, args, children: [] });
 			}
+
 			return map;
 		}, null);
 	} catch (err) {

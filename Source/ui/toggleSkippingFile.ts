@@ -15,6 +15,7 @@ export async function toggleSkippingFile(
 		const activeEditor = vscode.window.activeTextEditor;
 
 		if (!activeEditor) return;
+
 		aPath = activeEditor && activeEditor.document.fileName;
 	}
 

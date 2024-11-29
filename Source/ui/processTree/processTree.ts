@@ -129,7 +129,9 @@ export function analyseArguments(args: string) {
 
 	if (matches?.groups) {
 		const portStr = matches.groups.port1 || matches.groups.port2;
+
 		port = portStr ? Number(portStr) : 9229;
+
 		address = matches.groups.address ?? "127.0.0.1";
 	}
 
@@ -138,6 +140,7 @@ export function analyseArguments(args: string) {
 
 	if (matches && matches.length === 2) {
 		address ||= "127.0.0.1";
+
 		port = parseInt(matches[1]);
 	}
 

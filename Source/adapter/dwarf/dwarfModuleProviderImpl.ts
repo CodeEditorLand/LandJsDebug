@@ -29,6 +29,7 @@ export class DwarfModuleProvider implements IDwarfModuleProvider {
 	public prompt() {
 		if (!this.didPrompt) {
 			this.didPrompt = true;
+
 			this.dap.output({
 				output: l10n.t(
 					"You may install the `{}` module via npm for enhanced WebAssembly debugging",
