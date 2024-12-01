@@ -2,7 +2,7 @@
 
 This file documents the CDP sharing mechanism in js-debug. It can be useful for
 advanced extensions and plugins. The original feature request can be found in
-[`#892`](HTTPS://github.com/microsoft/vscode-js-debug/issues/893).
+[`#892`](https://github.com/microsoft/vscode-js-debug/issues/893).
 
 ## Requesting a CDP Connection
 
@@ -11,7 +11,7 @@ js-debug can be asked to share its CDP connection by running the
 to connect to. js-debug will respond with an object containing a WebSocket
 server address in the form `{ host: string, port: string }`. You can see a
 sample extension that requests this information
-[`here`](HTTPS://github.com/connor4312/cdp-proxy-requestor/blob/main/extension.js).
+[`here`](https://github.com/connor4312/cdp-proxy-requestor/blob/main/extension.js).
 
 Note that the server will always be running in the workspace. If you have a UI
 extension, you may need to forward the port. We also recommend using
@@ -37,8 +37,8 @@ js-debug exposes a `JsDebug` CDP domain for meta-communication. For example, you
 would call the method `JsDebug.subscribe` to subscribe to evetns.
 
 -   The TypeScript definition of the available methods can be found
-    [`here`](HTTPS://github.com/microsoft/vscode-js-debug/blob/main/src/adapter/cdpProxy.ts#L22).
+    [`here`](https://github.com/microsoft/vscode-js-debug/blob/main/src/adapter/cdpProxy.ts#L22).
 -   The PDL definition can be found
-    [`here`](HTTPS://github.com/microsoft/vscode-js-debug/blob/main/src/adapter/cdpProxy.pdl).
+    [`here`](https://github.com/microsoft/vscode-js-debug/blob/main/src/adapter/cdpProxy.pdl).
 
 These definitions will be published in an npm package soon.
