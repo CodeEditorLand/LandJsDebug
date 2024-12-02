@@ -86,7 +86,6 @@
 	"scripts": {
 		"compile": "gulp",
 		"generateapis": "tsx src/build/generateDap.ts && tsx src/build/generateCdp.ts && dprint fmt",
-		"prepare": "husky install",
 		"publish": "gulp publish",
 		"test:golden": "node ./src/test/runTest.js",
 		"test:types": "tsc --noEmit",
