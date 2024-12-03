@@ -8,7 +8,7 @@
 		"color": "4.2.3",
 		"data-uri-to-buffer": "6.0.2",
 		"default-browser": "5.2.1",
-		"dotenv": "16.4.5",
+		"dotenv": "16.4.6",
 		"execa": "9.5.1",
 		"glob-stream": "8.0.2",
 		"got": "14.4.5",
