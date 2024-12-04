@@ -136,4 +136,9 @@ export interface IExtensionContribution {
 	register(context: vscode.ExtensionContext): void;
 }
 
-export const IExtensionContribution = Symbol("IExtensionContribution");
+export const IExtensionContribution = Symbol('IExtensionContribution');
+
+/**
+ * Binding to a Set<IDebugTerminalOptionsProvider>.
+ */
+export const IDebugTerminalOptionsProviders = Symbol('IDebugTerminalOptionsProviders');
