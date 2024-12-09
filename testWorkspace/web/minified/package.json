@@ -1,8 +1,1 @@
-{
-	"dependencies": {
-		"terser": "5.36.0"
-	},
-	"scripts": {
-		"minify": "terser index.js -m -o index.min.js --source-map \"url=index.min.js.map\""
-	}
-}
+"Cannot index string with string \"devDependencies\""

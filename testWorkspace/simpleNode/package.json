@@ -1,6 +1,1 @@
-{
-	"scripts": {
-		"startWithBrk": "node --inspect-brk=29204 logNodeOptions.js",
-		"startWithoutBrk": "node logNodeOptions.js"
-	}
-}
+"Cannot index string with string \"devDependencies\""
