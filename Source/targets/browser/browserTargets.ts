@@ -182,7 +182,6 @@ export class BrowserTarget implements ITarget {
 
 		for (const target of this._children.values()) {
 			if (jsTypes.has(target.type())) result.push(target);
-
 			else result.push(...target.children());
 		}
 

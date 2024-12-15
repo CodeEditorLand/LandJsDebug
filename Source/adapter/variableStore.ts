@@ -470,7 +470,6 @@ class VariableContext {
 			if (property.get || property.set) continue;
 
 			if (property.symbol) propertySymbols.push(property);
-
 			else propertiesMap.set(property.name, property);
 		}
 

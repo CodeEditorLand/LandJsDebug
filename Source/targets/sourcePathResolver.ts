@@ -83,11 +83,9 @@ export abstract class SourcePathResolverBase<
 
 			for (
 				let i = 0;
-
 				i < wfParts.length &&
 				i < suffixParts.length &&
 				suffixParts[i].toLowerCase() === wfParts[i].toLowerCase();
-
 				i++
 			) {
 				sharedPrefixLen += wfParts[i].length + 1;

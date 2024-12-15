@@ -295,7 +295,6 @@ export class SourceContainer {
 	setFileContentOverrideForTest(absolutePath: string, content?: string) {
 		if (content === undefined)
 			this._fileContentOverridesForTest.delete(absolutePath);
-
 		else this._fileContentOverridesForTest.set(absolutePath, content);
 	}
 

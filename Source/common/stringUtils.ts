@@ -74,9 +74,7 @@ export class PositionToOffset {
 
 		for (
 			let i = source.indexOf("\n");
-
 			i !== -1;
-
 			i = source.indexOf("\n", i + 1)
 		) {
 			this.lines.push(i + 1);

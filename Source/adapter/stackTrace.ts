@@ -917,9 +917,7 @@ export class StackFrame implements IStackFrameElement {
 
 			for (
 				let scopeNumber = 0;
-
 				scopeNumber < this._scope.chain.length;
-
 				scopeNumber++
 			) {
 				const scopeVariable = this._scopeVariable(

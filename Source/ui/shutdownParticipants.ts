@@ -80,9 +80,7 @@ export class ShutdownParticipants implements IShutdownParticipants {
 	async shutdownAll(): Promise<void> {
 		for (
 			this.shutdownStage = 0;
-
 			this.shutdownStage < this.participants.length;
-
 			this.shutdownStage++
 		) {
 			await Promise.all(

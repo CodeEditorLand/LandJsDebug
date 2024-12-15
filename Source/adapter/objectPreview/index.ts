@@ -260,7 +260,6 @@ function renderObjectPreview(
 	if (promiseStatus && promiseValue) {
 		if (promiseStatus.value === "pending")
 			builder.append(`{<${promiseStatus.value}>}`);
-
 		else {
 			builder.append(
 				`{${renderPropertyPreview(
@@ -619,7 +618,6 @@ function formatFunctionDescription(
 		}
 
 		if (builder.budget() >= body.length) builder.append(body);
-
 		else builder.append(abbreviation.replace(/\n/g, " "));
 	}
 }

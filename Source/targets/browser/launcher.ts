@@ -117,7 +117,6 @@ export async function launch(
 
 	if (actualConnection === "pipe") {
 		if (dumpio) stdio = ["ignore", "pipe", "pipe", "pipe", "pipe"];
-
 		else stdio = ["ignore", "ignore", "ignore", "pipe", "pipe"];
 	}
 

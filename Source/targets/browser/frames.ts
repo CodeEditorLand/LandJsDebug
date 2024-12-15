@@ -168,7 +168,6 @@ export class FrameModel {
 
 		for (
 			let i = 0;
-
 			frameTreePayload.childFrames &&
 			i < frameTreePayload.childFrames.length;
 			++i
