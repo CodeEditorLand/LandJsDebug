@@ -180,27 +180,25 @@ gulp.task("compile:dynamic", async () => {
 	await writeFile(`${buildDir}/package.json`, JSON.stringify(packageJson));
 });
 
-gulp.task("compile:static", () =>
-	merge(
-		gulp.src(
-			[
-				"LICENSE",
-				"resources/**/*",
-				"README.md",
-				"package.nls.json",
-				"src/**/*.sh",
-				"src/ui/basic-wat.tmLanguage.json",
-				".vscodeignore",
-			],
-			{
-				base: ".",
-			},
-		),
-		gulp
-			.src(["node_modules/@c4312/chromehash/pkg/*.wasm"])
-			.pipe(rename({ dirname: "src" })),
-	).pipe(gulp.dest(buildDir)),
-);
+gulp.task('compile:static', () =>
+  merge(
+    gulp.src(
+      [
+        'LICENSE',
+        'resources/**/*',
+        'README.md',
+        'package.nls.json',
+        'src/**/*.sh',
+        'src/ui/basic-wat.tmLanguage.json',
+        'src/ui/basic-wat.configuration.json',
+        '.vscodeignore',
+      ],
+      {
+        base: '.',
+      },
+    ),
+    gulp.src(['node_modules/@c4312/chromehash/pkg/*.wasm']).pipe(rename({ dirname: 'src' })),
+  ).pipe(gulp.dest(buildDir)));
 
 const resolveDefaultExts = [".tsx", ".ts", ".jsx", ".js", ".css", ".json"];
 
