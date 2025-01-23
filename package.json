@@ -60,7 +60,7 @@
 		"@types/micromatch": "4.0.9",
 		"@types/minimist": "1.2.5",
 		"@types/mkdirp": "2.0.0",
-		"@types/node": "22.10.7",
+		"@types/node": "22.10.9",
 		"@types/signale": "1.4.7",
 		"@types/sinon": "17.0.3",
 		"@types/stream-buffers": "3.0.7",
