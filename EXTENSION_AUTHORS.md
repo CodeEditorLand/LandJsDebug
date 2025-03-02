@@ -1,21 +1,27 @@
 # Extensibility
 
-js-debug has a few ways other extensions can 'plug into' js-debug and provide additional extensibility.
+js-debug has a few ways other extensions can 'plug into' js-debug and provide
+additional extensibility.
 
 ## Extension API
 
-js-debug provides an extension API you can use to do certain things. Please refer to [the typings](https://github.com/microsoft/vscode-js-debug/blob/main/src/typings/vscode-js-debug.d.ts) for capabilities.
+js-debug provides an extension API you can use to do certain things. Please
+refer to
+[the typings](https://github.com/microsoft/vscode-js-debug/blob/main/src/typings/vscode-js-debug.d.ts)
+for capabilities.
 
 To use this, you would:
 
-1. Add a step in your build process to download the typings from https://github.com/microsoft/vscode-js-debug/blob/main/src/typings/vscode-js-debug.d.ts to somewhere in your source tree.
+1. Add a step in your build process to download the typings from
+   https://github.com/microsoft/vscode-js-debug/blob/main/src/typings/vscode-js-debug.d.ts
+   to somewhere in your source tree.
 2. Access the API like so:
 
-   ```js
-   const jsDebugExt = vscode.extensions.getExtension('ms-vscode.js-debug-nightly') || vscode.extensions.getExtension('ms-vscode.js-debug');
-   await jsDebugExt.activate()
-   const jsDebug: import('@vscode/js-debug').IExports = jsDebugExt.exports;
-   ```
+    ```js
+    const jsDebugExt = vscode.extensions.getExtension('ms-vscode.js-debug-nightly') || vscode.extensions.getExtension('ms-vscode.js-debug');
+    await jsDebugExt.activate()
+    const jsDebug: import('@vscode/js-debug').IExports = jsDebugExt.exports;
+    ```
 
 ## CDP Sharing Mechanism
 
@@ -55,9 +61,9 @@ you don't care about. To listen to events, you can use the JsDebug domain:
 js-debug exposes a `JsDebug` CDP domain for meta-communication. For example, you
 would call the method `JsDebug.subscribe` to subscribe to evetns.
 
--   The TypeScript definition of the available methods can be found
-    [`here`](https://github.com/microsoft/vscode-js-debug/blob/main/src/adapter/cdpProxy.ts#L22).
--   The PDL definition can be found
-    [`here`](https://github.com/microsoft/vscode-js-debug/blob/main/src/adapter/cdpProxy.pdl).
+- The TypeScript definition of the available methods can be found
+  [`here`](https://github.com/microsoft/vscode-js-debug/blob/main/src/adapter/cdpProxy.ts#L22).
+- The PDL definition can be found
+  [`here`](https://github.com/microsoft/vscode-js-debug/blob/main/src/adapter/cdpProxy.pdl).
 
 These definitions will be published in an npm package soon.
